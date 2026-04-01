@@ -1,399 +1,485 @@
-{{
-    "name": "Theme Guide V1",
+{
+    "name": "Theme Guide V2",
     "themeColors": {
-      "primary": {
-        "description": "Blue primary scale – links, secondary actions, outline buttons",
-        "shades": {
-          "50": "#EAEFFF",
-          "100": "#D5DFFF",
-          "200": "#C1CEFF",
-          "300": "#ACBEFF",
-          "400": "#829AF2",
-          "500": "#5878E6",
-          "600": "#2F55D9",
-          "700": "#2346AF",
-          "800": "#183885",
-          "900": "#0C295B"
-        },
+      "brandcolor-primary": {
+        "hex": "#008B31",
+        "usage": "Main CTA button background, primary brand color",
         "utilityClasses": {
-          "background": "bg-primary-50 through bg-primary-900",
-          "text": "text-primary-50 through text-primary-900",
-          "border": "border-primary-50 through border-primary-900"
+          "background": "bg-brandcolor-primary",
+          "text": "text-brandcolor-primary",
+          "border": "border-brandcolor-primary"
         },
         "whenToUse": [
-          "Link text (e.g. text-primary-600 hover:text-primary-700)",
-          "Outline/secondary-style buttons",
-          "Accent backgrounds (e.g. bg-primary-50)"
+          "Primary/CTA buttons background",
+          "Main brand color elements",
+          "Active states",
+          "Primary actions"
         ],
         "examples": [
-          "Link: text-primary-600 underline hover:text-primary-700",
-          "Outline: border-primary-600 text-primary-600 hover:bg-gray-100"
+          "Button: bg-brandcolor-primary text-brandcolor-white hover:bg-brandcolor-primaryhover",
+          "Active link: text-brandcolor-primary"
         ]
       },
-      "secondary": {
-        "description": "Green secondary scale – main CTA buttons, primary actions",
-        "shades": {
-          "50": "#E2F3E0",
-          "100": "#C5E7C1",
-          "200": "#A7DCA1",
-          "300": "#8AD082",
-          "400": "#5BB966",
-          "500": "#2EA24C",
-          "600": "#008B31",
-          "700": "#00772A",
-          "800": "#016323",
-          "900": "#014E1C"
-        },
+      "brandcolor-primaryhover": {
+        "hex": "#016323",
+        "usage": "Hover state for primary buttons (when background is primary)",
         "utilityClasses": {
-          "background": "bg-secondary-50 through bg-secondary-900",
-          "text": "text-secondary-50 through text-secondary-900",
-          "border": "border-secondary-50 through border-secondary-900"
+          "background": "bg-brandcolor-primaryhover",
+          "text": "text-brandcolor-primaryhover",
+          "border": "border-brandcolor-primaryhover"
         },
         "whenToUse": [
-          "Main CTA button background (bg-secondary-600)",
-          "CTA hover (hover:bg-secondary-800)",
-          "Success states, green accents"
+          "Primary button hover state",
+          "Hover on elements with primary background"
         ],
         "examples": [
-          "CTA button: bg-secondary-600 text-white hover:bg-secondary-800 rounded-md px-4 py-2",
-          "Success badge: bg-secondary-50 text-secondary-700"
-        ]
+          "Primary button hover: hover:bg-brandcolor-primaryhover",
+          "Full primary button: bg-brandcolor-primary text-brandcolor-white hover:bg-brandcolor-primaryhover"
+        ],
+        "logic": "When a button or element has bg-brandcolor-primary, the hover should use bg-brandcolor-primaryhover (darker shade of primary)"
       },
-      "red": {
-        "description": "Red scale – errors, destructive actions, warnings",
-        "shades": {
-          "50": "#FEE3E4",
-          "100": "#FDC7C9",
-          "200": "#FBACAD",
-          "300": "#FA9092",
-          "400": "#E54F52",
-          "500": "#D3292B",
-          "600": "#C20205",
-          "700": "#A80205",
-          "800": "#8D0204",
-          "900": "#720204"
-        },
+      "brandcolor-secondary": {
+        "hex": "#2F55D9",
+        "usage": "Secondary brand color for outline/secondary buttons with border",
         "utilityClasses": {
-          "background": "bg-red-50 through bg-red-900",
-          "text": "text-red-50 through text-red-900",
-          "border": "border-red-50 through border-red-900"
-        },
-        "whenToUse": ["Destructive buttons", "Error messages", "Warning backgrounds"],
-        "examples": ["Destructive: bg-red-600 text-white hover:bg-red-700", "Error text: text-red-600"]
-      },
-      "purple": {
-        "description": "Purple scale – badges, attorney/entity accents",
-        "shades": {
-          "50": "#F2EBFF",
-          "100": "#E5D6FF",
-          "200": "#D8C1FF",
-          "300": "#CBADFF",
-          "400": "#AE89EF",
-          "500": "#9265DF",
-          "600": "#7440CE",
-          "700": "#6238AA",
-          "800": "#503086",
-          "900": "#3D2861"
-        },
-        "utilityClasses": {
-          "background": "bg-purple-50 through bg-purple-900",
-          "text": "text-purple-50 through text-purple-900",
-          "border": "border-purple-50 through border-purple-900"
-        },
-        "whenToUse": ["Attorney/entity badges", "Purple accents", "Tag backgrounds"],
-        "examples": ["Badge: bg-purple-50 text-purple-600", "text-purple-600"]
-      },
-      "orange": {
-        "description": "Orange scale – warnings, alerts, highlights",
-        "shades": {
-          "50": "#FFEBE1",
-          "100": "#FFD7C4",
-          "200": "#FFC2A7",
-          "300": "#FFAE89",
-          "400": "#FB946C",
-          "500": "#F67C4F",
-          "600": "#F26333",
-          "700": "#D0552C",
-          "800": "#AF4825",
-          "900": "#8C3A1E"
-        },
-        "utilityClasses": {
-          "background": "bg-orange-50 through bg-orange-900",
-          "text": "text-orange-50 through text-orange-900",
-          "border": "border-orange-50 through border-orange-900"
-        },
-        "whenToUse": ["Warning banners", "Orange CTA", "Alert backgrounds"],
-        "examples": ["Warning bg: bg-orange-50", "Button: bg-orange-600 text-white hover:bg-orange-700"]
-      },
-      "yellow": {
-        "description": "Yellow scale – amber badges, highlights",
-        "shades": {
-          "50": "#FFF7DB",
-          "100": "#FFEFB6",
-          "200": "#FFE892",
-          "300": "#FFE06E",
-          "400": "#F8D051",
-          "500": "#F2C134",
-          "600": "#EBB217",
-          "700": "#D49F0F",
-          "800": "#BC8C08",
-          "900": "#A47800"
-        },
-        "utilityClasses": {
-          "background": "bg-yellow-50 through bg-yellow-900",
-          "text": "text-yellow-50 through text-yellow-900",
-          "border": "border-yellow-50 through border-yellow-900"
-        },
-        "whenToUse": ["Amber badges", "Highlight backgrounds", "Caution states"],
-        "examples": ["Badge: bg-yellow-50 text-yellow-900", "bg-yellow-50"]
-      },
-      "gray": {
-        "description": "Gray scale – borders, backgrounds, body text, neutrals",
-        "shades": {
-          "50": "#F5F5F5",
-          "100": "#EFEFEF",
-          "200": "#DDDDDD",
-          "300": "#C5C5C5",
-          "400": "#A5A5A5",
-          "500": "#8C8C8C",
-          "600": "#737373",
-          "700": "#5C6166",
-          "800": "#404B53",
-          "850": "#323538",
-          "900": "#2E3C48"
-        },
-        "utilityClasses": {
-          "background": "bg-gray-50 through bg-gray-900, bg-gray-850",
-          "text": "text-gray-50 through text-gray-900, text-gray-850",
-          "border": "border-gray-50 through border-gray-900"
+          "background": "bg-brandcolor-secondary",
+          "text": "text-brandcolor-secondary",
+          "border": "border-brandcolor-secondary"
         },
         "whenToUse": [
-          "Section backgrounds (bg-gray-100)",
-          "Borders (border-gray-200, border-gray-300)",
-          "Body text (text-gray-700, text-gray-800)",
-          "Neutral buttons (text-gray-700 hover:bg-gray-100)"
+          "Secondary button background",
+          "Outline button border and text",
+          "Alternative actions"
         ],
         "examples": [
-          "Section: bg-gray-100",
-          "Card border: border border-gray-200",
-          "Body: text-gray-800",
-          "Neutral button: border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+          "Outline button: border-brandcolor-secondary text-brandcolor-secondary bg-transparent hover:bg-brandcolor-neutralhover",
+          "Secondary button: bg-brandcolor-secondary text-brandcolor-white"
         ]
       },
-      "Mdblue": {
-        "description": "Mdblue – text and UI; only defined shades (400, 600, 700, 900)",
-        "shades": {
-          "400": "#909DA8",
-          "600": "#667683",
-          "700": "#001A31",
-          "900": "#000910"
-        },
+      "brandcolor-secondaryfill": {
+        "hex": "#EAEFFF",
+        "usage": "Brand color secondary fill – active/selected state background (e.g. Natural language dropdown when open)",
         "utilityClasses": {
-          "text": "text-Mdblue-400, text-Mdblue-600, text-Mdblue-700, text-Mdblue-900",
-          "background": "bg-Mdblue-400, bg-Mdblue-600, bg-Mdblue-700, bg-Mdblue-900",
-          "border": "border-Mdblue-400, border-Mdblue-600, border-Mdblue-700, border-Mdblue-900"
+          "background": "bg-brandcolor-secondaryfill"
         },
         "whenToUse": [
-          "Headings and strong text (text-Mdblue-700)",
-          "Dropdown/select outline (border-Mdblue-600)",
-          "Secondary text (text-Mdblue-600)"
+          "Active state of secondary-related controls (e.g. search type dropdown when open)",
+          "Selected pill/badge backgrounds tied to secondary actions",
+          "Light fill where secondary (#2F55D9) is the accent"
         ],
         "examples": [
-          "Heading: text-Mdblue-700 text-xl font-semibold",
-          "Body/UI text: text-Mdblue-700",
-          "Outline: text-Mdblue-600"
+          "Dropdown trigger when open: bg-brandcolor-secondaryfill",
+          "Active search-type button: bg-brandcolor-secondaryfill"
         ]
       },
-      "green": {
-        "description": "Green scale – success, defined shades (50, 500, 700, 900)",
-        "shades": {
-          "50": "#DEF7EC",
-          "500": "#589385",
-          "700": "#2C99A1",
-          "900": "#667683"
-        },
+      "brandcolor-secondaryhover": {
+        "hex": "#183885",
+        "usage": "Hover state for secondary buttons (darker shade of secondary)",
         "utilityClasses": {
-          "background": "bg-green-50, bg-green-500, bg-green-700, bg-green-900",
-          "text": "text-green-50, text-green-500, text-green-700, text-green-900",
-          "border": "border-green-50, border-green-500, border-green-700, border-green-900"
+          "background": "bg-brandcolor-secondaryhover",
+          "text": "text-brandcolor-secondaryhover",
+          "border": "border-brandcolor-secondaryhover"
         },
-        "whenToUse": ["Success states", "Green accents"],
-        "examples": ["Success: bg-green-50 text-green-700"]
+        "whenToUse": [
+          "Secondary button hover state",
+          "Hover on elements with secondary background"
+        ],
+        "examples": [
+          "Secondary button hover: hover:bg-brandcolor-secondaryhover"
+        ],
+        "logic": "When a button has secondary background color, the hover should use bg-brandcolor-secondaryhover (#183885) which is a darker shade of secondary for better visual feedback."
       },
-      "tag_unrep": {
-        "hex": "#CCECF2",
-        "usage": "Tag background – unreported / unrep",
-        "utilityClasses": { "background": "bg-tag_unrep", "text": "text-tag_unrep (use with contrast)", "border": "border-tag_unrep" },
-        "whenToUse": ["Tag/badge background for unrep"],
-        "examples": ["Tag: bg-tag_unrep"]
+      "brandcolor-neutralhover": {
+        "hex": "#EFEFEF",
+        "usage": "Hover state for neutral buttons and outline buttons (NOT bg-brandcolor-fill)",
+        "utilityClasses": {
+          "background": "bg-brandcolor-neutralhover",
+          "text": "text-brandcolor-neutralhover",
+          "border": "border-brandcolor-neutralhover"
+        },
+        "whenToUse": [
+          "Neutral button hover state",
+          "Outline button hover state",
+          "Primary-outline button hover state",
+          "Hover on elements with neutral/outline style"
+        ],
+        "examples": [
+          "Neutral button hover: hover:bg-brandcolor-neutralhover",
+          "Primary-outline button hover: hover:bg-brandcolor-neutralhover"
+        ],
+        "logic": "When a button is neutral or outline style (with border), the hover should use bg-brandcolor-neutralhover (#EFEFEF), NOT bg-brandcolor-fill. This is a lighter gray specifically for neutral and outline button hovers."
       },
-      "tag_property": {
-        "hex": "#E9D6F8",
-        "usage": "Tag background – property",
-        "utilityClasses": { "background": "bg-tag_property", "border": "border-tag_property" },
-        "whenToUse": ["Tag/badge background for property"],
-        "examples": ["Tag: bg-tag_property"]
-      },
-      "tag_other": {
-        "hex": "#EDCFD9",
-        "usage": "Tag background – other",
-        "utilityClasses": { "background": "bg-tag_other", "border": "border-tag_other" },
-        "whenToUse": ["Tag/badge background for other"],
-        "examples": ["Tag: bg-tag_other"]
-      },
-      "tag_important": {
-        "hex": "#CCDEE7",
-        "usage": "Tag background – important",
-        "utilityClasses": { "background": "bg-tag_important", "border": "border-tag_important" },
-        "whenToUse": ["Tag/badge background for important"],
-        "examples": ["Tag: bg-tag_important"]
-      },
-      "profile": {
-        "hex": "#E4833E",
-        "usage": "Profile/accent color",
-        "utilityClasses": { "background": "bg-profile", "text": "text-profile", "border": "border-profile" },
-        "whenToUse": ["Profile icons", "Profile accent"],
-        "examples": ["Icon: text-profile"]
-      },
-      "dark_gray": {
+      "brandcolor-textstrong": {
         "hex": "#001A31",
-        "usage": "Dark text color",
-        "utilityClasses": { "text": "text-dark_gray", "background": "bg-dark_gray", "border": "border-dark_gray" },
-        "whenToUse": ["Primary text", "Headings"],
-        "examples": ["Heading: text-dark_gray text-xl font-semibold"]
+        "usage": "Headings, main headings, button text in some cases",
+        "utilityClasses": {
+          "text": "text-brandcolor-textstrong"
+        },
+        "whenToUse": [
+          "All main headings (h1, h2, h3)",
+          "Primary text content",
+          "Button text (when specified)",
+          "Important labels"
+        ],
+        "examples": [
+          "Heading: text-brandcolor-textstrong text-2xl font-bold",
+          "Button text: text-brandcolor-textstrong"
+        ]
       },
-      "section_gray": {
+      "brandcolor-textweak": {
+        "hex": "#5C6166",
+        "usage": "Secondary text, secondary hierarchy after main text",
+        "utilityClasses": {
+          "text": "text-brandcolor-textweak"
+        },
+        "whenToUse": [
+          "Body text",
+          "Secondary descriptions",
+          "Helper text",
+          "Less important information"
+        ],
+        "examples": [
+          "Body text: text-brandcolor-textweak text-sm",
+          "Description: text-brandcolor-textweak"
+        ]
+      },
+      "brandcolor-strokestrong": {
+        "hex": "#737373",
+        "usage": "ALWAYS use for: Sidebar borders, input field borders, button borders, icons",
+        "utilityClasses": {
+          "border": "border-brandcolor-strokestrong",
+          "text": "text-brandcolor-strokestrong"
+        },
+        "whenToUse": [
+          "Sidebar borders (ALWAYS use strokestrong)",
+          "Input field borders (ALWAYS use strokestrong)",
+          "Button borders (ALWAYS use strokestrong)",
+          "Icon colors",
+          "Strong dividers"
+        ],
+        "examples": [
+          "Sidebar: border-brandcolor-strokestrong",
+          "Input: border-brandcolor-strokestrong",
+          "Button border: border-brandcolor-strokestrong",
+          "Icon: text-brandcolor-strokestrong"
+        ],
+        "importantNote": "ALWAYS use strokestrong for sidebar borders, input field borders, and button borders. This is a mandatory rule."
+      },
+      "brandcolor-strokeweak": {
+        "hex": "#C5C5C5",
+        "usage": "ALWAYS use for: Card borders, dividers, and all other light elements",
+        "utilityClasses": {
+          "border": "border-brandcolor-strokeweak"
+        },
+        "whenToUse": [
+          "Card borders (ALWAYS use strokeweak)",
+          "Dividers (ALWAYS use strokeweak)",
+          "Light borders",
+          "Subtle separators",
+          "Secondary button borders (ALL secondary buttons use this border color - exception to button border rule)"
+        ],
+        "examples": [
+          "Card border: border-brandcolor-strokeweak",
+          "Divider: border-t border-brandcolor-strokeweak",
+          "Secondary button border: border-brandcolor-strokeweak"
+        ],
+        "importantNote": "ALWAYS use strokeweak for card borders and dividers. Secondary buttons are an exception and also use strokeweak, but all other button borders use strokestrong."
+      },
+      "brandcolor-strokemild": {
+        "hex": "#A5A5A5",
+        "usage": "ALWAYS use for: Table row borders when hovered",
+        "utilityClasses": {
+          "border": "border-brandcolor-strokemild"
+        },
+        "whenToUse": [
+          "Table row borders when row is hovered (hover:border-brandcolor-strokemild)",
+          "Table row hover states"
+        ],
+        "examples": [
+          "Hovered table row: hover:border-brandcolor-strokemild"
+        ],
+        "importantNote": "ALWAYS use strokemild for table row borders on hover. Selected rows use border-brandcolor-secondary instead."
+      },
+      "brandcolor-strokelight": {
+        "hex": "#C5C5C5",
+        "usage": "ALWAYS use for: Primary-outline button borders",
+        "utilityClasses": {
+          "border": "border-brandcolor-strokelight"
+        },
+        "whenToUse": [
+          "Primary-outline button default border",
+          "Light stroke borders for primary-outline buttons"
+        ],
+        "examples": [
+          "Primary-outline button: border-brandcolor-strokelight"
+        ],
+        "importantNote": "ALWAYS use strokelight for primary-outline button default border. Active state uses border-brandcolor-primary."
+      },
+      "brandcolor-fill": {
+        "hex": "#F5F5F5",
+        "usage": "Layout background (NOT for neutral/outline button hover - use brandcolor-neutralhover instead)",
+        "utilityClasses": {
+          "background": "bg-brandcolor-fill"
+        },
+        "whenToUse": [
+          "Layout backgrounds",
+          "Section backgrounds",
+          "General fill backgrounds"
+        ],
+        "examples": [
+          "Layout bg: bg-brandcolor-fill",
+          "Section background: bg-brandcolor-fill"
+        ],
+        "importantNote": "DO NOT use this for neutral/outline button hover - use brandcolor-neutralhover (#EFEFEF) instead"
+      },
+      "brandcolor-white": {
+        "hex": "#FFFFFF",
+        "usage": "Background color in general wherever necessary",
+        "utilityClasses": {
+          "background": "bg-brandcolor-white",
+          "text": "text-brandcolor-white"
+        },
+        "whenToUse": [
+          "Card backgrounds",
+          "Modal backgrounds",
+          "Button text on primary buttons",
+          "General white backgrounds"
+        ],
+        "examples": [
+          "Card: bg-brandcolor-white",
+          "Primary button text: text-brandcolor-white"
+        ]
+      },
+      "brandcolor-sidebarhover": {
+        "hex": "#2E3C48",
+        "usage": "Hover state background color for sidebar menu items and dropdown menu backgrounds",
+        "utilityClasses": {
+          "background": "bg-brandcolor-sidebarhover",
+          "hover": "hover:bg-brandcolor-sidebarhover"
+        },
+        "whenToUse": [
+          "Sidebar menu item hover states",
+          "Navigation item hover backgrounds",
+          "Dropdown menu backgrounds"
+        ],
+        "examples": [
+          "Sidebar menu item hover: hover:bg-brandcolor-sidebarhover",
+          "Dropdown menu background: bg-brandcolor-sidebarhover"
+        ],
+        "logic": "Used specifically for sidebar navigation items when hovered and for dropdown menu backgrounds. Provides a darker background (#2E3C48) for better visual feedback on sidebar interactions and consistent dropdown styling."
+      },
+      "brandcolor-banner-info-bg": {
+        "hex": "#D5DFFF",
+        "usage": "Background color for informational banners",
+        "utilityClasses": {
+          "background": "bg-brandcolor-banner-info-bg"
+        },
+        "whenToUse": [
+          "Informational banners with secondary button",
+          "Non-critical messages that relate to secondary actions"
+        ],
+        "examples": [
+          "Info banner: bg-brandcolor-banner-info-bg with secondary button using bg-brandcolor-secondary text-brandcolor-white"
+        ]
+      },
+      "brandcolor-banner-warning-bg": {
+        "hex": "#FFEBE1",
+        "usage": "Background color for warning / alert banners",
+        "utilityClasses": {
+          "background": "bg-brandcolor-banner-warning-bg"
+        },
+        "whenToUse": [
+          "Warning banners",
+          "Destructive or irreversible action warnings"
+        ],
+        "examples": [
+          "Warning banner: bg-brandcolor-banner-warning-bg with warning button using bg-brandcolor-banner-warning-button text-brandcolor-white"
+        ]
+      },
+      "brandcolor-banner-warning-button": {
+        "hex": "#F26333",
+        "usage": "Button background color for warning banners",
+        "utilityClasses": {
+          "background": "bg-brandcolor-banner-warning-button",
+          "text": "text-brandcolor-white"
+        },
+        "whenToUse": [
+          "Primary action button inside warning banners"
+        ],
+        "examples": [
+          "Warning banner button: bg-brandcolor-banner-warning-button text-brandcolor-white rounded-md px-4 py-2"
+        ]
+      },
+      "brandcolor-results-bg": {
         "hex": "#F8F9FB",
-        "usage": "Section background",
-        "utilityClasses": { "background": "bg-section_gray" },
-        "whenToUse": ["Section/panel backgrounds"],
-        "examples": ["Section: bg-section_gray p-4"]
-      },
-      "ula": {
-        "description": "ULA (UniCourt Legal Agent) – teal primary for buttons/tab emphasis; mint for active search bar border on focus",
-        "shades": {
-          "DEFAULT": "#008080",
-          "active": "#74E2D8"
-        },
+        "usage": "Background color for results layout and scrollable content areas",
         "utilityClasses": {
-          "background": "bg-ula",
-          "text": "text-ula",
-          "border": "border-ula (DEFAULT), border-ula-active (focus/highlight mint)"
+          "background": "bg-brandcolor-results-bg"
         },
         "whenToUse": [
-          "ULA search Send button (bg-ula text-white)",
-          "ULA tab label and underline accent (text-ula border-b border-ula)",
-          "Search bar container when focused (focus-within:border-ula-active or border-ula-active)"
+          "Case results layout background",
+          "Scrollable content area backgrounds",
+          "Results container backgrounds"
         ],
         "examples": [
-          "Button: bg-ula text-white rounded-lg px-4 py-2",
-          "Focused search shell: border-2 border-gray-200 focus-within:border-ula-active"
+          "Results layout: bg-brandcolor-results-bg overflow-y-auto",
+          "Scrollable container: bg-brandcolor-results-bg h-full w-full"
         ]
       },
-      "plan_comman-desc": {
-        "hex": "#001A31",
-        "usage": "Plan common – description text",
-        "utilityClasses": { "text": "text-plan_comman-desc" },
-        "whenToUse": ["Pricing/plan description text"],
-        "examples": ["text-plan_comman-desc"]
+      "brandcolor-archived-bg": {
+        "hex": "#FBF8E7",
+        "usage": "Muted background for archived cards (distinct from view-only fill)",
+        "utilityClasses": {
+          "background": "bg-brandcolor-archived-bg"
+        },
+        "whenToUse": [
+          "Archived project card background",
+          "Inactive or archived content areas"
+        ],
+        "examples": [
+          "Archived card: bg-brandcolor-archived-bg border-2 border-dashed border-brandcolor-archived-border opacity-70"
+        ]
       },
-      "plan_comman-unit": {
-        "hex": "#667683",
-        "usage": "Plan common – unit ($, month)",
-        "utilityClasses": { "text": "text-plan_comman-unit" },
-        "whenToUse": ["Plan unit label"],
-        "examples": ["text-plan_comman-unit"]
+      "brandcolor-archived-border": {
+        "hex": "#A5A5A5",
+        "usage": "Dashed/dotted border for archived cards",
+        "utilityClasses": {
+          "border": "border-brandcolor-archived-border"
+        },
+        "whenToUse": [
+          "Archived card borders (use with border-dashed)",
+          "Inactive content borders"
+        ],
+        "examples": [
+          "Archived card border: border-2 border-dashed border-brandcolor-archived-border"
+        ]
       },
-      "plan_comman-price": {
-        "hex": "#001A31",
-        "usage": "Plan common – price value",
-        "utilityClasses": { "text": "text-plan_comman-price" },
-        "whenToUse": ["Plan price number"],
-        "examples": ["text-plan_comman-price text-2xl"]
+      "brandcolor-archived-badge": {
+        "hex": "#E8E8E8",
+        "usage": "Background for 'Archived' badge/label on archived cards",
+        "utilityClasses": {
+          "background": "bg-brandcolor-archived-badge"
+        },
+        "whenToUse": [
+          "Archived badge pill background",
+          "Archived label background"
+        ],
+        "examples": [
+          "Archived badge: bg-brandcolor-archived-badge text-brandcolor-textweak px-2 py-1 rounded"
+        ]
       },
-      "plan_comman-content": {
-        "hex": "#001A31",
-        "usage": "Plan common – feature list content",
-        "utilityClasses": { "text": "text-plan_comman-content" },
-        "whenToUse": ["Plan feature list"],
-        "examples": ["text-plan_comman-content"]
+      "brandcolor-destructive": {
+        "hex": "#C20205",
+        "usage": "Destructive or archive action text (e.g. Archive menu item in project card dropdown)",
+        "utilityClasses": {
+          "text": "text-brandcolor-destructive",
+          "background": "bg-brandcolor-destructive",
+          "border": "border-brandcolor-destructive"
+        },
+        "whenToUse": [
+          "Archive action in dropdowns",
+          "Destructive action labels",
+          "Critical/warning text in menus"
+        ],
+        "examples": [
+          "Archive menu item: text-brandcolor-destructive",
+          "Destructive button: bg-brandcolor-destructive text-brandcolor-white"
+        ]
       },
-      "personal-header_bg": {
-        "hex": "#F6F9FC",
-        "usage": "Personal plan – header background",
-        "utilityClasses": { "background": "bg-personal-header_bg" },
-        "whenToUse": ["Personal plan header"],
-        "examples": ["bg-personal-header_bg"]
+      "brandcolor-table-header": {
+        "hex": "#DDDDDD",
+        "usage": "Table header background color (variant of strokeweak)",
+        "utilityClasses": {
+          "background": "bg-brandcolor-table-header",
+          "border": "border-brandcolor-table-header"
+        },
+        "whenToUse": [
+          "Table header row background",
+          "Table header cells"
+        ],
+        "examples": [
+          "Table header: bg-brandcolor-table-header text-brandcolor-textstrong"
+        ]
       },
-      "personal-title": {
-        "hex": "#005C87",
-        "usage": "Personal plan – title color",
-        "utilityClasses": { "text": "text-personal-title" },
-        "whenToUse": ["Personal plan title"],
-        "examples": ["text-personal-title font-semibold"]
+      "brandcolor-badge-success-bg": {
+        "hex": "#E2F3E0",
+        "usage": "Success badge background (light green)",
+        "utilityClasses": {
+          "background": "bg-brandcolor-badge-success-bg"
+        },
+        "whenToUse": [
+          "Success status badges",
+          "Active/completed state indicators"
+        ],
+        "examples": [
+          "Success badge: bg-brandcolor-badge-success-bg text-brandcolor-badge-success-text px-2 py-1 rounded"
+        ]
       },
-      "personal-btn": {
-        "hex": "#005C87",
-        "usage": "Personal plan – button color",
-        "utilityClasses": { "background": "bg-personal-btn", "text": "text-personal-btn", "border": "border-personal-btn" },
-        "whenToUse": ["Personal plan CTA button"],
-        "examples": ["bg-personal-btn text-white"]
+      "brandcolor-badge-success-text": {
+        "hex": "#028831",
+        "usage": "Success badge text color (dark green)",
+        "utilityClasses": {
+          "text": "text-brandcolor-badge-success-text"
+        },
+        "whenToUse": [
+          "Text inside success badges",
+          "Success status text"
+        ],
+        "examples": [
+          "Success badge text: text-brandcolor-badge-success-text"
+        ]
       },
-      "professional-header_bg": {
-        "hex": "#F2FDFF",
-        "usage": "Professional plan – header background",
-        "utilityClasses": { "background": "bg-professional-header_bg" },
-        "whenToUse": ["Professional plan header"],
-        "examples": ["bg-professional-header_bg"]
+      "brandcolor-badge-attorney-bg": {
+        "hex": "#F2EBFF",
+        "usage": "Attorney/entity card badge background (light purple)",
+        "utilityClasses": {
+          "background": "bg-brandcolor-badge-attorney-bg"
+        },
+        "whenToUse": [
+          "Attorney or similar entity card badge background"
+        ],
+        "examples": [
+          "Attorney badge: bg-brandcolor-badge-attorney-bg with text-brandcolor-badge-attorney-text"
+        ]
       },
-      "professional-title": {
-        "hex": "#009EBD",
-        "usage": "Professional plan – title color",
-        "utilityClasses": { "text": "text-professional-title" },
-        "whenToUse": ["Professional plan title"],
-        "examples": ["text-professional-title font-semibold"]
+      "brandcolor-badge-attorney-text": {
+        "hex": "#6238AA",
+        "usage": "Attorney/entity card badge icon and label color (dark purple)",
+        "utilityClasses": {
+          "text": "text-brandcolor-badge-attorney-text"
+        },
+        "whenToUse": [
+          "Attorney badge icon and label (text-strong weight)"
+        ],
+        "examples": [
+          "Attorney badge: text-brandcolor-badge-attorney-text font-semibold"
+        ]
       },
-      "professional-btn": {
-        "hex": "#009EBD",
-        "usage": "Professional plan – button color",
-        "utilityClasses": { "background": "bg-professional-btn", "text": "text-professional-btn", "border": "border-professional-btn" },
-        "whenToUse": ["Professional plan CTA button"],
-        "examples": ["bg-professional-btn text-white"]
+      "brandcolor-badge-amber-bg": {
+        "hex": "#FFF7DB",
+        "usage": "Amber/warning entity card badge background",
+        "utilityClasses": {
+          "background": "bg-brandcolor-badge-amber-bg"
+        },
+        "whenToUse": [
+          "Amber variant entity card badge background"
+        ],
+        "examples": [
+          "Amber badge: bg-brandcolor-badge-amber-bg with text-brandcolor-badge-amber-text"
+        ]
       },
-      "premium-header_bg": {
-        "hex": "#FFF5EC",
-        "usage": "Premium plan – header background",
-        "utilityClasses": { "background": "bg-premium-header_bg" },
-        "whenToUse": ["Premium plan header"],
-        "examples": ["bg-premium-header_bg"]
-      },
-      "premium-title": {
-        "hex": "#DD8332",
-        "usage": "Premium plan – title color",
-        "utilityClasses": { "text": "text-premium-title" },
-        "whenToUse": ["Premium plan title"],
-        "examples": ["text-premium-title font-semibold"]
-      },
-      "premium-btn": {
-        "hex": "#DD8332",
-        "usage": "Premium plan – button color",
-        "utilityClasses": { "background": "bg-premium-btn", "text": "text-premium-btn", "border": "border-premium-btn" },
-        "whenToUse": ["Premium plan CTA button"],
-        "examples": ["bg-premium-btn text-white"]
-      },
-      "utilities-summary": {
-        "hex": "#FFF5EC",
-        "usage": "Utility – summary background",
-        "utilityClasses": { "background": "bg-utilities-summary" },
-        "whenToUse": ["Summary section background"],
-        "examples": ["bg-utilities-summary"]
-      },
-      "utilities-highlight": {
-        "hex": "#FCE3C8",
-        "usage": "Utility – highlight background",
-        "utilityClasses": { "background": "bg-utilities-highlight" },
-        "whenToUse": ["Highlight/callout background"],
-        "examples": ["bg-utilities-highlight"]
+      "brandcolor-badge-amber-text": {
+        "hex": "#A47800",
+        "usage": "Amber entity card badge icon and label color",
+        "utilityClasses": {
+          "text": "text-brandcolor-badge-amber-text"
+        },
+        "whenToUse": [
+          "Amber badge icon and label"
+        ],
+        "examples": [
+          "Amber badge: text-brandcolor-badge-amber-text"
+        ]
       }
     },
     "componentGuidelines": {
@@ -401,175 +487,117 @@
         "cornerRadius": {
           "value": "6px",
           "tailwindClass": "rounded-md",
-          "description": "ALL buttons MUST have 6px corner radius. Use rounded-md."
+          "description": "ALL buttons (primary and secondary) MUST have 6px corner radius. Use rounded-md utility class."
         },
         "secondaryBorderWidth": {
           "value": "1.5px",
           "tailwindClass": "border-[1.5px]",
-          "description": "Outline/secondary buttons MUST have 1.5px border. Use border-[1.5px]."
+          "description": "ALL secondary buttons (both types) MUST have 1.5px border width. Use border-[1.5px] utility class."
         },
         "primary": {
-          "description": "Main CTA button – green (secondary scale)",
+          "description": "Main CTA button with primary brand color",
           "defaultState": {
-            "classes": "bg-secondary-600 text-white rounded-md",
-            "logic": "Uses secondary-600 (#008B31) as background with white text. ALWAYS includes rounded-md."
+            "classes": "border-[1.5px] border-transparent bg-brandcolor-primary text-brandcolor-white rounded-md",
+            "logic": "Uses primary brand color (#008B31) as background with white text. Has transparent border in default state to prevent layout shift when border appears on focus/active. ALWAYS includes rounded-md (6px corner radius)."
           },
           "hoverState": {
-            "classes": "hover:bg-secondary-800",
-            "logic": "On hover, background changes to secondary-800 (#016323) for better visual feedback."
+            "classes": "hover:bg-brandcolor-primaryhover",
+            "logic": "On hover, background changes to brandcolor-primaryhover (#016323) which is a darker shade of primary for better visual feedback."
           },
           "focusState": {
-            "classes": "focus:outline-none focus:ring-2 focus:ring-secondary-600",
-            "logic": "Focus ring uses secondary-600."
+            "classes": "focus:border-brandcolor-primary",
+            "logic": "On focus, transparent border changes to primary color (#008B31)."
+          },
+          "activeState": {
+            "classes": "active:border-brandcolor-primary active:shadow-button-press",
+            "logic": "On press/active: transparent border changes to primary color (#008B31), and inner shadow appears (inset 3px 3px 10px 0px rgba(0, 26, 49, 0.33))."
           },
           "disabledState": {
             "classes": "disabled:opacity-50",
             "logic": "Disabled state reduces opacity to 50%."
           },
-          "completeClasses": "bg-secondary-600 text-white hover:bg-secondary-800 focus:outline-none focus:ring-2 focus:ring-secondary-600 disabled:opacity-50 rounded-md px-4 py-2",
-          "requiredClasses": ["bg-secondary-600", "text-white", "hover:bg-secondary-800", "rounded-md"],
-          "whenToUse": "Use for main call-to-action buttons (e.g. I'm Interested, Get started)"
-        },
-        "secondary": {
-          "description": "Outline/secondary button – primary (blue) or secondary (green) border and text",
-          "defaultState": {
-            "classes": "border-[1.5px] border-primary-600 text-primary-600 bg-transparent rounded-md",
-            "logic": "Transparent background with primary-600 border and text. Use border-secondary-600 text-secondary-600 for green outline."
-          },
-          "hoverState": {
-            "classes": "hover:bg-gray-100",
-            "logic": "On hover, light gray background."
-          },
-          "completeClasses": "border-[1.5px] border-primary-600 text-primary-600 bg-transparent hover:bg-gray-100 rounded-md px-4 py-2",
-          "whenToUse": "Use for secondary actions, outline style"
+          "completeClasses": "border-[1.5px] border-transparent bg-brandcolor-primary text-brandcolor-white hover:bg-brandcolor-primaryhover focus:border-brandcolor-primary active:border-brandcolor-primary active:shadow-button-press disabled:opacity-50 rounded-md",
+          "requiredClasses": ["border-[1.5px]", "border-transparent", "bg-brandcolor-primary", "text-brandcolor-white", "hover:bg-brandcolor-primaryhover", "focus:border-brandcolor-primary", "active:border-brandcolor-primary", "active:shadow-button-press", "disabled:opacity-50", "rounded-md"],
+          "whenToUse": "Use for main call-to-action buttons with primary brand color"
         },
         "neutral": {
-          "description": "Neutral button – gray border and text",
+          "description": "Neutral button with textweak color and strokelight border",
           "defaultState": {
-            "classes": "border border-gray-300 text-gray-700 bg-white rounded-md",
-            "logic": "White background with gray-300 border and gray-700 text."
+            "classes": "border-[1.5px] border-brandcolor-strokelight text-brandcolor-textweak bg-brandcolor-white rounded-md",
+            "logic": "White background with strokelight border (#C5C5C5) at 1.5px width and textweak color text (#5C6166). ALWAYS includes rounded-md (6px corner radius)."
           },
           "hoverState": {
-            "classes": "hover:bg-gray-100",
-            "logic": "On hover, background changes to gray-100."
+            "classes": "hover:bg-brandcolor-neutralhover",
+            "logic": "On hover, background changes to brandcolor-neutralhover (#EFEFEF). Border and text color remain the same."
           },
-          "completeClasses": "border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 rounded-md px-4 py-2",
-          "whenToUse": "Use for neutral actions without primary/secondary emphasis"
+          "activeState": {
+            "classes": "active:border-brandcolor-textweak active:text-brandcolor-textweak active:shadow-button-press",
+            "logic": "On press/active: border changes to textweak color (#5C6166), text remains textweak color, and inner shadow appears (inset 3px 3px 10px 0px rgba(0, 26, 49, 0.33))."
+          },
+          "disabledState": {
+            "classes": "disabled:opacity-50",
+            "logic": "Disabled state reduces background opacity to 50%."
+          },
+          "completeClasses": "border-[1.5px] border-brandcolor-strokelight text-brandcolor-textweak bg-brandcolor-white hover:bg-brandcolor-neutralhover active:border-brandcolor-textweak active:text-brandcolor-textweak active:shadow-button-press disabled:opacity-50 rounded-md",
+          "requiredClasses": ["border-[1.5px]", "border-brandcolor-strokelight", "text-brandcolor-textweak", "bg-brandcolor-white", "hover:bg-brandcolor-neutralhover", "active:border-brandcolor-textweak", "active:shadow-button-press", "disabled:opacity-50", "rounded-md"],
+          "whenToUse": "Use for neutral actions that don't require primary or secondary emphasis"
         }
       },
       "card": {
-        "description": "Cards with borders and elevation",
+        "description": "Cards with proper borders and dynamic width",
         "styling": {
-          "border": "border border-gray-200",
-          "background": "bg-white",
+          "border": "border border-brandcolor-strokeweak",
+          "background": "bg-brandcolor-white",
           "padding": "p-6",
           "borderRadius": "rounded-lg",
-          "shadow": "shadow-sm or shadow-md"
+          "shadow": "shadow-card"
         },
-        "logic": "Card borders use gray-200. Background white. Use semantic gray/white only.",
+        "logic": "Card borders MUST use strokeweak for subtle, light appearance.",
         "criticalRules": [
-          "ALWAYS use border border-gray-200 for card borders",
-          "ALWAYS use bg-white for card background",
-          "ALWAYS use rounded-lg for card border radius"
-        ]
-      },
-      "pieChart": {
-        "description": "Lightweight proportion / category summary (no charting library). Used with sealed props title and data.",
-        "rootClasses": "flex flex-col rounded-lg border border-gray-300 bg-white p-4 gap-3",
-        "titleClasses": "pie-chart-title text-Mdblue-700 text-lg font-semibold",
-        "dataLineClasses": "pie-chart-data text-sm text-gray-600 line-clamp-4",
-        "visualClasses": "w-28 h-28 rounded-full bg-gradient-to-br from-primary-600 via-secondary-600 to-gray-400 ring-4 ring-gray-100",
-        "legendDotClasses": "w-3 h-3 rounded-full shrink-0 (bg-primary-600 | bg-secondary-600 | bg-gray-400)",
-        "logic": "Keep pie-chart-title and pie-chart-data class tokens so the agent runtime can inject props.title and props.data. Legend rows use text-sm text-gray-700 beside colored dots.",
-        "criticalRules": [
-          "Include classes pie-chart-title and pie-chart-data on the text nodes that receive title and data props",
-          "Use only theme semantic colors (primary-*, secondary-*, gray-*, Mdblue-*) — no hex or inline color styles"
-        ]
-      },
-      "barChart": {
-        "description": "Category comparison without a chart library: labeled rows and horizontal bars (track + fill) plus a summary line.",
-        "rootClasses": "flex flex-col rounded-lg border border-gray-300 bg-white p-4 gap-3",
-        "titleClasses": "bar-chart-title text-Mdblue-700 text-lg font-semibold",
-        "dataLineClasses": "bar-chart-data text-sm text-gray-600 line-clamp-3",
-        "rowLabelClasses": "text-xs font-medium text-gray-700 w-24 shrink-0 truncate (avoid text-gray-600 on labels to keep prop-inference clean)",
-        "trackClasses": "flex-1 h-3 rounded bg-gray-100 overflow-hidden min-w-0",
-        "barFillClasses": "h-full rounded max-w-full (bg-primary-600 | bg-secondary-600 | bg-gray-400) with fractional widths e.g. w-11/12 w-2/3 w-1/2",
-        "logic": "Preserve bar-chart-title and bar-chart-data for sealed props.title and props.data.",
-        "criticalRules": [
-          "Use bar-chart-title and bar-chart-data tokens on the title and summary text nodes",
-          "Use semantic theme colors only for fills and borders"
-        ]
-      },
-      "lineChart": {
-        "description": "Trend-over-time placeholder: title, sparkline column strip (primary-600 bars), optional axis labels, data line.",
-        "rootClasses": "flex flex-col rounded-lg border border-gray-300 bg-white p-4 gap-3",
-        "titleClasses": "line-chart-title text-Mdblue-700 text-lg font-semibold",
-        "sparklineClasses": "flex items-end justify-between gap-1 h-28 px-1 border-b border-gray-200",
-        "barClasses": "w-2 rounded-t bg-primary-600 with varying h-* for trend shape",
-        "axisLabelClasses": "text-xs text-gray-500 (prefer gray-500 over gray-600 for axis to avoid mistaken meta slots)",
-        "dataLineClasses": "line-chart-data text-sm text-gray-600 line-clamp-3",
-        "logic": "Preserve line-chart-title and line-chart-data for sealed props.title and props.data.",
-        "criticalRules": [
-          "Use line-chart-title and line-chart-data on the correct text nodes",
-          "No hex or inline color styles; use primary-600 and gray borders/text from theme"
-        ]
-      },
-      "researchPaperCard": {
-        "description": "Scholarly preprint card (e.g. arXiv): badge, linked title, truncated abstract, authors, date.",
-        "rootClasses": "flex flex-col rounded-lg border border-gray-300 bg-white p-3 gap-3",
-        "badgeClasses": "inline-flex items-center gap-1 rounded-md bg-gray-50 px-2 py-1 text-xs font-semibold text-Mdblue-700",
-        "titleClasses": "line-clamp-2 text-lg font-semibold text-Mdblue-700 hover:underline (anchor)",
-        "summaryClasses": "truncate text-sm font-normal text-Mdblue-700",
-        "metaClasses": "text-sm font-normal text-gray-600 (authors line-clamp-1, date whitespace-nowrap)",
-        "footerRule": "border-t border-gray-100 pt-1 flex justify-between gap-2",
-        "propsMapping": {
-          "title": "Anchor with line-clamp-2",
-          "summary": "Paragraph with truncate and text-Mdblue-700",
-          "authors": "First text-gray-600 meta line",
-          "publishedDate": "Second text-gray-600 meta line"
-        },
-        "criticalRules": [
-          "Match project-card-style sealed prop wiring: summary uses the same truncate + text-Mdblue-700 pattern as project description",
-          "Authors and publishedDate must use text-gray-600 in document order for prop injection"
+          "ALWAYS use border border-brandcolor-strokeweak for card borders",
+          "ALWAYS use bg-brandcolor-white for card background",
+          "ALWAYS use rounded-lg for card border radius",
+          "Use shadow-card for consistent card elevation"
         ]
       },
       "heading": {
         "h1": {
-          "classes": "text-Mdblue-700 text-3xl font-bold",
-          "logic": "Dark text (Mdblue-700) for main headings"
+          "classes": "text-brandcolor-textstrong text-3xl font-bold",
+          "logic": "Strong text color for main headings"
         },
         "h2": {
-          "classes": "text-Mdblue-700 text-2xl font-semibold",
-          "logic": "Dark text for secondary headings"
+          "classes": "text-brandcolor-textstrong text-2xl font-semibold",
+          "logic": "Strong text color for secondary headings"
         },
         "h3": {
-          "classes": "text-Mdblue-700 text-xl font-semibold",
-          "logic": "Dark text for tertiary headings"
+          "classes": "text-brandcolor-textstrong text-xl font-semibold",
+          "logic": "Strong text color for tertiary headings"
         }
       },
       "input": {
-        "description": "Input fields – use semantic borders and text",
-        "classes": "border border-gray-300 text-Mdblue-700 focus:border-primary-600 focus:outline-none focus:ring-0",
-        "logic": "Gray-300 border by default; on focus use primary-600 border. Text color Mdblue-700. Use focus:ring-0 to override Flowbite/browser defaults.",
+        "description": "Input fields with proper borders - MUST override Flowbite and browser defaults",
+        "classes": "border-brandcolor-strokestrong focus:border-brandcolor-textstrong focus:outline-none focus:ring-0 text-brandcolor-textstrong",
+        "logic": "Strong stroke border by default, changes to text-strong color on focus. No extra border/ring on focus. Text color is always text-strong. CRITICAL: Must use focus:ring-0 to prevent Flowbite's default ring styles. Must use focus:outline-none to prevent browser default outline.",
         "criticalRules": [
-          "ALWAYS include focus:ring-0 and focus:outline-none",
-          "Use border-gray-300 and focus:border-primary-600",
-          "Text color: text-Mdblue-700 or text-gray-800"
+          "ALWAYS include focus:ring-0 to override Flowbite's default focus ring",
+          "ALWAYS include focus:outline-none to override browser default outline",
+          "NEVER allow Flowbite or browser default focus styles",
+          "Focus border MUST be brandcolor-textstrong (#001A31), NEVER brandcolor-secondary or any other color"
         ]
       }
     },
     "aiInstructions": {
       "workflow": [
         "STEP 1 (MANDATORY): Read tailwind.config.js FIRST to see what theme colors are available",
-        "STEP 2 (MANDATORY): Read this theme-guide-v1.json file COMPLETELY to understand all rules",
+        "STEP 2 (MANDATORY): Read this theme-guide-v2.json file COMPLETELY to understand all rules",
         "STEP 3: Check componentGuidelines section for the specific component you're creating",
-        "STEP 4: Generate code using ONLY theme utility classes from tailwind.config.js (semantic: primary-*, secondary-*, Mdblue-*, gray-*, etc.)",
+        "STEP 4: Generate code using ONLY theme utility classes from tailwind.config.js",
         "STEP 5: Follow componentGuidelines exactly (requiredClasses, cornerRadius, etc.)",
-        "STEP 6: Verify no hex codes, no inline styles, no hardcoded Tailwind colors outside theme"
+        "STEP 6: Verify no hex codes, no inline styles, no hardcoded Tailwind colors"
       ],
       "criticalRules": {
         "noHexCodes": {
-          "rule": "NEVER use hex color codes (#008B31, #2F55D9, #001A31, etc.) directly in HTML, CSS, or inline styles",
+          "rule": "NEVER use hex color codes (#008B31, #2F55D9, etc.) directly in HTML, CSS, or inline styles",
           "severity": "CRITICAL"
         },
         "noInlineStyles": {
@@ -577,38 +605,33 @@
           "severity": "CRITICAL"
         },
         "noHardcodedTailwindColors": {
-         "rule": "NEVER use Tailwind color classes that are not in tailwind.config.js (e.g. bg-blue-700, text-gray-900 from default Tailwind palette). Use only semantic theme classes.",
+          "rule": "NEVER use hardcoded Tailwind color classes (bg-blue-700, text-gray-900, border-gray-200, etc.)",
           "severity": "CRITICAL",
           "examples": {
-            "wrong": ["bg-blue-700", "text-gray-900", "border-gray-200 (if not from theme)"],
-            "correct": ["bg-secondary-600", "text-Mdblue-700", "bg-gray-100", "text-primary-600", "hover:bg-secondary-800"]
+            "wrong": ["bg-blue-700", "text-gray-900", "border-gray-200"],
+            "correct": ["bg-brandcolor-primary", "text-brandcolor-textstrong", "border-brandcolor-strokeweak"]
           }
         },
         "onlyUtilityClasses": {
-          "rule": "ONLY use utility classes from theme-guide-v1.json and tailwind.config.js (semantic palette)",
+          "rule": "ONLY use utility classes from theme-guide-v2.json and tailwind.config.js",
           "severity": "CRITICAL"
         }
       },
       "commonMistakes": {
         "mistake1": {
           "wrong": "<button class=\"bg-blue-600 text-white\">Button</button>",
-          "correct": "<button class=\"bg-secondary-600 text-white hover:bg-secondary-800 rounded-md px-4 py-2\">I'm Interested</button>",
-          "reason": "Never use hardcoded Tailwind colors. Use semantic theme classes: CTA = bg-secondary-600, links = text-primary-600."
+          "correct": "<button class=\"bg-brandcolor-primary text-brandcolor-white hover:bg-brandcolor-primaryhover rounded-md px-4 py-2\">Button</button>",
+          "reason": "Never use hardcoded Tailwind colors. Always use theme classes with required classes."
         },
         "mistake2": {
           "wrong": "<div style=\"background-color: #008B31\">Content</div>",
-          "correct": "<div class=\"bg-secondary-600\">Content</div>",
+          "correct": "<div class=\"bg-brandcolor-primary\">Content</div>",
           "reason": "Never use inline styles or hex codes. Always use utility classes."
         },
         "mistake3": {
-          "wrong": "<h2 class=\"text-gray-900 font-bold\">Title</h2>",
-          "correct": "<h2 class=\"text-Mdblue-700 text-xl font-semibold\">Add Judgement Filters</h2>",
-          "reason": "Use semantic text colors: text-Mdblue-700 for headings and body, text-gray-800 for secondary text. Use rounded-md for buttons (6px), not rounded-lg."
-        },
-        "mistake4": {
-          "wrong": "<div class=\"bg-white\"> (with default Tailwind white only)",
-          "correct": "<div class=\"bg-white\"> or <div class=\"bg-gray-100\"> for sections",
-          "reason": "bg-white and bg-gray-* are in theme. For section backgrounds use bg-gray-100 or bg-section_gray. For links use text-primary-600 hover:text-primary-700."
+          "wrong": "<button class=\"bg-brandcolor-primary rounded-lg\">Button</button>",
+          "correct": "<button class=\"bg-brandcolor-primary rounded-md\">Button</button>",
+          "reason": "All buttons MUST use rounded-md (6px), not rounded-lg or any other radius."
         }
       }
     }

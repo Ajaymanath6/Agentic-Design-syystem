@@ -10,8 +10,8 @@ export function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/catalog/home" replace />} />
-      <Route path="/admin" element={<AdminCanvasPage />} />
       <Route element={<CatalogLayout />}>
+        <Route path="admin" element={<AdminCanvasPage />} />
         <Route path="catalog/home" element={<CatalogHomePage />} />
         <Route path="catalog/new" element={<CatalogNewPage />} />
         <Route

@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-04-01T12:30:45.162Z",
+  "components": [
+    {
+      "id": "article-card",
+      "publishedAt": "2026-04-01T12:30:45.162Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "ArticleCardComponent",
+      "thumbnailPath": "/generated/article-card-thumbnail.png",
+      "blueprintPath": "/blueprints/article-card.json"
+    }
+  ]
+}

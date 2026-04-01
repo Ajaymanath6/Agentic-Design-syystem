@@ -1,6 +1,10 @@
 Security / secrets audit (manual scan)
 
 - No API keys, tokens, or hardcoded passwords were added in this scaffold.
+- Local publish helper (port 4301) uses CORS * — dev only; do not expose to untrusted networks.
+- VITE_AGENT_BASE_URL (optional) may point to a private API; keep values in .env (not committed).
 - Review any future .env / Vercel environment variables before committing.
 
 If you add secrets, use environment variables only — never commit them to git.
+
+- Admin canvas stores layout and deleted-block ids in browser localStorage (`admin-canvas-v2-deleted-ids`, `admin-canvas-v2-layout`) — not secrets; clear site data to reset.

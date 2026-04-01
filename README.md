@@ -1,4 +1,24 @@
-# React + TypeScript + Vite
+# Agentic catalog (React + Vite)
+
+Design-system catalog shell with **Admin Canvas → Publish → Catalog home**. Publishing uses a **local Node helper** that writes `public/blueprints/`, `public/generated/`, and `blueprints/` (see `server/publish-helper.mjs`).
+
+### Local development
+
+- **Default:** `npm run dev` starts **Vite + publish helper** together (helper on **4301**).
+- **Vite only:** `npm run dev:vite` (publish/inspect API calls will fail until you run the helper).
+- **Helper only:** `npm run dev:helper`.
+- **`dev:all`** is the same as `npm run dev`.
+- Copy [`.env.example`](.env.example) to `.env` if you need to override `VITE_HELPER_BASE_URL`.
+
+Flow: open **Canvas** (`/admin`), **Capture** a block (full snapshot), **Publish**. **Catalog home** loads `/blueprints/_catalog.json` and published blueprints.
+
+### Vercel / production
+
+The publish helper **mutates files on disk**, which does **not** work on Vercel’s read-only serverless filesystem. For production, replace with an API plus object storage (or restrict publishing to local/staging).
+
+---
+
+## React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

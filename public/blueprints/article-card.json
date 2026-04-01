@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0",
+  "id": "article-card",
+  "component": "article-card",
+  "importId": "ArticleCardComponent",
+  "data": {
+    "classes": "flex h-full min-h-0 flex-col overflow-auto p-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+    "imageUrl": "/generated/article-card-thumbnail.png",
+    "imageAlt": "How we ship components",
+    "description": "stasa",
+    "sealed": true,
+    "sourceHtml": "<article data-component-name=\"article-card\" class=\"flex h-full min-h-0 flex-col overflow-auto p-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card\"><h2 class=\"font-sans text-xl font-semibold text-brandcolor-textstrong\">How we ship components</h2><p class=\"mt-2 text-sm font-semibold text-brandcolor-textstrong\">Design tokens and previews stay in sync with production.</p><p class=\"mt-3 text-sm leading-relaxed text-brandcolor-textweak\">Article layout uses text-strong for the title and subtitle, and text-weak for body copy so hierarchy stays clear on the canvas.</p><p class=\"mt-2 text-sm leading-relaxed text-brandcolor-textweak\">Edit this block in ADMIN_CANVAS_SCENE or extend BlockPreview with more article fields.</p></article>"
+  },
+  "children": [
+    {
+      "component": "h2",
+      "data": {
+        "classes": "font-sans text-xl font-semibold text-brandcolor-textstrong"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "How we ship components"
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-2 text-sm font-semibold text-brandcolor-textstrong"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Design tokens and previews stay in sync with production."
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-3 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Article layout uses text-strong for the title and subtitle, and text-weak for body copy so hierarchy stays clear on the canvas."
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-2 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Edit this block in ADMIN_CANVAS_SCENE or extend BlockPreview with more article fields."
+        }
+      ]
+    }
+  ]
+}
