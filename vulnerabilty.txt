@@ -1,0 +1,6 @@
+Security / secrets audit (manual scan)
+
+- No API keys, tokens, or hardcoded passwords were added in this scaffold.
+- Review any future .env / Vercel environment variables before committing.
+
+If you add secrets, use environment variables only — never commit them to git.

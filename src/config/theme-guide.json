@@ -1,0 +1,22 @@
+{
+  "componentGuidelines": {
+    "button": {
+      "primary": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary hover:bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0",
+      "neutral": "inline-flex items-center justify-center rounded-md border border-1.5 border-brandcolor-strokestrong bg-brandcolor-white px-4 py-2 text-sm font-medium text-brandcolor-textstrong hover:bg-brandcolor-neutralhover active:shadow-border-inset-strokelight focus:outline-none focus:ring-0"
+    },
+    "card": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+    "heading": {
+      "h1": "font-sans text-3xl font-semibold tracking-tight text-brandcolor-textstrong c_md:text-4xl",
+      "h2": "font-sans text-xl font-semibold text-brandcolor-textstrong c_md:text-2xl",
+      "h3": "font-sans text-lg font-semibold text-brandcolor-textstrong"
+    },
+    "input": "w-full rounded-md border border-brandcolor-strokestrong bg-brandcolor-white px-3 py-2 text-sm text-brandcolor-textstrong placeholder:text-brandcolor-textweak focus:border-brandcolor-textstrong focus:outline-none focus:ring-0"
+  },
+  "aiInstructions": {
+    "criticalRules": [
+      "Do not use raw hex color values in JSX, CSS modules, or inline styles for branded UI.",
+      "Do not use default Tailwind palette utilities (e.g. bg-gray-*, text-blue-*) for branded surfaces; use bg-brandcolor-*, text-brandcolor-*, border-brandcolor-* only.",
+      "Buttons use rounded-md (6px) per theme; cards use rounded-lg with border-brandcolor-strokeweak and shadow-card."
+    ]
+  }
+}
