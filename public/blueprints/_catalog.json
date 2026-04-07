@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-07T05:58:13.437Z",
+  "lastUpdated": "2026-04-07T13:13:54.362Z",
   "components": [
     {
       "id": "article-card",
@@ -19,6 +19,24 @@
       "importId": "CaseCardComponent",
       "thumbnailPath": "/generated/case-card-thumbnail.png",
       "blueprintPath": "/blueprints/case-card.json"
+    },
+    {
+      "id": "demo-canvas-name",
+      "publishedAt": "2026-04-07T13:13:48.719Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "DemoCanvasNameComponent",
+      "thumbnailPath": "/generated/demo-canvas-name-thumbnail.png",
+      "blueprintPath": "/blueprints/demo-canvas-name.json"
+    },
+    {
+      "id": "demo-canvas-password",
+      "publishedAt": "2026-04-07T13:13:54.362Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "DemoCanvasPasswordComponent",
+      "thumbnailPath": "/generated/demo-canvas-password-thumbnail.png",
+      "blueprintPath": "/blueprints/demo-canvas-password.json"
     },
     {
       "id": "plain-card-dual",

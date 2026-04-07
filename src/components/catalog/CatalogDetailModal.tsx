@@ -1,10 +1,26 @@
-import { useState } from 'react'
-import { Button } from '../Button'
+import {
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react'
+import {
+  RiBookmarkLine,
+  RiBookmarkFill,
+  RiBracesLine,
+  RiCloseLine,
+  RiCodeSSlashLine,
+  RiRefreshLine,
+} from '@remixicon/react'
 import type { CatalogCardModel } from '../../types/catalog'
-import { postDeleteComponent } from '../../services/publish-workflow'
 import { useCatalogRefresh } from '../../context/CatalogRefreshContext'
+import { formatPublishedDateLabel } from '../../lib/format-published-date'
+import {
+  isCatalogBookmarked,
+  toggleCatalogBookmark,
+} from '../../lib/catalog-bookmarks'
 
-type Tab = 'code' | 'blueprint' | 'image'
+type DetailPanel = 'image' | 'code' | 'blueprint'
 
 type Props = {
   open: boolean
@@ -12,11 +28,65 @@ type Props = {
   onClose: () => void
 }
 
+function ToolbarTextIconButton({
+  label,
+  active,
+  onClick,
+  ariaPressed,
+  title,
+  children,
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+  ariaPressed?: boolean
+  title?: string
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      title={title ?? label}
+      aria-label={label}
+      aria-pressed={ariaPressed}
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 ${
+        active
+          ? 'bg-brandcolor-fill text-brandcolor-textstrong'
+          : 'text-brandcolor-textweak hover:bg-brandcolor-fill hover:text-brandcolor-textstrong'
+      }`}
+    >
+      <span className="whitespace-nowrap">{label}</span>
+      <span className="flex shrink-0 items-center [&>svg]:size-5" aria-hidden>
+        {children}
+      </span>
+    </button>
+  )
+}
+
+/**
+ * Full-screen catalog component inspector: image by default; code / JSON via toolbar controls.
+ */
 export function CatalogDetailModal({ open, card, onClose }: Props) {
   const { refreshCatalog } = useCatalogRefresh()
-  const [tab, setTab] = useState<Tab>('image')
-  const [deleting, setDeleting] = useState(false)
-  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [panel, setPanel] = useState<DetailPanel>('image')
+  const [bookmarked, setBookmarked] = useState(false)
+
+  useEffect(() => {
+    if (open && card) {
+      setPanel('image')
+      setBookmarked(isCatalogBookmarked(card.entry.id))
+    }
+  }, [open, card?.entry.id])
+
+  const onToggleBookmark = useCallback(() => {
+    if (!card) return
+    setBookmarked(toggleCatalogBookmark(card.entry.id))
+  }, [card])
+
+  const onRefresh = useCallback(() => {
+    refreshCatalog()
+  }, [refreshCatalog])
 
   if (!open || !card) return null
 
@@ -28,114 +98,103 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
     ? JSON.stringify(card.blueprint, null, 2)
     : card.loadError ?? 'Blueprint not loaded.'
   const thumbSrc = card.entry.thumbnailPath || card.blueprint?.data?.imageUrl
-
-  const handleDelete = async () => {
-    if (!window.confirm(`Remove "${card.entry.id}" from the catalog?`)) return
-    setDeleting(true)
-    setDeleteError(null)
-    try {
-      await postDeleteComponent(card.entry.id)
-      refreshCatalog()
-      onClose()
-    } catch (e) {
-      setDeleteError(e instanceof Error ? e.message : String(e))
-    } finally {
-      setDeleting(false)
-    }
-  }
-
-  const tabBtn = (id: Tab, label: string) => (
-    <button
-      type="button"
-      key={id}
-      onClick={() => setTab(id)}
-      className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary ${
-        tab === id
-          ? 'bg-brandcolor-primary text-brandcolor-white'
-          : 'text-brandcolor-textstrong hover:bg-brandcolor-neutralhover'
-      }`}
-    >
-      {label}
-    </button>
-  )
+  const title = card.entry.importId || card.entry.id
+  const createdLine = formatPublishedDateLabel(card.entry.publishedAt)
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-brandcolor-textstrong/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-brandcolor-textstrong/40"
       role="dialog"
       aria-modal="true"
       aria-labelledby="catalog-modal-title"
     >
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card">
-        <div className="flex items-start justify-between gap-4 border-b border-brandcolor-strokeweak px-5 py-4">
-          <div>
+      <div className="flex h-[70vh] w-[60vw] min-h-0 min-w-0 max-h-[70vh] max-w-[60vw] flex-col overflow-hidden rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card">
+        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-brandcolor-strokeweak px-4 py-2">
+          <div className="min-w-0 flex-1">
             <h2
               id="catalog-modal-title"
-              className="font-sans text-xl font-semibold text-brandcolor-textstrong"
+              className="truncate font-sans text-lg font-semibold leading-tight text-brandcolor-textstrong"
             >
-              {card.entry.importId}
+              {title}
             </h2>
-            <p className="mt-1 text-sm text-brandcolor-textweak">
-              {card.entry.id} · {card.entry.publishedAt}
+            <p className="mt-0.5 text-xs leading-snug text-brandcolor-textweak">
+              {createdLine}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md px-2 py-1 text-sm font-medium text-brandcolor-textweak hover:bg-brandcolor-fill hover:text-brandcolor-textstrong"
-          >
-            Close
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2 border-b border-brandcolor-strokeweak px-5 py-3">
-          {tabBtn('image', 'Image')}
-          {tabBtn('code', 'Code')}
-          {tabBtn('blueprint', 'Blueprint JSON')}
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-          {tab === 'image' && (
-            <div className="flex justify-center">
-              {thumbSrc ? (
-                <img
-                  src={thumbSrc}
-                  alt={card.blueprint?.data?.imageAlt ?? card.entry.id}
-                  className="max-h-72 max-w-full rounded-lg border border-brandcolor-strokeweak object-contain"
-                />
-              ) : (
-                <p className="text-sm text-brandcolor-textweak">No thumbnail</p>
-              )}
+          <div className="flex max-w-full flex-wrap items-center justify-end gap-0.5">
+            <ToolbarTextIconButton
+              label="Refresh"
+              active={false}
+              onClick={onRefresh}
+            >
+              <RiRefreshLine />
+            </ToolbarTextIconButton>
+            <ToolbarTextIconButton
+              label="Bookmark"
+              active={bookmarked}
+              ariaPressed={bookmarked}
+              onClick={onToggleBookmark}
+            >
+              {bookmarked ? <RiBookmarkFill /> : <RiBookmarkLine />}
+            </ToolbarTextIconButton>
+            <ToolbarTextIconButton
+              label="Code"
+              active={panel === 'code'}
+              ariaPressed={panel === 'code'}
+              onClick={() =>
+                setPanel((p) => (p === 'code' ? 'image' : 'code'))
+              }
+            >
+              <RiCodeSSlashLine />
+            </ToolbarTextIconButton>
+            <ToolbarTextIconButton
+              label="JSON"
+              active={panel === 'blueprint'}
+              ariaPressed={panel === 'blueprint'}
+              onClick={() =>
+                setPanel((p) => (p === 'blueprint' ? 'image' : 'blueprint'))
+              }
+            >
+              <RiBracesLine />
+            </ToolbarTextIconButton>
+            <button
+              type="button"
+              aria-label="Close"
+              title="Close"
+              onClick={onClose}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-brandcolor-textweak transition-colors hover:bg-brandcolor-fill hover:text-brandcolor-textstrong focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2"
+            >
+              <RiCloseLine className="size-5" aria-hidden />
+            </button>
+          </div>
+        </header>
+
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden">
+          {panel === 'image' && (
+            <div className="flex min-h-0 flex-1 flex-col px-5 py-4">
+              <div className="flex min-h-0 flex-1 items-center justify-center">
+                {thumbSrc ? (
+                  <img
+                    src={thumbSrc}
+                    alt={card.blueprint?.data?.imageAlt ?? card.entry.id}
+                    className="max-h-full max-w-full rounded-lg border border-brandcolor-strokeweak object-contain"
+                  />
+                ) : (
+                  <p className="text-sm text-brandcolor-textweak">No thumbnail</p>
+                )}
+              </div>
             </div>
           )}
-          {tab === 'code' && (
-            <pre className="max-h-80 overflow-auto rounded-lg border border-brandcolor-strokeweak bg-brandcolor-fill p-4 text-xs text-brandcolor-textstrong">
+          {panel === 'code' && (
+            <pre className="m-0 min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words rounded-lg border border-brandcolor-strokeweak bg-brandcolor-fill p-[48px] text-xs text-brandcolor-textstrong">
               {sourceHtml || 'No source HTML stored for this component.'}
             </pre>
           )}
-          {tab === 'blueprint' && (
-            <pre className="max-h-80 overflow-auto rounded-lg border border-brandcolor-strokeweak bg-brandcolor-fill p-4 text-xs text-brandcolor-textstrong">
+          {panel === 'blueprint' && (
+            <pre className="m-0 min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-words rounded-lg border border-brandcolor-strokeweak bg-brandcolor-fill p-[48px] text-xs text-brandcolor-textstrong">
               {blueprintText}
             </pre>
           )}
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brandcolor-strokeweak px-5 py-4">
-          {deleteError ? (
-            <p className="text-sm text-brandcolor-destructive">{deleteError}</p>
-          ) : (
-            <span />
-          )}
-          <div className="flex gap-2">
-            <Button type="button" variant="neutral" onClick={onClose}>
-              Done
-            </Button>
-            <button
-              type="button"
-              disabled={deleting}
-              onClick={handleDelete}
-              className="inline-flex items-center justify-center rounded-md border border-brandcolor-destructive bg-brandcolor-white px-4 py-2 text-sm font-medium text-brandcolor-destructive hover:bg-brandcolor-banner-warning-bg focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-destructive disabled:opacity-50"
-            >
-              {deleting ? 'Deleting…' : 'Delete'}
-            </button>
-          </div>
         </div>
       </div>
     </div>

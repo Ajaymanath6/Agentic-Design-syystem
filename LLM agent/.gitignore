@@ -1,0 +1,7 @@
+.venv/
+.env
+.env.*
+!.env.llm.example
+*.local
+__pycache__/
+*.pyc

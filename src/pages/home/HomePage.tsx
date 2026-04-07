@@ -1,63 +1,30 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { RiArrowRightSLine } from '@remixicon/react'
 import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
-import { useCatalogRefresh } from '../../context/CatalogRefreshContext'
-import {
-  fetchBlueprintJson,
-  fetchCatalogIndex,
-} from '../../services/catalog-reader'
+import { useCatalogCards } from '../../hooks/useCatalogCards'
 import type { CatalogCardModel } from '../../types/catalog'
 
+/** Placeholder tiles until layouts are published from the admin Layout workspace. */
+const PLACEHOLDER_UI_PAGES: { id: string; title: string; hint: string }[] = [
+  { id: 'p1', title: 'Dashboard shell', hint: 'Placeholder' },
+  { id: 'p2', title: 'Marketing hero + grid', hint: 'Placeholder' },
+  { id: 'p3', title: 'Settings layout', hint: 'Placeholder' },
+  { id: 'p4', title: 'Auth flow', hint: 'Placeholder' },
+]
+
 export function HomePage() {
-  const { catalogVersion } = useCatalogRefresh()
-  const [cards, setCards] = useState<CatalogCardModel[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { cards, loading, error } = useCatalogCards()
   const [selected, setSelected] = useState<CatalogCardModel | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const stripRef = useRef<HTMLUListElement>(null)
 
+  const selectedId = selected?.entry.id
   useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-    setError(null)
-    ;(async () => {
-      try {
-        const index = await fetchCatalogIndex(catalogVersion)
-        const withBlueprint = index.components.filter((c) => c.hasBlueprint)
-        const bust = catalogVersion
-        const loaded = await Promise.all(
-          withBlueprint.map(async (entry) => {
-            try {
-              const blueprint = await fetchBlueprintJson(
-                entry.blueprintPath,
-                bust,
-              )
-              return { entry, blueprint } satisfies CatalogCardModel
-            } catch (e) {
-              return {
-                entry,
-                blueprint: null,
-                loadError:
-                  e instanceof Error ? e.message : 'Failed to load blueprint',
-              } satisfies CatalogCardModel
-            }
-          }),
-        )
-        if (!cancelled) setCards(loaded)
-      } catch (e) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e.message : String(e))
-          setCards([])
-        }
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [catalogVersion])
+    if (!modalOpen || !selectedId) return
+    const updated = cards.find((c) => c.entry.id === selectedId)
+    if (updated) setSelected(updated)
+  }, [cards, modalOpen, selectedId])
 
   const scrollStripForward = useCallback(() => {
     const el = stripRef.current
@@ -76,12 +43,12 @@ export function HomePage() {
         <h2 className="font-sans text-xl font-semibold text-brandcolor-textstrong">
           UI components
         </h2>
-        <button
-          type="button"
+        <Link
+          to="/catalog/all"
           className="text-sm text-brandcolor-textweak transition-colors hover:text-brandcolor-textstrong"
         >
           View all &gt;
-        </button>
+        </Link>
       </header>
 
       {loading && (
@@ -112,33 +79,37 @@ export function HomePage() {
               return (
                 <li
                   key={card.entry.id}
-                  className="group/col box-border flex w-[314px] min-w-[314px] shrink-0 flex-col bg-transparent px-5 pt-5 pb-5 transition-[padding] duration-150 ease-out hover:pt-0 hover:pb-0 focus-within:pt-0 focus-within:pb-0"
+                  className="group/col box-border flex h-[292px] w-[314px] min-w-[314px] shrink-0 flex-col bg-transparent px-5 pt-5 pb-5"
                 >
-                  <button
-                    type="button"
-                    onClick={() => openCard(card)}
-                    className="flex w-full items-center justify-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                  >
-                    <div className="h-[209px] w-[278px] shrink-0 overflow-hidden rounded-lg bg-transparent">
-                      {thumb ? (
-                        <img
-                          src={thumb}
-                          alt=""
-                          className="h-full w-full object-contain object-center"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-brandcolor-textweak">
-                          No image
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                  <p
-                    className="hidden max-w-full truncate pt-1 text-center text-xs text-brandcolor-textweak group-hover/col:block group-focus-within/col:block"
-                    title={componentName}
-                  >
-                    {componentName}
-                  </p>
+                  <div className="flex min-h-0 flex-1 items-center justify-center">
+                    <button
+                      type="button"
+                      onClick={() => openCard(card)}
+                      className="flex w-full items-center justify-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                    >
+                      <div className="h-[209px] w-[278px] shrink-0 overflow-hidden rounded-lg bg-transparent">
+                        {thumb ? (
+                          <img
+                            src={thumb}
+                            alt=""
+                            className="h-full w-full object-contain object-center"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center text-xs text-brandcolor-textweak">
+                            No image
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  </div>
+                  <div className="flex h-8 shrink-0 items-center justify-center px-1">
+                    <p
+                      className="max-w-full truncate text-center text-xs text-brandcolor-textweak opacity-0 transition-opacity duration-150 group-hover/col:opacity-100 group-focus-within/col:opacity-100"
+                      title={componentName}
+                    >
+                      {componentName}
+                    </p>
+                  </div>
                 </li>
               )
             })}
@@ -155,6 +126,44 @@ export function HomePage() {
           ) : null}
         </div>
       ) : null}
+
+      <section className="mt-14 min-w-0 max-w-full overflow-x-hidden" aria-labelledby="home-ui-pages-heading">
+        <header className="mt-2 flex items-baseline justify-between gap-4 border-b border-brandcolor-strokeweak pb-4">
+          <h2
+            id="home-ui-pages-heading"
+            className="font-sans text-xl font-semibold text-brandcolor-textstrong"
+          >
+            UI pages
+          </h2>
+          <Link
+            to="/catalog/layouts"
+            className="text-sm text-brandcolor-textweak transition-colors hover:text-brandcolor-textstrong"
+          >
+            View all &gt;
+          </Link>
+        </header>
+        <div className="relative min-w-0 max-w-full overflow-x-hidden pt-4">
+          <ul
+            className="flex max-w-full gap-6 overflow-x-auto overflow-y-hidden pb-2"
+            role="list"
+            aria-label="UI page placeholders"
+          >
+            {PLACEHOLDER_UI_PAGES.map((page) => (
+              <li
+                key={page.id}
+                className="flex w-[calc((100%-3rem)/3)] min-w-[280px] max-w-[420px] shrink-0 flex-col"
+              >
+                <div className="flex aspect-[4/3] w-full items-center justify-center rounded-lg border border-brandcolor-strokeweak bg-brandcolor-fill text-sm text-brandcolor-textweak">
+                  {page.hint}
+                </div>
+                <p className="mt-3 truncate text-sm font-medium text-brandcolor-textstrong">
+                  {page.title}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       <CatalogDetailModal
         open={modalOpen}

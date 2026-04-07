@@ -32,6 +32,10 @@ const SNIPPETS: Record<string, string> = {
   'plain-card-single': `Plain card: AdminCanvasPlainCard — theme surface + single THEME_GUIDE_TEXT_WEAK_BODY paragraph (no headings). See element.type === 'plain'.`,
 
   'plain-card-dual': `Same as plain-card-single with paragraph2 for a second paragraph.`,
+
+  'demo-canvas-name': `Canvas name field: AdminCanvasNameField — label + text input (border strokemild, hover fill, focus/active strokestrong). See element.type === 'authNameField'.`,
+
+  'demo-canvas-password': `Canvas password field: AdminCanvasPasswordField — masked input, digits-only. Same input chrome as demo-canvas-name. See element.type === 'authPasswordField'.`,
 }
 
 export function getBlockSourceSnippet(componentId: string): string | null {

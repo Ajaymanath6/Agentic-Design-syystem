@@ -1,0 +1,6 @@
+# Install with Python 3.10+ (google-genai has no wheels for 3.8/3.9).
+google-genai>=1.0.0
+boto3>=1.35.0
+google-auth>=2.35.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0

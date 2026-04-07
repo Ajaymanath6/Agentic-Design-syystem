@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { CatalogLayout } from '../components/CatalogLayout'
 import { AdminCanvasPage } from '../pages/AdminCanvasPage'
+import { CatalogAllPage } from '../pages/catalog/CatalogAllPage'
 import { HomePage } from '../pages/home/HomePage'
 import { CatalogNewPage } from '../pages/CatalogNewPage'
 import { CatalogStubPage } from '../pages/CatalogStubPage'
@@ -13,6 +14,16 @@ export function App() {
       <Route element={<CatalogLayout />}>
         <Route path="admin" element={<AdminCanvasPage />} />
         <Route path="catalog/home" element={<HomePage />} />
+        <Route path="catalog/all" element={<CatalogAllPage />} />
+        <Route
+          path="catalog/layouts"
+          element={
+            <CatalogStubPage
+              title="Layouts"
+              description="Published page layouts will appear here. Use the admin Layout workspace to create them."
+            />
+          }
+        />
         <Route path="catalog/new" element={<CatalogNewPage />} />
         <Route
           path="catalog/categories"

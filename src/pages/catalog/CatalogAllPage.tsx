@@ -1,0 +1,106 @@
+import { useEffect, useState } from 'react'
+import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
+import { useCatalogCards } from '../../hooks/useCatalogCards'
+import type { CatalogCardModel } from '../../types/catalog'
+
+/**
+ * Full grid of published components (no horizontal strip). Linked from Home “View all” and sidebar “All”.
+ */
+export function CatalogAllPage() {
+  const { cards, loading, error } = useCatalogCards()
+  const [selected, setSelected] = useState<CatalogCardModel | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
+
+  const selectedId = selected?.entry.id
+  useEffect(() => {
+    if (!modalOpen || !selectedId) return
+    const updated = cards.find((c) => c.entry.id === selectedId)
+    if (updated) setSelected(updated)
+  }, [cards, modalOpen, selectedId])
+
+  const openCard = (card: CatalogCardModel) => {
+    setSelected(card)
+    setModalOpen(true)
+  }
+
+  return (
+    <div className="min-w-0 max-w-full overflow-x-hidden px-4 pb-10">
+      <p className="mt-6 border-b border-brandcolor-strokeweak pb-4 text-sm text-brandcolor-textweak">
+        {!loading && !error
+          ? `${cards.length} published with blueprints`
+          : 'Published blocks with blueprints'}
+      </p>
+
+      {loading && (
+        <p className="mt-6 text-sm text-brandcolor-textweak">Loading catalog…</p>
+      )}
+      {error && (
+        <p className="mt-6 text-sm text-brandcolor-destructive">{error}</p>
+      )}
+
+      {!loading && !error && cards.length === 0 ? (
+        <p className="mt-6 text-sm text-brandcolor-textweak">
+          No published components yet. Open the canvas, capture a thumbnail, and
+          publish a block to see it here.
+        </p>
+      ) : null}
+
+      {!loading && !error && cards.length > 0 ? (
+        <ul
+          className="mt-6 grid list-none grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          role="list"
+          aria-label="All catalog components"
+        >
+          {cards.map((card) => {
+            const thumb =
+              card.entry.thumbnailPath || card.blueprint?.data?.imageUrl || ''
+            const name = card.entry.importId || card.entry.id
+            return (
+              <li key={card.entry.id} className="min-w-0">
+                <button
+                  type="button"
+                  onClick={() => openCard(card)}
+                  title={name}
+                  aria-label={`View ${name}`}
+                  className="group/tile flex w-full min-w-0 flex-col rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white px-4 pb-4 pt-4 text-left shadow-card transition-[padding,box-shadow] duration-200 ease-out hover:shadow-md group-hover/tile:pt-2 group-focus-within/tile:pt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2"
+                >
+                  <div className="relative aspect-[278/209] w-full overflow-hidden rounded-md bg-brandcolor-fill">
+                    {thumb ? (
+                      <img
+                        src={thumb}
+                        alt=""
+                        className="h-full w-full object-contain object-center"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs text-brandcolor-textweak">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex h-8 shrink-0 items-center justify-center px-1 pt-1">
+                    <p
+                      className="max-w-full truncate text-center text-sm font-medium text-brandcolor-textstrong opacity-0 transition-opacity duration-200 ease-out group-hover/tile:opacity-100 group-focus-within/tile:opacity-100"
+                      title={name}
+                      aria-hidden
+                    >
+                      {name}
+                    </p>
+                  </div>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      ) : null}
+
+      <CatalogDetailModal
+        open={modalOpen}
+        card={selected}
+        onClose={() => {
+          setModalOpen(false)
+          setSelected(null)
+        }}
+      />
+    </div>
+  )
+}
