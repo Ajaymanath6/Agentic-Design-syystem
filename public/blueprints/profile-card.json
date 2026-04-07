@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.0",
+  "id": "profile-card",
+  "component": "profile-card",
+  "importId": "ProfileCardComponent",
+  "data": {
+    "classes": "flex h-full min-h-0 flex-col p-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+    "imageUrl": "/generated/profile-card-thumbnail.png",
+    "imageAlt": "Profile card",
+    "sealed": true,
+    "sourceHtml": "<div data-component-name=\"profile-card\" class=\"flex h-full min-h-0 flex-col p-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card\"><header class=\"flex min-w-0 items-start justify-between gap-2\"><h2 class=\"min-w-0 flex-1 truncate font-sans text-xl font-semibold text-brandcolor-textstrong c_md:text-2xl\">Jordan Lee</h2><div class=\"flex shrink-0 items-center gap-0.5\"><button type=\"button\" title=\"More options\" aria-label=\"More options\" class=\"flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-transparent text-brandcolor-textstrong hover:bg-brandcolor-fill active:border active:border-brandcolor-strokeweak focus:outline-none focus-visible:border focus-visible:border-brandcolor-strokeweak\"><svg viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\" class=\"remixicon size-[18px]\"><path d=\"M12 3C11.175 3 10.5 3.675 10.5 4.5C10.5 5.325 11.175 6 12 6C12.825 6 13.5 5.325 13.5 4.5C13.5 3.675 12.825 3 12 3ZM12 18C11.175 18 10.5 18.675 10.5 19.5C10.5 20.325 11.175 21 12 21C12.825 21 13.5 20.325 13.5 19.5C13.5 18.675 12.825 18 12 18ZM12 10.5C11.175 10.5 10.5 11.175 10.5 12C10.5 12.825 11.175 13.5 12 13.5C12.825 13.5 13.5 12.825 13.5 12C13.5 11.175 12.825 10.5 12 10.5Z\"></path></svg></button><button type=\"button\" title=\"Share\" aria-label=\"Share\" class=\"flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-transparent text-brandcolor-textstrong hover:bg-brandcolor-fill active:border active:border-brandcolor-strokeweak focus:outline-none focus-visible:border focus-visible:border-brandcolor-strokeweak\"><svg viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" fill=\"currentColor\" aria-hidden=\"true\" class=\"remixicon size-[18px]\"><path d=\"M13.1202 17.0228L8.92129 14.7324C8.19135 15.5125 7.15261 16 6 16C3.79086 16 2 14.2091 2 12C2 9.79086 3.79086 8 6 8C7.15255 8 8.19125 8.48746 8.92118 9.26746L13.1202 6.97713C13.0417 6.66441 13 6.33707 13 6C13 3.79086 14.7909 2 17 2C19.2091 2 21 3.79086 21 6C21 8.20914 19.2091 10 17 10C15.8474 10 14.8087 9.51251 14.0787 8.73246L9.87977 11.0228C9.9583 11.3355 10 11.6629 10 12C10 12.3371 9.95831 12.6644 9.87981 12.9771L14.0788 15.2675C14.8087 14.4875 15.8474 14 17 14C19.2091 14 21 15.7909 21 18C21 20.2091 19.2091 22 17 22C14.7909 22 13 20.2091 13 18C13 17.6629 13.0417 17.3355 13.1202 17.0228ZM6 14C7.10457 14 8 13.1046 8 12C8 10.8954 7.10457 10 6 10C4.89543 10 4 10.8954 4 12C4 13.1046 4.89543 14 6 14ZM17 8C18.1046 8 19 7.10457 19 6C19 4.89543 18.1046 4 17 4C15.8954 4 15 4.89543 15 6C15 7.10457 15.8954 8 17 8ZM17 20C18.1046 20 19 19.1046 19 18C19 16.8954 18.1046 16 17 16C15.8954 16 15 16.8954 15 18C15 19.1046 15.8954 20 17 20Z\"></path></svg></button></div></header><p class=\"mt-1 text-sm text-brandcolor-textweak\">Design systems lead</p><p class=\"mt-3 text-sm leading-relaxed text-brandcolor-textweak\">Owns tokens, documentation, and Figma parity so product teams ship consistent UI without rework.</p><p class=\"mt-2 text-sm leading-relaxed text-brandcolor-textweak\">Previously built design ops at two growth-stage companies; based in Berlin.</p></div>"
+  },
+  "children": [
+    {
+      "component": "header",
+      "data": {
+        "classes": "flex min-w-0 items-start justify-between gap-2"
+      },
+      "children": [
+        {
+          "component": "h2",
+          "data": {
+            "classes": "min-w-0 flex-1 truncate font-sans text-xl font-semibold text-brandcolor-textstrong c_md:text-2xl"
+          },
+          "children": [
+            {
+              "component": "text",
+              "text": "Jordan Lee"
+            }
+          ]
+        },
+        {
+          "component": "div",
+          "data": {
+            "classes": "flex shrink-0 items-center gap-0.5"
+          },
+          "children": [
+            {
+              "component": "button",
+              "data": {
+                "classes": "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-transparent text-brandcolor-textstrong hover:bg-brandcolor-fill active:border active:border-brandcolor-strokeweak focus:outline-none focus-visible:border focus-visible:border-brandcolor-strokeweak"
+              }
+            },
+            {
+              "component": "button",
+              "data": {
+                "classes": "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-transparent text-brandcolor-textstrong hover:bg-brandcolor-fill active:border active:border-brandcolor-strokeweak focus:outline-none focus-visible:border focus-visible:border-brandcolor-strokeweak"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-1 text-sm text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Design systems lead"
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-3 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Owns tokens, documentation, and Figma parity so product teams ship consistent UI without rework."
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-2 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Previously built design ops at two growth-stage companies; based in Berlin."
+        }
+      ]
+    }
+  ]
+}

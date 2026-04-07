@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { CatalogLayout } from '../components/CatalogLayout'
 import { AdminCanvasPage } from '../pages/AdminCanvasPage'
-import { CatalogHomePage } from '../pages/CatalogHomePage'
+import { HomePage } from '../pages/home/HomePage'
 import { CatalogNewPage } from '../pages/CatalogNewPage'
 import { CatalogStubPage } from '../pages/CatalogStubPage'
 import { ComingSoonPage } from '../pages/ComingSoonPage'
@@ -12,7 +12,7 @@ export function App() {
       <Route path="/" element={<Navigate to="/catalog/home" replace />} />
       <Route element={<CatalogLayout />}>
         <Route path="admin" element={<AdminCanvasPage />} />
-        <Route path="catalog/home" element={<CatalogHomePage />} />
+        <Route path="catalog/home" element={<HomePage />} />
         <Route path="catalog/new" element={<CatalogNewPage />} />
         <Route
           path="catalog/categories"

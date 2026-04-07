@@ -7,3 +7,47 @@
     @apply m-0 min-h-screen font-sans text-brandcolor-textstrong antialiased;
   }
 }
+
+/* Sidebar list: white track, rounded white / light thumb */
+@layer utilities {
+  .sidebar-scroll-lean {
+    scrollbar-width: thin;
+    /* Firefox: light thumb on white track (rounded via thin width) */
+    scrollbar-color: #e8e8e8 #ffffff;
+  }
+  .sidebar-scroll-lean::-webkit-scrollbar {
+    width: 6px;
+  }
+  .sidebar-scroll-lean::-webkit-scrollbar-track {
+    background: #ffffff;
+    border-radius: 9999px;
+  }
+  .sidebar-scroll-lean::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 9999px;
+    border: 1px solid #dddddd;
+  }
+  .sidebar-scroll-lean::-webkit-scrollbar-thumb:hover {
+    background: #f5f5f5;
+    border-color: #cccccc;
+  }
+
+  /* Catalog home horizontal strip: thin track, light thumb; hover slightly stronger */
+  .catalog-home-scroll-strip {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.14) transparent;
+  }
+  .catalog-home-scroll-strip::-webkit-scrollbar {
+    height: 4px;
+  }
+  .catalog-home-scroll-strip::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .catalog-home-scroll-strip::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 9999px;
+  }
+  .catalog-home-scroll-strip::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.16);
+  }
+}

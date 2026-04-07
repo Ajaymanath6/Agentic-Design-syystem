@@ -2,9 +2,23 @@
   "componentGuidelines": {
     "button": {
       "primary": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary hover:bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0",
+      "primaryDescription": "Background: brand primary green; label uses text-brandcolor-white (white). Used on Admin canvas BlockPreview type button.",
       "neutral": "inline-flex items-center justify-center rounded-md border border-1.5 border-brandcolor-strokestrong bg-brandcolor-white px-4 py-2 text-sm font-medium text-brandcolor-textstrong hover:bg-brandcolor-neutralhover active:shadow-border-inset-strokelight focus:outline-none focus:ring-0"
     },
     "card": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+    "caseCard": {
+      "description": "Case study card: case name (h2) with share + tag icon actions on the header row, subheading (text-strong), description (text-weak body).",
+      "surface": "Same as card — rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+      "iconButton": "Same as profileCard.iconButton"
+    },
+    "profileCard": {
+      "description": "Profile / identity card: name row with trailing icon actions, title line, two body lines. Uses same surface as card.",
+      "surface": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+      "name": "componentGuidelines.heading.h2 — font-sans text-xl font-semibold text-brandcolor-textstrong",
+      "title": "text-sm text-brandcolor-textweak (role / subtitle under name)",
+      "body": "text-sm leading-relaxed text-brandcolor-textweak (two paragraphs)",
+      "iconButton": "h-8 w-8 rounded-md border border-transparent text-brandcolor-textstrong hover:bg-brandcolor-fill active:border active:border-brandcolor-strokeweak focus:outline-none focus-visible:border focus-visible:border-brandcolor-strokeweak"
+    },
     "heading": {
       "h1": "font-sans text-3xl font-semibold tracking-tight text-brandcolor-textstrong c_md:text-4xl",
       "h2": "font-sans text-xl font-semibold text-brandcolor-textstrong c_md:text-2xl",

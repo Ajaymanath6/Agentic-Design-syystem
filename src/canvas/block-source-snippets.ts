@@ -6,12 +6,14 @@ const SNIPPETS: Record<string, string> = {
   'primary-button': `if (element.type === 'button') {
   return (
     <div ref={ref} data-component-name={element.componentId} className="flex h-full items-center justify-center">
-      <button type="button" className="rounded-md bg-brandcolor-primary px-4 py-2 text-sm font-medium text-brandcolor-white hover:bg-brandcolor-primaryhover">
+      <button type="button" className={THEME_GUIDE_BUTTON_PRIMARY}>
         {element.label}
       </button>
     </div>
   )
-}`,
+} // THEME_GUIDE_BUTTON_PRIMARY ← theme-guide.json componentGuidelines.button.primary`,
+
+  'primary-button-alt': `Same BlockPreview branch as primary-button — className={THEME_GUIDE_BUTTON_PRIMARY} (bg-brandcolor-primary, text-brandcolor-white).`,
 
   'sample-card': `// Default card branch → AdminCanvasCardPreview (theme-guide card surface + h3 + weak body)`,
 
@@ -20,6 +22,16 @@ const SNIPPETS: Record<string, string> = {
   'article-card': `<article> with h2 (THEME_ARTICLE_TITLE), subtitle (text-strong), paragraphs (text-weak). See AdminCanvasArticleCard in AdminCanvasPage.tsx.`,
 
   'bar-chart-stub': `Chart stub: flex column, title + bar divs with bg-brandcolor-secondary heights. See element.type === 'chart' in BlockPreview.`,
+
+  'profile-card': `Profile card: AdminCanvasProfileCard — theme-guide profileCard (h2 name, header row with RiMore2Line + RiShareLine icon buttons, subtitle, two weak body paragraphs). See element.type === 'profile'.`,
+
+  'case-card': `Case card: AdminCanvasCaseCard — case name (h2), RiShareLine + RiPriceTag3Line on header, subheading, description. See element.type === 'case'.`,
+
+  'promo-card': `Promo card: AdminCanvasPromoCard — h1 (THEME_GUIDE_HEADING_H1), weak subtitle, h2 section, weak section subtitle, then two weak body paragraphs. See element.type === 'promo'.`,
+
+  'plain-card-single': `Plain card: AdminCanvasPlainCard — theme surface + single THEME_GUIDE_TEXT_WEAK_BODY paragraph (no headings). See element.type === 'plain'.`,
+
+  'plain-card-dual': `Same as plain-card-single with paragraph2 for a second paragraph.`,
 }
 
 export function getBlockSourceSnippet(componentId: string): string | null {

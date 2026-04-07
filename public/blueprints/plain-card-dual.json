@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0",
+  "id": "plain-card-dual",
+  "component": "plain-card-dual",
+  "importId": "PlainCardDualComponent",
+  "data": {
+    "classes": "flex h-full min-h-0 flex-col overflow-auto p-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+    "imageUrl": "/generated/plain-card-dual-thumbnail.png",
+    "imageAlt": "Paragraph card",
+    "sealed": true,
+    "sourceHtml": "<div data-component-name=\"plain-card-dual\" class=\"flex h-full min-h-0 flex-col overflow-auto p-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card\"><p class=\"text-sm leading-relaxed text-brandcolor-textweak\">First paragraph: plain body copy on the standard card surface, no headings.</p><p class=\"mt-2 text-sm leading-relaxed text-brandcolor-textweak\">Second paragraph: same weak body style for stacked supporting text.</p></div>"
+  },
+  "children": [
+    {
+      "component": "p",
+      "data": {
+        "classes": "text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "First paragraph: plain body copy on the standard card surface, no headings."
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-2 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Second paragraph: same weak body style for stacked supporting text."
+        }
+      ]
+    }
+  ]
+}

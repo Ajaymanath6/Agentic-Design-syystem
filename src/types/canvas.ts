@@ -10,6 +10,13 @@ export type CanvasElement = {
   paragraph?: string
   /** Optional second paragraph (e.g. article type) */
   paragraph2?: string
+  /** Profile card: display name in header (separate from block toolbar label) */
+  personName?: string
+  /** Promo card: hero headline + subtitle, then section heading + subtitle, then body */
+  promoHeadline?: string
+  promoSubtitle?: string
+  secondaryHeading?: string
+  secondarySubtitle?: string
   x: number
   y: number
   width: number

@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  type CSSProperties,
   type ForwardedRef,
   useCallback,
   useEffect,
@@ -12,10 +13,13 @@ import { CanvasBlockInspectModal } from '../components/canvas/CanvasBlockInspect
 import { CanvasPublishModal } from '../components/canvas/CanvasPublishModal'
 import { useCatalogRefresh } from '../context/CatalogRefreshContext'
 import { captureElementFullPng } from '../lib/capture-screenshot'
+import { fetchCatalogIndex } from '../services/catalog-reader'
 import { createBlueprintStructure } from '../lib/blueprint-from-dom'
 import { serializeBlockHtml } from '../lib/serialize-block-html'
+import { RiMore2Line, RiPriceTag3Line, RiShareLine } from '@remixicon/react'
 import {
   postBlueprintPreview,
+  postDeleteComponent,
   postPublish,
 } from '../services/publish-workflow'
 import {
@@ -28,14 +32,41 @@ type StageState = { tx: number; ty: number; scale: number }
 
 const STAGE_SCALE_MIN = 0.25
 const STAGE_SCALE_MAX = 2.5
+/** Fit-to-view never zooms in past this (45% = more canvas visible; still shrinks if needed to fit). */
+const DEFAULT_CANVAS_FIT_MAX_SCALE = 0.45
+/** Bump when scene ids or default layout change so stale localStorage does not hide new blocks. */
+const ADMIN_CANVAS_SCENE_REVISION = 6
+const ADMIN_CANVAS_SCENE_REVISION_KEY = 'admin-canvas-v2-scene-revision'
+/** Session fingerprint of scene block ids — when it changes, catalog consumers refresh. */
+const ADMIN_CANVAS_SCENE_IDS_SESSION_KEY = 'admin-canvas-v2-scene-ids'
 const STAGE_ZOOM_STEP = 1.12
+const STAGE_ANIM_MS = 220
 const CANVAS_GRID_PX = 24
+const CANVAS_WORLD_W = 2400
+const CANVAS_WORLD_H = 1680
+/** Inline grid so Tailwind arbitrary `theme()` in gradients does not strip the pattern. */
+const CANVAS_GRID_BG_STYLE: CSSProperties = {
+  backgroundImage: `linear-gradient(to right, #DDDDDD 1px, transparent 1px), linear-gradient(to bottom, #DDDDDD 1px, transparent 1px)`,
+  backgroundSize: `${CANVAS_GRID_PX}px ${CANVAS_GRID_PX}px`,
+}
 
+/** From `src/config/theme-guide.json` → componentGuidelines.heading.h1 (promo hero) */
+const THEME_GUIDE_HEADING_H1 =
+  'font-sans text-3xl font-semibold tracking-tight text-brandcolor-textstrong c_md:text-4xl'
+/** From `src/config/theme-guide.json` → componentGuidelines.heading.h2 (profile name) */
+const THEME_GUIDE_HEADING_H2 =
+  'font-sans text-xl font-semibold text-brandcolor-textstrong c_md:text-2xl'
 /** From `src/config/theme-guide.json` → componentGuidelines.heading.h3 */
 const THEME_GUIDE_HEADING_H3 =
   'font-sans text-lg font-semibold text-brandcolor-textstrong'
+/** theme-guide.json → profileCard.iconButton */
+const PROFILE_ICON_BTN =
+  'flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-transparent text-brandcolor-textstrong hover:bg-brandcolor-fill active:border active:border-brandcolor-strokeweak focus:outline-none focus-visible:border focus-visible:border-brandcolor-strokeweak'
 /** Body / supporting copy: `text-sm` + `text-brandcolor-textweak` (aligned with input body scale) */
 const THEME_GUIDE_TEXT_WEAK_BODY = 'text-sm leading-relaxed text-brandcolor-textweak'
+/** From `src/config/theme-guide.json` → componentGuidelines.button.primary (bg primary, label text white) */
+const THEME_GUIDE_BUTTON_PRIMARY =
+  'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary hover:bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0'
 
 /** White card surface per theme-guide; selection ring is light blue on the canvas wrapper. */
 const THEME_CANVAS_BLOCK_SURFACE =
@@ -43,8 +74,9 @@ const THEME_CANVAS_BLOCK_SURFACE =
 
 /**
  * Authoritative canvas document: edit this list to add blocks or change defaults.
- * Delete on canvas persists (localStorage); clear `admin-canvas-v2-*` keys to restore removed blocks.
- * `BlockPreview` renders `type` (`button` | `card` | `chart` | …).
+ * Delete on canvas persists (localStorage); clear `admin-canvas-v2-deleted-ids` to restore removed blocks.
+ * Scene revision bumps reset saved positions only, not your delete list.
+ * `BlockPreview` renders `type` (`button` | `card` | `promo` | `plain` | `chart` | …).
  */
 /** Stacked column so blocks stay in one band; fit-to-viewport centers them on load. */
 const ADMIN_CANVAS_SCENE: CanvasElement[] = [
@@ -60,31 +92,93 @@ const ADMIN_CANVAS_SCENE: CanvasElement[] = [
     published: false,
   },
   {
-    id: 'blk-sample-card',
-    componentId: 'sample-card',
-    type: 'card',
-    label: 'Sample card',
-    subtitle: 'Subtitle uses text-weak; title uses text-strong.',
-    paragraph:
-      'Every entry in ADMIN_CANVAS_SCENE appears on the canvas. The view auto-fits on load and when you resize the window.',
-    x: 32,
-    y: 144,
-    width: 320,
-    height: 200,
+    id: 'blk-primary-button-alt',
+    componentId: 'primary-button-alt',
+    type: 'button',
+    label: 'Get started',
+    x: 288,
+    y: 32,
+    width: 200,
+    height: 88,
     published: false,
   },
   {
-    id: 'blk-theme-guide-card',
-    componentId: 'theme-guide-card',
-    type: 'card',
-    label: 'Theme guide card',
-    subtitle:
-      'Subtitle and paragraph use text-weak; the title matches heading.h3.',
+    id: 'blk-promo-card',
+    componentId: 'promo-card',
+    type: 'promo',
+    label: 'Promo card',
+    promoHeadline: 'Ship consistent UI from one catalog',
+    promoSubtitle:
+      'Design tokens, live previews, and production components stay aligned so teams move faster.',
+    secondaryHeading: 'What you get',
+    secondarySubtitle:
+      'A single place to browse, inspect, and publish blocks with blueprint-backed previews.',
     paragraph:
-      'Surface classes match theme-guide.json: rounded-lg, border-brandcolor-strokeweak, bg-brandcolor-white, and shadow-card.',
-    x: 32,
-    y: 368,
+      'Promo cards lead with a strong headline and supporting line, then introduce a second heading and subtitle before longer body copy.',
+    paragraph2:
+      'Use this pattern for landing sections, feature callouts, or onboarding highlights on the canvas.',
+    x: 400,
+    y: 32,
+    width: 360,
+    height: 400,
+    published: false,
+  },
+  {
+    id: 'blk-plain-card-single',
+    componentId: 'plain-card-single',
+    type: 'plain',
+    label: 'Plain card',
+    paragraph:
+      'Plain card: theme surface with a single paragraph only — no title or subtitle.',
+    x: 400,
+    y: 448,
     width: 320,
+    height: 120,
+    published: false,
+  },
+  {
+    id: 'blk-plain-card-dual',
+    componentId: 'plain-card-dual',
+    type: 'plain',
+    label: 'Paragraph card',
+    paragraph:
+      'First paragraph: plain body copy on the standard card surface, no headings.',
+    paragraph2:
+      'Second paragraph: same weak body style for stacked supporting text.',
+    x: 400,
+    y: 584,
+    width: 320,
+    height: 168,
+    published: false,
+  },
+  {
+    id: 'blk-profile-card',
+    componentId: 'profile-card',
+    type: 'profile',
+    label: 'Profile card',
+    personName: 'Jordan Lee',
+    subtitle: 'Design systems lead',
+    paragraph:
+      'Owns tokens, documentation, and Figma parity so product teams ship consistent UI without rework.',
+    paragraph2:
+      'Previously built design ops at two growth-stage companies; based in Berlin.',
+    x: 32,
+    y: 136,
+    width: 360,
+    height: 248,
+    published: false,
+  },
+  {
+    id: 'blk-case-card',
+    componentId: 'case-card',
+    type: 'case',
+    label: 'Onboarding refresh',
+    subtitle: 'Reduce signup drop-off in the first session',
+    paragraph:
+      'Case summary: we shortened the path from account creation to first value, aligned copy with research findings, and validated with a staged rollout.',
+    x: 32,
+    y: 400,
+    width: 360,
     height: 220,
     published: false,
   },
@@ -99,20 +193,9 @@ const ADMIN_CANVAS_SCENE: CanvasElement[] = [
     paragraph2:
       'Edit this block in ADMIN_CANVAS_SCENE or extend BlockPreview with more article fields.',
     x: 32,
-    y: 612,
+    y: 636,
     width: 360,
     height: 280,
-    published: false,
-  },
-  {
-    id: 'blk-bar-chart',
-    componentId: 'bar-chart-stub',
-    type: 'chart',
-    label: 'Bar chart',
-    x: 32,
-    y: 916,
-    width: 320,
-    height: 200,
     published: false,
   },
 ]
@@ -182,10 +265,27 @@ function persistLayoutSnapshot(elements: CanvasElement[]): void {
   }
 }
 
+function maybeResetPersistedSceneForRevision(): void {
+  try {
+    const cur = localStorage.getItem(ADMIN_CANVAS_SCENE_REVISION_KEY)
+    if (cur !== String(ADMIN_CANVAS_SCENE_REVISION)) {
+      /** Keep deleted ids: only layout reset on revision bump so removed blocks stay gone. */
+      localStorage.removeItem(ADMIN_CANVAS_LAYOUT_KEY)
+      localStorage.setItem(
+        ADMIN_CANVAS_SCENE_REVISION_KEY,
+        String(ADMIN_CANVAS_SCENE_REVISION),
+      )
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 /**
  * Scene from code minus persisted deletes, with persisted positions/published.
  */
 function buildInitialElements(scene: CanvasElement[]): CanvasElement[] {
+  maybeResetPersistedSceneForRevision()
   const sceneIds = new Set(scene.map((e) => e.id))
   const prunedDeleted = loadRawDeletedIds().filter((id) => sceneIds.has(id))
   try {
@@ -300,6 +400,28 @@ function clamp(n: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, n))
 }
 
+/** Keep world point under (mx, my) fixed after scale change (origin top-left). */
+function zoomTowardScreenPoint(
+  stage: StageState,
+  mx: number,
+  my: number,
+  nextScale: number,
+): StageState {
+  const s0 = stage.scale || 1
+  const s1 = clamp(nextScale, STAGE_SCALE_MIN, STAGE_SCALE_MAX)
+  if (s0 <= 0) return { ...stage, scale: s1 }
+  const ratio = s1 / s0
+  return {
+    scale: s1,
+    tx: mx - (mx - stage.tx) * ratio,
+    ty: my - (my - stage.ty) * ratio,
+  }
+}
+
+function easeOutCubic(t: number) {
+  return 1 - (1 - t) ** 3
+}
+
 /** Fit pan/zoom so every block in `elements` is visible inside the viewport. */
 function fitStageToElements(
   elements: CanvasElement[],
@@ -327,8 +449,9 @@ function fitStageToElements(
   }
   const innerW = viewportW - 2 * pad
   const innerH = viewportH - 2 * pad
+  const fitScale = Math.min(innerW / cw, innerH / ch)
   const scale = clamp(
-    Math.min(innerW / cw, innerH / ch),
+    Math.min(fitScale, DEFAULT_CANVAS_FIT_MAX_SCALE),
     STAGE_SCALE_MIN,
     STAGE_SCALE_MAX,
   )
@@ -338,7 +461,7 @@ function fitStageToElements(
 }
 
 export function AdminCanvasPage() {
-  const { refreshCatalog } = useCatalogRefresh()
+  const { refreshCatalog, catalogVersion } = useCatalogRefresh()
   const [elements, setElements] = useState<CanvasElement[]>(() =>
     buildInitialElements(ADMIN_CANVAS_SCENE),
   )
@@ -360,6 +483,7 @@ export function AdminCanvasPage() {
   const [publishBlockId, setPublishBlockId] = useState<string | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null)
+  const [spaceHeld, setSpaceHeld] = useState(false)
 
   const dragRef = useRef<{
     id: string
@@ -374,14 +498,141 @@ export function AdminCanvasPage() {
     originTx: number
     originTy: number
   } | null>(null)
+  const spaceDownRef = useRef(false)
+  const latestStageRef = useRef<StageState>(stage)
+  latestStageRef.current = stage
+  const stageRafRef = useRef<number | null>(null)
   const blockRootsRef = useRef<Record<string, HTMLElement | null>>({})
   const viewportRef = useRef<HTMLDivElement>(null)
   const elementsRef = useRef(elements)
   elementsRef.current = elements
 
+  /** Catalog lists refetch when the default scene’s block set changes (new deploy or scene edit). */
+  useEffect(() => {
+    const fingerprint = ADMIN_CANVAS_SCENE.map((e) => e.id)
+      .sort()
+      .join('|')
+    try {
+      const prev = sessionStorage.getItem(ADMIN_CANVAS_SCENE_IDS_SESSION_KEY)
+      if (prev !== fingerprint) {
+        sessionStorage.setItem(ADMIN_CANVAS_SCENE_IDS_SESSION_KEY, fingerprint)
+        refreshCatalog()
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [refreshCatalog])
+
+  const cancelStageAnimation = useCallback(() => {
+    if (stageRafRef.current != null) {
+      cancelAnimationFrame(stageRafRef.current)
+      stageRafRef.current = null
+    }
+  }, [])
+
+  const animateStageTo = useCallback(
+    (target: StageState) => {
+      cancelStageAnimation()
+      const start = { ...latestStageRef.current }
+      const t0 = performance.now()
+      const tick = (now: number) => {
+        const u = Math.min(1, (now - t0) / STAGE_ANIM_MS)
+        const e = easeOutCubic(u)
+        const next: StageState = {
+          tx: start.tx + (target.tx - start.tx) * e,
+          ty: start.ty + (target.ty - start.ty) * e,
+          scale: start.scale + (target.scale - start.scale) * e,
+        }
+        latestStageRef.current = next
+        setStage(next)
+        if (u < 1) {
+          stageRafRef.current = requestAnimationFrame(tick)
+        } else {
+          stageRafRef.current = null
+        }
+      }
+      stageRafRef.current = requestAnimationFrame(tick)
+    },
+    [cancelStageAnimation],
+  )
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== 'Space' && e.key !== ' ') return
+      const t = e.target as HTMLElement | null
+      if (t?.closest('input, textarea, select, [contenteditable="true"]')) return
+      e.preventDefault()
+      spaceDownRef.current = true
+      setSpaceHeld(true)
+    }
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code !== 'Space' && e.key !== ' ') return
+      spaceDownRef.current = false
+      setSpaceHeld(false)
+    }
+    const onBlur = () => {
+      spaceDownRef.current = false
+      setSpaceHeld(false)
+    }
+    window.addEventListener('keydown', onKeyDown, { capture: true })
+    window.addEventListener('keyup', onKeyUp, { capture: true })
+    window.addEventListener('blur', onBlur)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown, { capture: true })
+      window.removeEventListener('keyup', onKeyUp, { capture: true })
+      window.removeEventListener('blur', onBlur)
+    }
+  }, [])
+
+  useEffect(() => {
+    const el = viewportRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      cancelStageAnimation()
+      const rect = el.getBoundingClientRect()
+      const mx = e.clientX - rect.left
+      const my = e.clientY - rect.top
+      let delta = -e.deltaY
+      if (e.deltaMode === 1) delta *= 16
+      if (e.deltaMode === 2) delta *= rect.height
+      const factor = Math.exp(delta * 0.0011)
+      setStage((s) => zoomTowardScreenPoint(s, mx, my, s.scale * factor))
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [cancelStageAnimation])
+
   useEffect(() => {
     persistLayoutSnapshot(elements)
   }, [elements])
+
+  /** Source of truth for Published badge: catalog index (survives layout resets / new sessions). */
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const index = await fetchCatalogIndex(catalogVersion)
+        const publishedIds = new Set(
+          index.components
+            .filter((c) => c.hasBlueprint)
+            .map((c) => c.id),
+        )
+        if (cancelled) return
+        setElements((prev) =>
+          prev.map((b) => ({
+            ...b,
+            published: publishedIds.has(b.componentId),
+          })),
+        )
+      } catch {
+        /* helper or static catalog unreachable — keep current flags */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [catalogVersion])
 
   useEffect(() => {
     if (!selectedBlockId) return
@@ -396,59 +647,94 @@ export function AdminCanvasPage() {
     blockRootsRef.current[id] = el
   }, [])
 
-  const onWheelStage = useCallback((e: React.WheelEvent) => {
-    e.preventDefault()
-    const delta = -e.deltaY * 0.001
-    setStage((s) => ({
-      ...s,
-      scale: clamp(s.scale * (1 + delta), STAGE_SCALE_MIN, STAGE_SCALE_MAX),
-    }))
-  }, [])
+  const fitStageToViewport = useCallback(
+    (opts?: { animate?: boolean }) => {
+      const el = viewportRef.current
+      if (!el) return
+      const r = el.getBoundingClientRect()
+      if (r.width < 8 || r.height < 8) return
+      const target = fitStageToElements(
+        elementsRef.current,
+        r.width,
+        r.height,
+        40,
+      )
+      cancelStageAnimation()
+      if (opts?.animate) {
+        animateStageTo(target)
+      } else {
+        latestStageRef.current = target
+        setStage(target)
+      }
+    },
+    [animateStageTo, cancelStageAnimation],
+  )
 
   const zoomIn = useCallback(() => {
-    setStage((s) => ({
-      ...s,
-      scale: clamp(s.scale * STAGE_ZOOM_STEP, STAGE_SCALE_MIN, STAGE_SCALE_MAX),
-    }))
-  }, [])
-
-  const zoomOut = useCallback(() => {
-    setStage((s) => ({
-      ...s,
-      scale: clamp(s.scale / STAGE_ZOOM_STEP, STAGE_SCALE_MIN, STAGE_SCALE_MAX),
-    }))
-  }, [])
-
-  const fitStageToViewport = useCallback(() => {
     const el = viewportRef.current
     if (!el) return
     const r = el.getBoundingClientRect()
-    if (r.width < 8 || r.height < 8) return
-    setStage(
-      fitStageToElements(elementsRef.current, r.width, r.height, 40),
+    const cx = r.width / 2
+    const cy = r.height / 2
+    const s = latestStageRef.current
+    const target = zoomTowardScreenPoint(
+      s,
+      cx,
+      cy,
+      s.scale * STAGE_ZOOM_STEP,
     )
-  }, [])
+    animateStageTo(target)
+  }, [animateStageTo])
 
-  const resetView = fitStageToViewport
-
-  useLayoutEffect(() => {
-    fitStageToViewport()
+  const zoomOut = useCallback(() => {
     const el = viewportRef.current
     if (!el) return
-    const ro = new ResizeObserver(() => fitStageToViewport())
+    const r = el.getBoundingClientRect()
+    const cx = r.width / 2
+    const cy = r.height / 2
+    const s = latestStageRef.current
+    const target = zoomTowardScreenPoint(
+      s,
+      cx,
+      cy,
+      s.scale / STAGE_ZOOM_STEP,
+    )
+    animateStageTo(target)
+  }, [animateStageTo])
+
+  const resetView = useCallback(() => {
+    fitStageToViewport({ animate: true })
+  }, [fitStageToViewport])
+
+  useLayoutEffect(() => {
+    fitStageToViewport({ animate: false })
+    const el = viewportRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => fitStageToViewport({ animate: false }))
     ro.observe(el)
     return () => ro.disconnect()
   }, [fitStageToViewport])
 
   const onPanPointerDown = (e: React.PointerEvent) => {
-    if (e.button !== 0) return
+    const leftOnEmpty = e.button === 0 && !spaceDownRef.current
+    const spaceLeft = e.button === 0 && spaceDownRef.current
+    const middle = e.button === 1
+    if (!leftOnEmpty && !spaceLeft && !middle) return
+    if (middle) e.preventDefault()
+    cancelStageAnimation()
     setSelectedBlockId(null)
-    e.currentTarget.setPointerCapture(e.pointerId)
+    const vp = viewportRef.current
+    try {
+      vp?.setPointerCapture(e.pointerId)
+    } catch {
+      /* ignore */
+    }
+    const o = latestStageRef.current
     panRef.current = {
       startX: e.clientX,
       startY: e.clientY,
-      originTx: stage.tx,
-      originTy: stage.ty,
+      originTx: o.tx,
+      originTy: o.ty,
     }
   }
 
@@ -457,29 +743,52 @@ export function AdminCanvasPage() {
     if (!p) return
     const dx = e.clientX - p.startX
     const dy = e.clientY - p.startY
-    setStage((s) => ({
-      ...s,
-      tx: p.originTx + dx,
-      ty: p.originTy + dy,
-    }))
+    setStage((s) => {
+      const next = {
+        ...s,
+        tx: p.originTx + dx,
+        ty: p.originTy + dy,
+      }
+      latestStageRef.current = next
+      return next
+    })
   }
 
   const endPan = (e: React.PointerEvent) => {
-    if (panRef.current) {
-      try {
-        e.currentTarget.releasePointerCapture(e.pointerId)
-      } catch {
-        /* ignore */
-      }
-      panRef.current = null
+    if (!panRef.current) return
+    try {
+      viewportRef.current?.releasePointerCapture(e.pointerId)
+    } catch {
+      /* ignore */
     }
+    panRef.current = null
   }
 
   const onPointerDownBlock = useCallback(
     (e: React.PointerEvent, id: string) => {
+      if (e.button === 1 || (e.button === 0 && spaceDownRef.current)) {
+        e.preventDefault()
+        e.stopPropagation()
+        cancelStageAnimation()
+        setSelectedBlockId(null)
+        try {
+          viewportRef.current?.setPointerCapture(e.pointerId)
+        } catch {
+          /* ignore */
+        }
+        const o = latestStageRef.current
+        panRef.current = {
+          startX: e.clientX,
+          startY: e.clientY,
+          originTx: o.tx,
+          originTy: o.ty,
+        }
+        return
+      }
       if (e.button !== 0) return
       const el = elements.find((x) => x.id === id)
       if (!el) return
+      cancelStageAnimation()
       e.stopPropagation()
       setSelectedBlockId(id)
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -491,7 +800,7 @@ export function AdminCanvasPage() {
         originY: el.y,
       }
     },
-    [elements],
+    [cancelStageAnimation, elements],
   )
 
   const onPointerMoveBlock = useCallback(
@@ -622,6 +931,7 @@ export function AdminCanvasPage() {
 
   const deleteBlock = useCallback(
     (id: string) => {
+      const removed = elementsRef.current.find((x) => x.id === id)
       persistDeletedId(id)
       delete blockRootsRef.current[id]
       if (dragRef.current?.id === id) dragRef.current = null
@@ -641,31 +951,51 @@ export function AdminCanvasPage() {
       })
       if (publishBlockId === id) setPublishBlockId(null)
       setSelectedBlockId((cur) => (cur === id ? null : cur))
+
+      if (removed?.componentId) {
+        void postDeleteComponent(removed.componentId)
+          .then(() => {
+            refreshCatalog()
+          })
+          .catch((err) => {
+            alert(
+              err instanceof Error
+                ? err.message
+                : 'Could not remove this component from the catalog. Is the publish helper running?',
+            )
+          })
+      }
     },
-    [publishBlockId],
+    [publishBlockId, refreshCatalog],
   )
 
   const transformStyle = {
     transform: `translate(${stage.tx}px, ${stage.ty}px) scale(${stage.scale})`,
     transformOrigin: '0 0',
+    willChange: 'transform',
   } as const
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-brandcolor-fill">
-      <header className="border-b border-brandcolor-strokeweak bg-brandcolor-white px-4 py-3 shadow-header">
-        <h1 className="font-sans text-lg font-semibold text-brandcolor-textstrong">
-          Admin canvas
-        </h1>
-      </header>
-
       <div
         ref={viewportRef}
-        className="relative min-h-0 flex-1 overflow-hidden bg-brandcolor-white"
-        onWheel={onWheelStage}
+        className={`relative min-h-0 flex-1 overflow-hidden ${
+          spaceHeld ? 'cursor-grab active:cursor-grabbing' : ''
+        }`}
+        style={{ touchAction: 'none' }}
+        onPointerMove={(e) => {
+          if (panRef.current) onPanPointerMove(e)
+        }}
+        onPointerUp={(e) => {
+          if (panRef.current) endPan(e)
+        }}
+        onPointerCancel={(e) => {
+          if (panRef.current) endPan(e)
+        }}
       >
         <div
-          className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,theme('colors.brandcolor-strokeweak')_1px,transparent_1px),linear-gradient(to_bottom,theme('colors.brandcolor-strokeweak')_1px,transparent_1px)] opacity-[0.45]"
-          style={{ backgroundSize: `${CANVAS_GRID_PX}px ${CANVAS_GRID_PX}px` }}
+          className="pointer-events-none absolute inset-0 z-0 opacity-[0.5]"
+          style={CANVAS_GRID_BG_STYLE}
           aria-hidden
         />
         <div
@@ -702,15 +1032,12 @@ export function AdminCanvasPage() {
         </div>
         <div className="relative z-[1] h-full w-full" style={transformStyle}>
           <div
-            className="absolute left-0 top-0 z-[1] h-[1600px] w-[2400px] bg-transparent"
+            className="absolute left-0 top-0 z-[1] cursor-grab bg-transparent active:cursor-grabbing"
+            style={{ width: CANVAS_WORLD_W, height: CANVAS_WORLD_H }}
             data-pan-layer
             onPointerDown={onPanPointerDown}
-            onPointerMove={onPanPointerMove}
-            onPointerUp={endPan}
-            onPointerCancel={endPan}
           />
           {elements.map((item) => {
-            const hasShot = Boolean(pendingScreenshotByElement[item.id])
             const isSelected = selectedBlockId === item.id
             return (
               <div
@@ -720,7 +1047,7 @@ export function AdminCanvasPage() {
                 aria-selected={isSelected}
                 className={`group/canvas-block absolute cursor-grab select-none rounded-lg bg-transparent transition-shadow duration-150 active:cursor-grabbing ${
                   isSelected
-                    ? 'z-[50] ring-2 ring-brandcolor-banner-info-bg ring-offset-2 ring-offset-brandcolor-white'
+                    ? 'z-[50] ring-2 ring-brandcolor-banner-info-bg ring-offset-2 ring-offset-brandcolor-fill'
                     : 'z-[2]'
                 }`}
                 style={{
@@ -806,14 +1133,6 @@ export function AdminCanvasPage() {
                     setRoot={(el) => setBlockRoot(item.id, el)}
                   />
                 </div>
-                {!hasShot && (
-                  <p
-                    data-capture-only=""
-                    className="pointer-events-none absolute bottom-1 left-2 text-[10px] text-brandcolor-destructive"
-                  >
-                    Screenshot required
-                  </p>
-                )}
               </div>
             )
           })}
@@ -874,13 +1193,53 @@ function BlockPreview({
         data-component-name={element.componentId}
         className="flex h-full items-center justify-center"
       >
-        <button
-          type="button"
-          className="rounded-md bg-brandcolor-primary px-4 py-2 text-sm font-medium text-brandcolor-white hover:bg-brandcolor-primaryhover"
-        >
+        <button type="button" className={THEME_GUIDE_BUTTON_PRIMARY}>
           {element.label}
         </button>
       </div>
+    )
+  }
+
+  if (element.type === 'case') {
+    return (
+      <AdminCanvasCaseCard
+        ref={ref}
+        componentId={element.componentId}
+        caseName={element.label}
+        subHeading={
+          element.subtitle ?? 'Subheading summarizes the case focus.'
+        }
+        description={
+          element.paragraph ??
+          'Description uses theme-guide body copy for the case study summary.'
+        }
+      />
+    )
+  }
+
+  if (element.type === 'profile') {
+    return (
+      <AdminCanvasProfileCard
+        ref={ref}
+        componentId={element.componentId}
+        personName={
+          element.personName ??
+          element.label ??
+          'Name'
+        }
+        title={
+          element.subtitle ??
+          'Title or role appears here in text-weak.'
+        }
+        paragraph={
+          element.paragraph ??
+          'First line of supporting copy uses theme-guide body scale.'
+        }
+        paragraph2={
+          element.paragraph2 ??
+          'Second line continues the profile summary.'
+        }
+      />
     )
   }
 
@@ -897,6 +1256,50 @@ function BlockPreview({
         paragraph={
           element.paragraph ??
           'Body paragraphs use text-weak for comfortable reading.'
+        }
+        paragraph2={element.paragraph2}
+      />
+    )
+  }
+
+  if (element.type === 'promo') {
+    return (
+      <AdminCanvasPromoCard
+        ref={ref}
+        componentId={element.componentId}
+        promoHeadline={
+          element.promoHeadline ??
+          element.label ??
+          'Promo headline'
+        }
+        promoSubtitle={
+          element.promoSubtitle ??
+          'Supporting subtitle under the promo headline.'
+        }
+        secondaryHeading={
+          element.secondaryHeading ?? 'Second heading'
+        }
+        secondarySubtitle={
+          element.secondarySubtitle ??
+          'Subtitle under the second heading.'
+        }
+        paragraph={
+          element.paragraph ??
+          'First body paragraph.'
+        }
+        paragraph2={element.paragraph2}
+      />
+    )
+  }
+
+  if (element.type === 'plain') {
+    return (
+      <AdminCanvasPlainCard
+        ref={ref}
+        componentId={element.componentId}
+        paragraph={
+          element.paragraph ??
+          'Body copy on a plain card surface.'
         }
         paragraph2={element.paragraph2}
       />
@@ -948,6 +1351,113 @@ const THEME_ARTICLE_TITLE =
 const THEME_ARTICLE_SUBTITLE =
   'mt-2 text-sm font-semibold text-brandcolor-textstrong'
 
+const AdminCanvasCaseCard = forwardRef(function AdminCanvasCaseCard(
+  {
+    componentId,
+    caseName,
+    subHeading,
+    description,
+  }: {
+    componentId: string
+    caseName: string
+    subHeading: string
+    description: string
+  },
+  ref: ForwardedRef<HTMLDivElement>,
+) {
+  return (
+    <div
+      ref={ref}
+      data-component-name={componentId}
+      className={`flex h-full min-h-0 flex-col p-4 ${THEME_CANVAS_BLOCK_SURFACE}`}
+    >
+      <header className="flex min-w-0 items-start justify-between gap-2">
+        <h2 className={`min-w-0 flex-1 truncate ${THEME_GUIDE_HEADING_H2}`}>
+          {caseName}
+        </h2>
+        <div className="flex shrink-0 items-center gap-0.5">
+          <button
+            type="button"
+            title="Share"
+            aria-label="Share"
+            className={PROFILE_ICON_BTN}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <RiShareLine className="size-[18px]" aria-hidden />
+          </button>
+          <button
+            type="button"
+            title="Tag"
+            aria-label="Tag"
+            className={PROFILE_ICON_BTN}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <RiPriceTag3Line className="size-[18px]" aria-hidden />
+          </button>
+        </div>
+      </header>
+      <p className="mt-2 text-sm font-semibold text-brandcolor-textstrong">
+        {subHeading}
+      </p>
+      <p className={`mt-3 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>{description}</p>
+    </div>
+  )
+})
+
+const AdminCanvasProfileCard = forwardRef(function AdminCanvasProfileCard(
+  {
+    componentId,
+    personName,
+    title,
+    paragraph,
+    paragraph2,
+  }: {
+    componentId: string
+    personName: string
+    title: string
+    paragraph: string
+    paragraph2: string
+  },
+  ref: ForwardedRef<HTMLDivElement>,
+) {
+  return (
+    <div
+      ref={ref}
+      data-component-name={componentId}
+      className={`flex h-full min-h-0 flex-col p-4 ${THEME_CANVAS_BLOCK_SURFACE}`}
+    >
+      <header className="flex min-w-0 items-start justify-between gap-2">
+        <h2 className={`min-w-0 flex-1 truncate ${THEME_GUIDE_HEADING_H2}`}>
+          {personName}
+        </h2>
+        <div className="flex shrink-0 items-center gap-0.5">
+          <button
+            type="button"
+            title="More options"
+            aria-label="More options"
+            className={PROFILE_ICON_BTN}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <RiMore2Line className="size-[18px]" aria-hidden />
+          </button>
+          <button
+            type="button"
+            title="Share"
+            aria-label="Share"
+            className={PROFILE_ICON_BTN}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <RiShareLine className="size-[18px]" aria-hidden />
+          </button>
+        </div>
+      </header>
+      <p className="mt-1 text-sm text-brandcolor-textweak">{title}</p>
+      <p className={`mt-3 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>{paragraph}</p>
+      <p className={`mt-2 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>{paragraph2}</p>
+    </div>
+  )
+})
+
 const AdminCanvasArticleCard = forwardRef(function AdminCanvasArticleCard(
   {
     componentId,
@@ -977,6 +1487,72 @@ const AdminCanvasArticleCard = forwardRef(function AdminCanvasArticleCard(
         <p className={`mt-2 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>{paragraph2}</p>
       ) : null}
     </article>
+  )
+})
+
+const AdminCanvasPromoCard = forwardRef(function AdminCanvasPromoCard(
+  {
+    componentId,
+    promoHeadline,
+    promoSubtitle,
+    secondaryHeading,
+    secondarySubtitle,
+    paragraph,
+    paragraph2,
+  }: {
+    componentId: string
+    promoHeadline: string
+    promoSubtitle: string
+    secondaryHeading: string
+    secondarySubtitle: string
+    paragraph: string
+    paragraph2?: string
+  },
+  ref: ForwardedRef<HTMLDivElement>,
+) {
+  return (
+    <div
+      ref={ref}
+      data-component-name={componentId}
+      className={`flex h-full min-h-0 flex-col overflow-auto p-4 ${THEME_CANVAS_BLOCK_SURFACE}`}
+    >
+      <h1 className={THEME_GUIDE_HEADING_H1}>{promoHeadline}</h1>
+      <p className={`mt-2 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>{promoSubtitle}</p>
+      <h2 className={`mt-6 ${THEME_GUIDE_HEADING_H2}`}>{secondaryHeading}</h2>
+      <p className={`mt-2 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>
+        {secondarySubtitle}
+      </p>
+      <p className={`mt-4 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>{paragraph}</p>
+      {paragraph2 ? (
+        <p className={`mt-2 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>{paragraph2}</p>
+      ) : null}
+    </div>
+  )
+})
+
+const AdminCanvasPlainCard = forwardRef(function AdminCanvasPlainCard(
+  {
+    componentId,
+    paragraph,
+    paragraph2,
+  }: {
+    componentId: string
+    paragraph: string
+    paragraph2?: string
+  },
+  ref: ForwardedRef<HTMLDivElement>,
+) {
+  return (
+    <div
+      ref={ref}
+      data-component-name={componentId}
+      className={`flex h-full min-h-0 flex-col overflow-auto p-4 ${THEME_CANVAS_BLOCK_SURFACE}`}
+    >
+      <p className={THEME_GUIDE_TEXT_WEAK_BODY}>{paragraph}</p>
+      {paragraph2 ? (
+        <p className={`mt-2 ${THEME_GUIDE_TEXT_WEAK_BODY}`}>{paragraph2}</p>
+      ) : null}
+    </div>
   )
 })
 

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0",
+  "id": "promo-card",
+  "component": "promo-card",
+  "importId": "PromoCardComponent",
+  "data": {
+    "classes": "flex h-full min-h-0 flex-col overflow-auto p-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+    "imageUrl": "/generated/promo-card-thumbnail.png",
+    "imageAlt": "Promo card",
+    "sealed": true,
+    "sourceHtml": "<div data-component-name=\"promo-card\" class=\"flex h-full min-h-0 flex-col overflow-auto p-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card\"><h1 class=\"font-sans text-3xl font-semibold tracking-tight text-brandcolor-textstrong c_md:text-4xl\">Ship consistent UI from one catalog</h1><p class=\"mt-2 text-sm leading-relaxed text-brandcolor-textweak\">Design tokens, live previews, and production components stay aligned so teams move faster.</p><h2 class=\"mt-6 font-sans text-xl font-semibold text-brandcolor-textstrong c_md:text-2xl\">What you get</h2><p class=\"mt-2 text-sm leading-relaxed text-brandcolor-textweak\">A single place to browse, inspect, and publish blocks with blueprint-backed previews.</p><p class=\"mt-4 text-sm leading-relaxed text-brandcolor-textweak\">Promo cards lead with a strong headline and supporting line, then introduce a second heading and subtitle before longer body copy.</p><p class=\"mt-2 text-sm leading-relaxed text-brandcolor-textweak\">Use this pattern for landing sections, feature callouts, or onboarding highlights on the canvas.</p></div>"
+  },
+  "children": [
+    {
+      "component": "h1",
+      "data": {
+        "classes": "font-sans text-3xl font-semibold tracking-tight text-brandcolor-textstrong c_md:text-4xl"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Ship consistent UI from one catalog"
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-2 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Design tokens, live previews, and production components stay aligned so teams move faster."
+        }
+      ]
+    },
+    {
+      "component": "h2",
+      "data": {
+        "classes": "mt-6 font-sans text-xl font-semibold text-brandcolor-textstrong c_md:text-2xl"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "What you get"
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-2 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "A single place to browse, inspect, and publish blocks with blueprint-backed previews."
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-4 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Promo cards lead with a strong headline and supporting line, then introduce a second heading and subtitle before longer body copy."
+        }
+      ]
+    },
+    {
+      "component": "p",
+      "data": {
+        "classes": "mt-2 text-sm leading-relaxed text-brandcolor-textweak"
+      },
+      "children": [
+        {
+          "component": "text",
+          "text": "Use this pattern for landing sections, feature callouts, or onboarding highlights on the canvas."
+        }
+      ]
+    }
+  ]
+}
