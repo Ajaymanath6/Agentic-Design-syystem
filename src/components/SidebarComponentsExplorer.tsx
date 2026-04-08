@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   RiArrowLeftLine,
@@ -8,6 +8,8 @@ import {
 } from '@remixicon/react'
 import { COMPONENT_EXPLORE_ITEMS } from '../config/component-explore-items'
 import { useCatalogBlueprintCount } from '../hooks/useCatalogBlueprintCount'
+import { useCatalogCards } from '../hooks/useCatalogCards'
+import { isCatalogLayoutEntry } from '../lib/catalog-layout-entry'
 
 type ExplorePanel = 'root' | 'components' | 'layouts'
 
@@ -23,6 +25,11 @@ export function SidebarComponentsExplorer() {
   const [panel, setPanel] = useState<ExplorePanel>('root')
   const [activeLabel, setActiveLabel] = useState<string | null>(null)
   const allCount = useCatalogBlueprintCount()
+  const { cards } = useCatalogCards()
+  const layoutCount = useMemo(
+    () => cards.filter((c) => isCatalogLayoutEntry(c.entry)).length,
+    [cards],
+  )
 
   return (
     <section
@@ -174,10 +181,15 @@ export function SidebarComponentsExplorer() {
             </span>
           </div>
           <div className="sidebar-scroll-lean mt-1 min-h-0 flex-1 overflow-y-auto px-3 py-2">
-            <p className="text-[13px] leading-snug text-brandcolor-textweak">
-              No layouts published yet. When ready, open the canvas Layout
-              workspace to create and publish pages.
+            <p className="text-[13px] font-mono tabular-nums text-brandcolor-textstrong">
+              {layoutCount} published
             </p>
+            {layoutCount === 0 ? (
+              <p className="mt-2 text-[13px] leading-snug text-brandcolor-textweak">
+                Open Admin → Layout, structured preview Code, then Publish to add
+                layouts here.
+              </p>
+            ) : null}
             <NavLink
               to="/catalog/layouts"
               className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-brandcolor-primary hover:underline"

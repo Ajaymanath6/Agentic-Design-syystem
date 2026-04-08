@@ -4,6 +4,7 @@ import { AdminCanvasPage } from "../pages/AdminCanvasPage";
 import { CatalogAllPage } from "../pages/catalog/CatalogAllPage";
 import { HomePage } from "../pages/home/HomePage";
 import { CatalogNewPage } from "../pages/CatalogNewPage";
+import { CatalogLayoutsPage } from "../pages/catalog/CatalogLayoutsPage";
 import { CatalogStubPage } from "../pages/CatalogStubPage";
 import { ComingSoonPage } from "../pages/ComingSoonPage";
 
@@ -15,15 +16,7 @@ export function App() {
         <Route path="admin" element={<AdminCanvasPage />} />
         <Route path="catalog/home" element={<HomePage />} />
         <Route path="catalog/all" element={<CatalogAllPage />} />
-        <Route
-          path="catalog/layouts"
-          element={
-            <CatalogStubPage
-              title="Layouts"
-              description="Published page layouts will appear here. Use the admin Layout workspace to create them."
-            />
-          }
-        />
+        <Route path="catalog/layouts" element={<CatalogLayoutsPage />} />
         <Route path="catalog/new" element={<CatalogNewPage />} />
         <Route
           path="catalog/categories"

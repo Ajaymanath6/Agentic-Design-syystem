@@ -220,7 +220,7 @@ const ADMIN_CANVAS_SCENE: CanvasElement[] = [
     x: 368,
     y: 928,
     width: 320,
-    height: 120,
+    height: 96,
     published: false,
   },
 ]
@@ -1211,7 +1211,7 @@ const AdminCanvasNameField = forwardRef(function AdminCanvasNameField(
     <div
       ref={ref}
       data-component-name={componentId}
-      className="flex h-full min-h-0 flex-col justify-center p-3"
+      className="flex h-full min-h-0 w-full flex-col justify-start"
     >
       <label className="block min-w-0 text-sm font-medium text-brandcolor-textstrong">
         Name
@@ -1234,13 +1234,12 @@ const AdminCanvasPasswordField = forwardRef(function AdminCanvasPasswordField(
   ref: ForwardedRef<HTMLDivElement>,
 ) {
   const [passwordDigits, setPasswordDigits] = useState('')
-  const hintId = `${componentId}-pw-hint`
 
   return (
     <div
       ref={ref}
       data-component-name={componentId}
-      className="flex h-full min-h-0 flex-col justify-center p-3"
+      className="flex h-full min-h-0 w-full flex-col justify-start"
     >
       <label className="block min-w-0 text-sm font-medium text-brandcolor-textstrong">
         Password
@@ -1257,12 +1256,8 @@ const AdminCanvasPasswordField = forwardRef(function AdminCanvasPasswordField(
           autoComplete="new-password"
           placeholder="Digits only"
           className={CANVAS_AUTH_INPUT_CLASS}
-          aria-describedby={hintId}
         />
       </label>
-      <p id={hintId} className="mt-1 text-[11px] text-brandcolor-textweak">
-        Numbers only.
-      </p>
     </div>
   )
 })

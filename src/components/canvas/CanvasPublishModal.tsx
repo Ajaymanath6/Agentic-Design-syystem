@@ -8,6 +8,8 @@ type Props = {
   screenshotDataUrl?: string | null
   onClose: () => void
   onConfirm: (opts: { description: string; sealed: boolean }) => void
+  /** Disables confirm while parent runs POST /api/publish. */
+  submitBusy?: boolean
 }
 
 export function CanvasPublishModal({
@@ -17,6 +19,7 @@ export function CanvasPublishModal({
   screenshotDataUrl,
   onClose,
   onConfirm,
+  submitBusy = false,
 }: Props) {
   const [description, setDescription] = useState('')
   const [sealed, setSealed] = useState(false)
@@ -81,16 +84,21 @@ export function CanvasPublishModal({
           </p>
         )}
         <div className="mt-6 flex justify-end gap-2">
-          <Button type="button" variant="neutral" onClick={onClose}>
+          <Button
+            type="button"
+            variant="neutral"
+            onClick={onClose}
+            disabled={submitBusy}
+          >
             Cancel
           </Button>
           <Button
             type="button"
             variant="primary"
-            disabled={!canPublish}
+            disabled={!canPublish || submitBusy}
             onClick={submit}
           >
-            Publish
+            {submitBusy ? 'Publishing…' : 'Publish'}
           </Button>
         </div>
       </div>

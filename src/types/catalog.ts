@@ -1,3 +1,5 @@
+export type CatalogComponentKind = 'component' | 'layout'
+
 export type CatalogComponentEntry = {
   id: string
   publishedAt: string
@@ -6,6 +8,8 @@ export type CatalogComponentEntry = {
   importId: string
   thumbnailPath: string
   blueprintPath: string
+  /** Set by publish helper; omitted on older index rows (= treat as component). */
+  kind?: CatalogComponentKind
 }
 
 export type CatalogIndexFile = {

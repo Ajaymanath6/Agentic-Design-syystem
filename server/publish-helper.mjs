@@ -225,6 +225,8 @@ app.post('/api/publish', (req, res) => {
     fs.writeFileSync(repoBpPath, blueprintJson, 'utf8')
 
     const catalog = readCatalog()
+    const kind =
+      body.kind === 'layout' ? 'layout' : 'component'
     const catalogEntry = {
       id: componentId,
       publishedAt: new Date().toISOString(),
@@ -233,6 +235,7 @@ app.post('/api/publish', (req, res) => {
       importId,
       thumbnailPath: blueprint.data.imageUrl,
       blueprintPath: `/blueprints/${componentId}.json`,
+      kind,
     }
     mergeCatalogEntry(catalog, catalogEntry)
     writeCatalog(catalog)

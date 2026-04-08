@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useCatalogRefresh } from '../context/CatalogRefreshContext'
+import { isCatalogLayoutEntry } from '../lib/catalog-layout-entry'
 import { fetchCatalogIndex } from '../services/catalog-reader'
 
 /** Count of catalog entries that have a blueprint (for sidebar “All”). */
@@ -12,7 +13,9 @@ export function useCatalogBlueprintCount() {
     ;(async () => {
       try {
         const index = await fetchCatalogIndex(catalogVersion)
-        const n = index.components.filter((c) => c.hasBlueprint).length
+        const n = index.components.filter(
+          (c) => c.hasBlueprint && !isCatalogLayoutEntry(c),
+        ).length
         if (!cancelled) setCount(n)
       } catch {
         if (!cancelled) setCount(0)

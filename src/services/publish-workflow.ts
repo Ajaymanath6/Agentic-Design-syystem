@@ -38,6 +38,7 @@ export type PublishResponse = BlueprintPreviewResponse & {
     importId: string
     thumbnailPath: string
     blueprintPath: string
+    kind?: 'component' | 'layout'
   }
 }
 
@@ -69,6 +70,7 @@ export async function postPublish(body: {
   description?: string
   sealed?: boolean
   sourceHtml?: string
+  kind?: 'component' | 'layout'
 }): Promise<PublishResponse> {
   const res = await helperFetch('/api/publish', {
     method: 'POST',

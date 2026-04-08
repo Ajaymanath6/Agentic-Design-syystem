@@ -9,6 +9,12 @@ type Props = {
   open: boolean
   code: string
   onClose: () => void
+  /** When set, shows Publish next to Copy (e.g. layout structured preview). */
+  onPublish?: () => void | Promise<void>
+  /** Disables Publish (e.g. no markup or parent capture in flight). */
+  publishDisabled?: boolean
+  /** Parent sets true while capture/publish pipeline runs. */
+  publishBusy?: boolean
 }
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
@@ -37,7 +43,14 @@ async function copyTextToClipboard(text: string): Promise<boolean> {
 /**
  * Code-only inspector: Prettier-formatted HTML when possible, copy, Escape to close.
  */
-export function StructuredPreviewCodeModal({ open, code, onClose }: Props) {
+export function StructuredPreviewCodeModal({
+  open,
+  code,
+  onClose,
+  onPublish,
+  publishDisabled = false,
+  publishBusy = false,
+}: Props) {
   const [displayText, setDisplayText] = useState('')
   const [status, setStatus] = useState<
     'idle' | 'formatting' | 'ready' | 'error'
@@ -113,6 +126,18 @@ export function StructuredPreviewCodeModal({ open, code, onClose }: Props) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open, onClose])
 
+  const publishButtonDisabled =
+    !onPublish ||
+    publishDisabled ||
+    !code.trim() ||
+    status === 'formatting' ||
+    publishBusy
+
+  const handlePublish = useCallback(() => {
+    if (!onPublish || publishButtonDisabled) return
+    void onPublish()
+  }, [onPublish, publishButtonDisabled])
+
   const handleCopy = useCallback(async () => {
     const text =
       displayText || (code.trim() ? code : '')
@@ -167,6 +192,17 @@ export function StructuredPreviewCodeModal({ open, code, onClose }: Props) {
             >
               Copy
             </button>
+            {onPublish ? (
+              <button
+                type="button"
+                onClick={handlePublish}
+                disabled={publishButtonDisabled}
+                aria-label="Publish layout to catalog"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-brandcolor-white bg-brandcolor-primary transition-colors hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {publishBusy ? 'Working…' : 'Publish'}
+              </button>
+            ) : null}
             <button
               type="button"
               aria-label="Close"

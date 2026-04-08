@@ -5,13 +5,12 @@ import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import type { CatalogCardModel } from '../../types/catalog'
 
 /**
- * Full grid of published components (no horizontal strip). Linked from Home “View all” and sidebar “All”.
+ * Grid of published layouts (Admin Layout workspace → Code → Publish).
  */
-export function CatalogAllPage() {
+export function CatalogLayoutsPage() {
   const { cards, loading, error } = useCatalogCards()
-  /** Canvas / component publishes only; layouts live under /catalog/layouts and Home UI pages. */
-  const componentCards = useMemo(
-    () => cards.filter((c) => !isCatalogLayoutEntry(c.entry)),
+  const layoutCards = useMemo(
+    () => cards.filter((c) => isCatalogLayoutEntry(c.entry)),
     [cards],
   )
   const [selected, setSelected] = useState<CatalogCardModel | null>(null)
@@ -20,9 +19,9 @@ export function CatalogAllPage() {
   const selectedId = selected?.entry.id
   useEffect(() => {
     if (!modalOpen || !selectedId) return
-    const updated = componentCards.find((c) => c.entry.id === selectedId)
+    const updated = layoutCards.find((c) => c.entry.id === selectedId)
     if (updated) setSelected(updated)
-  }, [componentCards, modalOpen, selectedId])
+  }, [layoutCards, modalOpen, selectedId])
 
   const openCard = (card: CatalogCardModel) => {
     setSelected(card)
@@ -33,8 +32,8 @@ export function CatalogAllPage() {
     <div className="min-w-0 max-w-full overflow-x-hidden px-4 pb-10">
       <p className="mt-6 border-b border-brandcolor-strokeweak pb-4 text-sm text-brandcolor-textweak">
         {!loading && !error
-          ? `${componentCards.length} published with blueprints`
-          : 'Published blocks with blueprints'}
+          ? `${layoutCards.length} published layout${layoutCards.length === 1 ? '' : 's'}`
+          : 'Published layouts'}
       </p>
 
       {loading && (
@@ -44,20 +43,20 @@ export function CatalogAllPage() {
         <p className="mt-6 text-sm text-brandcolor-destructive">{error}</p>
       )}
 
-      {!loading && !error && componentCards.length === 0 ? (
+      {!loading && !error && layoutCards.length === 0 ? (
         <p className="mt-6 text-sm text-brandcolor-textweak">
-          No published components yet. Open the canvas, capture a thumbnail, and
-          publish a block to see it here.
+          No layouts published yet. In Admin → Layout, open structured preview
+          Code, then Publish to capture and add a layout here.
         </p>
       ) : null}
 
-      {!loading && !error && componentCards.length > 0 ? (
+      {!loading && !error && layoutCards.length > 0 ? (
         <ul
           className="mt-6 grid list-none grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           role="list"
-          aria-label="All catalog components"
+          aria-label="Published layouts"
         >
-          {componentCards.map((card) => {
+          {layoutCards.map((card) => {
             const thumb =
               card.entry.thumbnailPath || card.blueprint?.data?.imageUrl || ''
             const name = card.entry.importId || card.entry.id

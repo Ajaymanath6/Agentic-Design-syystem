@@ -1,9 +1,19 @@
 import { RiCodeSSlashLine, RiLoader4Line } from '@remixicon/react'
-import { Fragment, type ReactNode, useMemo, useState } from 'react'
+import {
+  Fragment,
+  type ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { StructuredPreviewCodeModal } from '../../components/admin/StructuredPreviewCodeModal'
+import { CanvasPublishModal } from '../../components/canvas/CanvasPublishModal'
 import { CatalogDetailToolbarButton } from '../../components/catalog/CatalogDetailToolbarButton'
 import { useAdminWorkspace } from '../../context/AdminWorkspaceContext'
+import { useCatalogRefresh } from '../../context/CatalogRefreshContext'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
+import { captureElementFullPng } from '../../lib/capture-screenshot'
 import { findCardByPlanRef } from '../../lib/layout-plan-catalog'
 import {
   rowColumnClass,
@@ -12,12 +22,20 @@ import {
   splitOuterFlexClass,
   splitSidebarWidthClass,
 } from '../../lib/layout-row-split-classes'
-import { buildStructuredPreviewHtml } from '../../lib/layout-structured-preview-code'
+import {
+  layoutPlanBlocksPublishComponentId,
+  layoutPublishLabelFromPrompt,
+} from '../../lib/layout-publish-id'
+import {
+  buildStructuredPreviewHtml,
+  wrapStructuredPreviewHtmlForPublish,
+} from '../../lib/layout-structured-preview-code'
 import {
   getMarginBottomClassForAfterGap,
   resolveLayoutAfterGap,
 } from '../../lib/layout-spacing-resolve'
 import { parseLayoutIntentFromCatalog } from '../../lib/layout-prompt-from-catalog'
+import { postPublish } from '../../services/publish-workflow'
 import {
   getClassesForLayoutKey,
   isLayoutThemeKey,
@@ -333,8 +351,15 @@ function renderPlanBlock(
 export function AdminLayoutStudio() {
   const { layoutPromptEntries, layoutPlan, layoutPlanBusy, layoutPlanError } =
     useAdminWorkspace()
+  const { refreshCatalog } = useCatalogRefresh()
   const { cards, loading, error } = useCatalogCards()
   const [structuredCodeOpen, setStructuredCodeOpen] = useState(false)
+  const structuredPreviewFormRef = useRef<HTMLFormElement>(null)
+  const [layoutPublishOpen, setLayoutPublishOpen] = useState(false)
+  const [layoutPublishScreenshot, setLayoutPublishScreenshot] = useState<
+    string | null
+  >(null)
+  const [layoutPublishBusy, setLayoutPublishBusy] = useState(false)
 
   const lastPrompt =
     layoutPromptEntries.length > 0
@@ -365,6 +390,62 @@ export function AdminLayoutStudio() {
     if (!layoutPlan || !showStructured) return ''
     return buildStructuredPreviewHtml(layoutPlan, cards)
   }, [layoutPlan, cards, showStructured])
+
+  const handlePublishFromCodeModal = useCallback(async () => {
+    const root = structuredPreviewFormRef.current
+    if (!root || !structuredPreviewCode.trim() || !layoutPlan) return
+    setLayoutPublishBusy(true)
+    try {
+      const dataUrl = await captureElementFullPng(root)
+      setLayoutPublishScreenshot(dataUrl)
+      setStructuredCodeOpen(false)
+      setLayoutPublishOpen(true)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err))
+    } finally {
+      setLayoutPublishBusy(false)
+    }
+  }, [structuredPreviewCode, layoutPlan])
+
+  const closeLayoutPublishModal = useCallback(() => {
+    setLayoutPublishOpen(false)
+    setLayoutPublishScreenshot(null)
+  }, [])
+
+  const confirmLayoutPublish = useCallback(
+    async (opts: { description: string; sealed: boolean }) => {
+      if (!layoutPublishScreenshot || !layoutPlan) return
+      setLayoutPublishBusy(true)
+      try {
+        const sourceHtml = wrapStructuredPreviewHtmlForPublish(
+          structuredPreviewCode,
+        )
+        await postPublish({
+          componentId: layoutPlanBlocksPublishComponentId(layoutPlan.blocks),
+          label: layoutPublishLabelFromPrompt(lastPrompt),
+          screenshot: layoutPublishScreenshot,
+          sourceHtml,
+          description: opts.description || undefined,
+          sealed: opts.sealed,
+          kind: 'layout',
+        })
+        refreshCatalog()
+        closeLayoutPublishModal()
+      } catch (err) {
+        alert(err instanceof Error ? err.message : String(err))
+      } finally {
+        setLayoutPublishBusy(false)
+      }
+    },
+    [
+      layoutPublishScreenshot,
+      layoutPlan,
+      structuredPreviewCode,
+      lastPrompt,
+      refreshCatalog,
+      closeLayoutPublishModal,
+    ],
+  )
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-brandcolor-fill">
@@ -433,8 +514,21 @@ export function AdminLayoutStudio() {
                   open={structuredCodeOpen}
                   code={structuredPreviewCode}
                   onClose={() => setStructuredCodeOpen(false)}
+                  onPublish={handlePublishFromCodeModal}
+                  publishDisabled={!structuredPreviewCode.trim()}
+                  publishBusy={layoutPublishBusy}
+                />
+                <CanvasPublishModal
+                  open={layoutPublishOpen}
+                  blockLabel={layoutPublishLabelFromPrompt(lastPrompt)}
+                  canPublish={Boolean(layoutPublishScreenshot)}
+                  screenshotDataUrl={layoutPublishScreenshot}
+                  onClose={closeLayoutPublishModal}
+                  onConfirm={confirmLayoutPublish}
+                  submitBusy={layoutPublishBusy}
                 />
                 <form
+                  ref={structuredPreviewFormRef}
                   className={`flex w-full flex-col p-6 ${THEME_CARD_SURFACE}`}
                   onSubmit={(e) => e.preventDefault()}
                   aria-label="Structured layout preview form"

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-07T13:13:54.362Z",
+  "lastUpdated": "2026-04-08T09:29:20.158Z",
   "components": [
     {
       "id": "article-card",
@@ -31,12 +31,39 @@
     },
     {
       "id": "demo-canvas-password",
-      "publishedAt": "2026-04-07T13:13:54.362Z",
+      "publishedAt": "2026-04-08T07:27:47.779Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
       "importId": "DemoCanvasPasswordComponent",
       "thumbnailPath": "/generated/demo-canvas-password-thumbnail.png",
       "blueprintPath": "/blueprints/demo-canvas-password.json"
+    },
+    {
+      "id": "layout-13cmbs9",
+      "publishedAt": "2026-04-08T09:13:05.673Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "Layout13cmbs9Component",
+      "thumbnailPath": "/generated/layout-13cmbs9-thumbnail.png",
+      "blueprintPath": "/blueprints/layout-13cmbs9.json"
+    },
+    {
+      "id": "layout-163sq1o",
+      "publishedAt": "2026-04-08T09:29:20.158Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "Layout163sq1oComponent",
+      "thumbnailPath": "/generated/layout-163sq1o-thumbnail.png",
+      "blueprintPath": "/blueprints/layout-163sq1o.json"
+    },
+    {
+      "id": "layout-7bchwc",
+      "publishedAt": "2026-04-08T09:28:39.376Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "Layout7bchwcComponent",
+      "thumbnailPath": "/generated/layout-7bchwc-thumbnail.png",
+      "blueprintPath": "/blueprints/layout-7bchwc.json"
     },
     {
       "id": "plain-card-dual",

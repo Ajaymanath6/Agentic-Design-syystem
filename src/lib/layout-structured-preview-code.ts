@@ -151,3 +151,10 @@ export function buildStructuredPreviewHtml(
     .map((b) => buildPlanBlockHtml(b, cards))
     .join('\n\n')
 }
+
+/** Single root wrapper for blueprint `sourceHtml` when publishing a structured layout. */
+export function wrapStructuredPreviewHtmlForPublish(innerHtml: string): string {
+  const t = innerHtml.trim()
+  if (!t) return ''
+  return `<div class="flex min-w-0 w-full flex-col gap-0" data-published-layout="true">\n${t}\n</div>`
+}

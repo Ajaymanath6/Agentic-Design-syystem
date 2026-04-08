@@ -5,6 +5,7 @@ import {
   RiBracesLine,
   RiCloseLine,
   RiCodeSSlashLine,
+  RiDeleteBinLine,
   RiRefreshLine,
 } from '@remixicon/react'
 import type { CatalogCardModel } from '../../types/catalog'
@@ -14,6 +15,8 @@ import {
   isCatalogBookmarked,
   toggleCatalogBookmark,
 } from '../../lib/catalog-bookmarks'
+import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
+import { postDeleteComponent } from '../../services/publish-workflow'
 import { CatalogDetailToolbarButton } from './CatalogDetailToolbarButton'
 
 type DetailPanel = 'image' | 'code' | 'blueprint'
@@ -31,6 +34,7 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
   const { refreshCatalog } = useCatalogRefresh()
   const [panel, setPanel] = useState<DetailPanel>('image')
   const [bookmarked, setBookmarked] = useState(false)
+  const [deleteBusy, setDeleteBusy] = useState(false)
 
   useEffect(() => {
     if (open && card) {
@@ -48,7 +52,32 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
     refreshCatalog()
   }, [refreshCatalog])
 
+  const handleDeleteLayout = useCallback(async () => {
+    if (!card || !isCatalogLayoutEntry(card.entry)) return
+    const id = card.entry.id
+    const name = card.entry.importId || id
+    const ok = window.confirm(
+      `Remove "${name}" from the catalog? This deletes this published layout (blueprint, thumbnail, and index entry) everywhere it appears. This cannot be undone.`,
+    )
+    if (!ok) return
+    setDeleteBusy(true)
+    try {
+      await postDeleteComponent(id)
+      if (isCatalogBookmarked(id)) {
+        toggleCatalogBookmark(id)
+      }
+      refreshCatalog()
+      onClose()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : String(e))
+    } finally {
+      setDeleteBusy(false)
+    }
+  }, [card, refreshCatalog, onClose])
+
   if (!open || !card) return null
+
+  const showLayoutDelete = isCatalogLayoutEntry(card.entry)
 
   const sourceHtml =
     card.blueprint?.data && typeof card.blueprint.data.sourceHtml === 'string'
@@ -117,6 +146,21 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
             >
               <RiBracesLine />
             </CatalogDetailToolbarButton>
+            {showLayoutDelete ? (
+              <button
+                type="button"
+                title="Delete published layout from catalog"
+                aria-label="Delete layout from catalog"
+                disabled={deleteBusy}
+                onClick={() => void handleDeleteLayout()}
+                className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium text-brandcolor-destructive transition-colors hover:bg-brandcolor-banner-warning-bg focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-destructive focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <span className="whitespace-nowrap">
+                  {deleteBusy ? 'Deleting…' : 'Delete'}
+                </span>
+                <RiDeleteBinLine className="size-5 shrink-0" aria-hidden />
+              </button>
+            ) : null}
             <button
               type="button"
               aria-label="Close"
