@@ -8,6 +8,48 @@
   }
 }
 
+/**
+ * Primary on canvas: brand orange (tailwind brandcolor-primary / primaryhover).
+ * Explicit paint beats UA default button styling.
+ */
+@layer components {
+  button.canvas-primary-button,
+  .canvas-primary-button,
+  button.primary-canvas-button,
+  .primary-canvas-button {
+    @apply inline-flex items-center justify-center rounded-md border-0 px-4 py-2 text-sm font-medium active:shadow-button-press focus:outline-none focus:ring-0;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: none;
+    color: theme('colors.brandcolor-white') !important;
+    background-color: theme('colors.brandcolor-primary') !important;
+  }
+  button.canvas-primary-button:hover,
+  .canvas-primary-button:hover,
+  button.primary-canvas-button:hover,
+  .primary-canvas-button:hover {
+    color: theme('colors.brandcolor-white') !important;
+    background-color: theme('colors.brandcolor-primaryhover') !important;
+  }
+
+  /** Primary block: inner button is pointer-events-none; body group drives hover fill. */
+  .group\/canvas-primary:hover .primary-canvas-button {
+    color: theme('colors.brandcolor-white') !important;
+    background-color: theme('colors.brandcolor-primaryhover') !important;
+  }
+
+  /**
+   * Light chrome tooltip for canvas elements (no native title — avoids OS blue/yellow popups).
+   * Parent: `relative` + `group/canvas-el` (or `group/canvas-tip`). Child: this class + position + `opacity-0 group-hover/...:opacity-100`.
+   */
+  .canvas-element-tooltip {
+    @apply pointer-events-none absolute z-20 w-max max-w-[14rem] rounded-md border border-brandcolor-strokeweak bg-brandcolor-white px-2.5 py-1.5 text-left text-[10px] font-medium leading-snug text-brandcolor-textstrong shadow-card;
+  }
+  .canvas-element-tooltip-detail {
+    @apply mt-0.5 block text-[9px] font-normal leading-snug text-brandcolor-textweak;
+  }
+}
+
 /* Sidebar list: white track, rounded white / light thumb */
 @layer utilities {
   .sidebar-scroll-lean {
@@ -50,4 +92,5 @@
   .catalog-home-scroll-strip::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.16);
   }
+
 }
