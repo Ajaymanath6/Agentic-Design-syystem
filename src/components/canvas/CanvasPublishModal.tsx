@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '../Button'
 
 type Props = {
@@ -24,6 +24,18 @@ export function CanvasPublishModal({
   const [description, setDescription] = useState('')
   const [sealed, setSealed] = useState(false)
 
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !submitBusy) {
+        e.preventDefault()
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [open, onClose, submitBusy])
+
   if (!open) return null
 
   const submit = () => {
@@ -34,12 +46,20 @@ export function CanvasPublishModal({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-brandcolor-textstrong/40 p-4"
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-brandcolor-textstrong/40 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="canvas-publish-title"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !submitBusy) {
+          onClose()
+        }
+      }}
     >
-      <div className="w-full max-w-md rounded-lg bg-brandcolor-white p-6 shadow-card ring-1 ring-brandcolor-secondaryfill">
+      <div
+        className="w-full max-w-md rounded-lg bg-brandcolor-white p-6 shadow-card ring-1 ring-brandcolor-secondaryfill"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2
           id="canvas-publish-title"
           className="font-sans text-lg font-semibold text-brandcolor-textstrong"

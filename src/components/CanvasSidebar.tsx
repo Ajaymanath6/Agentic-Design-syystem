@@ -7,50 +7,44 @@ import {
   RiLayoutLine,
   RiLoader4Line,
 } from '@remixicon/react'
-import { useMemo } from 'react'
-import { useAdminWorkspace } from '../context/AdminWorkspaceContext'
-import { useCatalogCards } from '../hooks/useCatalogCards'
-import { buildCatalogAllowlist } from '../lib/layout-plan-catalog'
-import { AdminResizableSidebar } from './AdminResizableSidebar'
+import { Suspense } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { useLayoutWorkspace } from '../context/LayoutWorkspaceContext'
 import { SidebarBrandHeader } from './SidebarBrandHeader'
 import { ViewModeToggle } from './ViewModeToggle'
 
 const segBase =
-  'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2'
+  'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brandcolor-white'
 const segInactive =
   'text-brandcolor-textweak hover:bg-brandcolor-neutralhover hover:text-brandcolor-textstrong'
 const segActive = 'bg-brandcolor-primary text-brandcolor-white'
 
-/**
- * Sidebar for /admin: fixed width in Components; resizable (240–575px) in Layout with bottom prompt.
- */
-export function CanvasSidebar() {
+function CanvasSidebarInner() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const isLayout = searchParams.get('view') === 'layout'
+
   const {
-    mode,
-    setMode,
     layoutPromptDraft,
     setLayoutPromptDraft,
     layoutPromptEntries,
-    submitLayoutPrompt,
     layoutPlanBusy,
-  } = useAdminWorkspace()
-  const { cards } = useCatalogCards()
-  const catalogAllowlist = useMemo(
-    () => buildCatalogAllowlist(cards),
-    [cards],
-  )
+    submitLayoutPrompt,
+  } = useLayoutWorkspace()
 
-  const aside = (
+  const setWorkspace = (next: 'components' | 'layout') => {
+    setSearchParams(
+      next === 'layout' ? { view: 'layout' } : {},
+      { replace: true },
+    )
+  }
+
+  return (
     <aside
-      className={`flex h-full min-h-0 flex-col border-r border-brandcolor-strokeweak bg-brandcolor-white ${
-        mode === 'layout' ? 'w-full min-w-0' : 'w-60 shrink-0'
-      }`}
+      className="flex h-full min-h-0 w-60 shrink-0 flex-col border-r border-brandcolor-strokeweak bg-brandcolor-white"
+      aria-label="Canvas sidebar"
     >
       <SidebarBrandHeader />
       <div className="shrink-0 border-b border-brandcolor-strokeweak p-3">
-        <p className="mb-2 px-1 text-xs font-medium uppercase tracking-wide text-brandcolor-textweak">
-          Workspace
-        </p>
         <div
           className="flex gap-0.5 rounded-lg bg-brandcolor-fill p-1"
           role="group"
@@ -58,18 +52,18 @@ export function CanvasSidebar() {
         >
           <button
             type="button"
-            className={`${segBase} ${mode === 'canvas' ? segActive : segInactive}`}
-            aria-pressed={mode === 'canvas'}
-            onClick={() => setMode('canvas')}
+            className={`${segBase} ${!isLayout ? segActive : segInactive}`}
+            aria-pressed={!isLayout}
+            onClick={() => setWorkspace('components')}
           >
             <RiArtboard2Line className="size-4 shrink-0" aria-hidden />
             Components
           </button>
           <button
             type="button"
-            className={`${segBase} ${mode === 'layout' ? segActive : segInactive}`}
-            aria-pressed={mode === 'layout'}
-            onClick={() => setMode('layout')}
+            className={`${segBase} ${isLayout ? segActive : segInactive}`}
+            aria-pressed={isLayout}
+            onClick={() => setWorkspace('layout')}
           >
             <RiLayoutLine className="size-4 shrink-0" aria-hidden />
             Layout
@@ -77,7 +71,7 @@ export function CanvasSidebar() {
         </div>
       </div>
 
-      {mode === 'layout' && layoutPromptEntries.length > 0 ? (
+      {isLayout && layoutPromptEntries.length > 0 ? (
         <div className="sidebar-scroll-lean min-h-0 flex-1 overflow-y-auto px-3 py-2">
           <ul className="space-y-2 text-[13px] text-brandcolor-textstrong">
             {layoutPromptEntries.map((line, i) => (
@@ -94,9 +88,7 @@ export function CanvasSidebar() {
         <div className="min-h-0 flex-1" />
       )}
 
-      {mode === 'canvas' ? (
-        <ViewModeToggle />
-      ) : (
+      {isLayout ? (
         <div className="shrink-0 border-t border-brandcolor-strokeweak p-3">
           <div className="rounded-xl border border-brandcolor-strokeweak bg-brandcolor-fill p-2">
             <textarea
@@ -105,7 +97,7 @@ export function CanvasSidebar() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
-                  submitLayoutPrompt(catalogAllowlist)
+                  submitLayoutPrompt()
                 }
               }}
               placeholder="Ask…"
@@ -138,7 +130,7 @@ export function CanvasSidebar() {
               </button>
               <button
                 type="button"
-                onClick={() => submitLayoutPrompt(catalogAllowlist)}
+                onClick={() => submitLayoutPrompt()}
                 disabled={layoutPlanBusy}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brandcolor-primary text-brandcolor-white shadow-sm hover:bg-brandcolor-primaryhover disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="Send prompt"
@@ -154,12 +146,21 @@ export function CanvasSidebar() {
             </div>
           </div>
         </div>
-      )}
+      ) : null}
+
+      {!isLayout ? (
+        <div className="mt-auto shrink-0 border-t border-brandcolor-strokeweak">
+          <ViewModeToggle placement="footer" />
+        </div>
+      ) : null}
     </aside>
   )
+}
 
-  if (mode === 'layout') {
-    return <AdminResizableSidebar>{aside}</AdminResizableSidebar>
-  }
-  return aside
+export function CanvasSidebar() {
+  return (
+    <Suspense fallback={null}>
+      <CanvasSidebarInner />
+    </Suspense>
+  )
 }

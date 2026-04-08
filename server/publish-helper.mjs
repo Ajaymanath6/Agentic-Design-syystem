@@ -92,8 +92,8 @@ function writePlaceholderSvg(componentId, label, outPath) {
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200">
   <rect width="100%" height="100%" fill="#F5F5F5"/>
-  <rect x="8" y="8" width="304" height="184" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="2" rx="8"/>
-  <text x="160" y="100" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#001A31">${safe}</text>
+  <rect x="8" y="8" width="304" height="184" fill="#FFFFFF" stroke="#E5E5E5" stroke-width="2" rx="8"/>
+  <text x="160" y="100" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" fill="#1A1A1A">${safe}</text>
 </svg>`
   fs.writeFileSync(outPath, svg, 'utf8')
 }
@@ -144,6 +144,33 @@ function mergeCatalogEntry(catalog, entry) {
   const idx = catalog.components.findIndex((c) => c.id === entry.id)
   if (idx >= 0) catalog.components[idx] = entry
   else catalog.components.push(entry)
+}
+
+function removeComponentArtifacts(componentId) {
+  for (const base of [publicBlueprints, repoBlueprints]) {
+    const p = path.join(base, `${componentId}.json`)
+    try {
+      fs.unlinkSync(p)
+    } catch {
+      /* ignore */
+    }
+  }
+  for (const ext of ['png', 'svg']) {
+    const p = path.join(publicGenerated, `${componentId}-thumbnail.${ext}`)
+    try {
+      fs.unlinkSync(p)
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/** True for components-canvas world publishes (cards + primary buttons). */
+function isComponentsCanvasCatalogId(id) {
+  return (
+    typeof id === 'string' &&
+    (id.startsWith('canvas-card-') || id.startsWith('canvas-primary-'))
+  )
 }
 
 const app = express()
@@ -261,25 +288,38 @@ app.post('/api/delete-component', (req, res) => {
     const catalog = readCatalog()
     catalog.components = catalog.components.filter((c) => c.id !== componentId)
     writeCatalog(catalog)
-
-    for (const base of [publicBlueprints, repoBlueprints]) {
-      const p = path.join(base, `${componentId}.json`)
-      try {
-        fs.unlinkSync(p)
-      } catch {
-        /* ignore */
-      }
-    }
-    for (const ext of ['png', 'svg']) {
-      const p = path.join(publicGenerated, `${componentId}-thumbnail.${ext}`)
-      try {
-        fs.unlinkSync(p)
-      } catch {
-        /* ignore */
-      }
-    }
+    removeComponentArtifacts(componentId)
 
     res.json({ deleted: true, componentId })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: String(e?.message || e) })
+  }
+})
+
+/**
+ * Drop canvas-card-* / canvas-primary-* catalog rows (and files) not listed in keepIds.
+ * Keeps UI catalog in sync when cards were removed without calling delete (e.g. refresh).
+ */
+app.post('/api/prune-canvas-catalog', (req, res) => {
+  try {
+    ensureDirs()
+    const body = req.body || {}
+    const raw = Array.isArray(body.keepIds) ? body.keepIds : []
+    const keep = new Set(raw.map((id) => toKebabComponentId(String(id))))
+    const catalog = readCatalog()
+    const removedIds = []
+    catalog.components = catalog.components.filter((c) => {
+      if (!isComponentsCanvasCatalogId(c.id)) return true
+      if (keep.has(c.id)) return true
+      removedIds.push(c.id)
+      return false
+    })
+    writeCatalog(catalog)
+    for (const id of removedIds) {
+      removeComponentArtifacts(id)
+    }
+    res.json({ pruned: removedIds.length, removedIds })
   } catch (e) {
     console.error(e)
     res.status(500).json({ error: String(e?.message || e) })

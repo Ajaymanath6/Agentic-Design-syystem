@@ -1,5 +1,13 @@
 export type CatalogComponentKind = 'component' | 'layout'
 
+/**
+ * One row in `_catalog.json` after publish. `id` is kebab-case (publish helper
+ * `toKebabComponentId`). Components canvas uses `canvas-card-{nodeUuid}` for cards
+ * and `canvas-primary-{nodeUuid}` for primary-button blocks
+ * once normalized — the same id is sent to `postDeleteComponent` when that
+ * block is removed so the catalog row and generated blueprint/thumbnails are
+ * cleared (no orphan entries).
+ */
 export type CatalogComponentEntry = {
   id: string
   publishedAt: string

@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { CatalogLayout } from "../components/CatalogLayout";
-import { AdminCanvasPage } from "../pages/AdminCanvasPage";
+import { AdminCanvasOutlet } from "../pages/AdminCanvasOutlet";
 import { CatalogAllPage } from "../pages/catalog/CatalogAllPage";
 import { HomePage } from "../pages/home/HomePage";
 import { CatalogNewPage } from "../pages/CatalogNewPage";
@@ -13,7 +13,12 @@ export function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/catalog/home" replace />} />
       <Route element={<CatalogLayout />}>
-        <Route path="admin" element={<AdminCanvasPage />} />
+        <Route path="admin" element={<Navigate to="/admin/canvas" replace />} />
+        <Route path="admin/canvas" element={<AdminCanvasOutlet />} />
+        <Route
+          path="admin/layout"
+          element={<Navigate to="/admin/canvas?view=layout" replace />}
+        />
         <Route path="catalog/home" element={<HomePage />} />
         <Route path="catalog/all" element={<CatalogAllPage />} />
         <Route path="catalog/layouts" element={<CatalogLayoutsPage />} />

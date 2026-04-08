@@ -2,7 +2,7 @@
     "name": "Theme Guide V2",
     "themeColors": {
       "brandcolor-primary": {
-        "hex": "#008B31",
+        "hex": "#F84416",
         "usage": "Main CTA button background, primary brand color",
         "utilityClasses": {
           "background": "bg-brandcolor-primary",
@@ -21,7 +21,7 @@
         ]
       },
       "brandcolor-primaryhover": {
-        "hex": "#016323",
+        "hex": "#EA4C00",
         "usage": "Hover state for primary buttons (when background is primary)",
         "utilityClasses": {
           "background": "bg-brandcolor-primaryhover",
@@ -39,7 +39,7 @@
         "logic": "When a button or element has bg-brandcolor-primary, the hover should use bg-brandcolor-primaryhover (darker shade of primary)"
       },
       "brandcolor-secondary": {
-        "hex": "#2F55D9",
+        "hex": "#0A0A0A",
         "usage": "Secondary brand color for outline/secondary buttons with border",
         "utilityClasses": {
           "background": "bg-brandcolor-secondary",
@@ -65,7 +65,7 @@
         "whenToUse": [
           "Active state of secondary-related controls (e.g. search type dropdown when open)",
           "Selected pill/badge backgrounds tied to secondary actions",
-          "Light fill where secondary (#2F55D9) is the accent"
+          "Light fill where secondary (#0A0A0A) is the accent"
         ],
         "examples": [
           "Dropdown trigger when open: bg-brandcolor-secondaryfill",
@@ -73,7 +73,7 @@
         ]
       },
       "brandcolor-secondaryhover": {
-        "hex": "#183885",
+        "hex": "#292929",
         "usage": "Hover state for secondary buttons (darker shade of secondary)",
         "utilityClasses": {
           "background": "bg-brandcolor-secondaryhover",
@@ -87,7 +87,7 @@
         "examples": [
           "Secondary button hover: hover:bg-brandcolor-secondaryhover"
         ],
-        "logic": "When a button has secondary background color, the hover should use bg-brandcolor-secondaryhover (#183885) which is a darker shade of secondary for better visual feedback."
+        "logic": "When a button has secondary background color, the hover should use bg-brandcolor-secondaryhover (#292929) which is a darker shade of secondary for better visual feedback."
       },
       "brandcolor-neutralhover": {
         "hex": "#EFEFEF",
@@ -110,7 +110,7 @@
         "logic": "When a button is neutral or outline style (with border), the hover should use bg-brandcolor-neutralhover (#EFEFEF), NOT bg-brandcolor-fill. This is a lighter gray specifically for neutral and outline button hovers."
       },
       "brandcolor-textstrong": {
-        "hex": "#001A31",
+        "hex": "#1A1A1A",
         "usage": "Headings, main headings, button text in some cases",
         "utilityClasses": {
           "text": "text-brandcolor-textstrong"
@@ -127,7 +127,7 @@
         ]
       },
       "brandcolor-textweak": {
-        "hex": "#5C6166",
+        "hex": "#575757",
         "usage": "Secondary text, secondary hierarchy after main text",
         "utilityClasses": {
           "text": "text-brandcolor-textweak"
@@ -144,7 +144,7 @@
         ]
       },
       "brandcolor-strokestrong": {
-        "hex": "#737373",
+        "hex": "#575757",
         "usage": "ALWAYS use for: Sidebar borders, input field borders, button borders, icons",
         "utilityClasses": {
           "border": "border-brandcolor-strokestrong",
@@ -166,7 +166,7 @@
         "importantNote": "ALWAYS use strokestrong for sidebar borders, input field borders, and button borders. This is a mandatory rule."
       },
       "brandcolor-strokeweak": {
-        "hex": "#C5C5C5",
+        "hex": "#E5E5E5",
         "usage": "ALWAYS use for: Card borders, dividers, and all other light elements",
         "utilityClasses": {
           "border": "border-brandcolor-strokeweak"
@@ -186,7 +186,7 @@
         "importantNote": "ALWAYS use strokeweak for card borders and dividers. Secondary buttons are an exception and also use strokeweak, but all other button borders use strokestrong."
       },
       "brandcolor-strokemild": {
-        "hex": "#A5A5A5",
+        "hex": "#767676",
         "usage": "ALWAYS use for: Table row borders when hovered",
         "utilityClasses": {
           "border": "border-brandcolor-strokemild"
@@ -201,7 +201,7 @@
         "importantNote": "ALWAYS use strokemild for table row borders on hover. Selected rows use border-brandcolor-secondary instead."
       },
       "brandcolor-strokelight": {
-        "hex": "#C5C5C5",
+        "hex": "#F5F5F5",
         "usage": "ALWAYS use for: Primary-outline button borders",
         "utilityClasses": {
           "border": "border-brandcolor-strokelight"
@@ -498,19 +498,19 @@
           "description": "Main CTA button with primary brand color",
           "defaultState": {
             "classes": "border-[1.5px] border-transparent bg-brandcolor-primary text-brandcolor-white rounded-md",
-            "logic": "Uses primary brand color (#008B31) as background with white text. Has transparent border in default state to prevent layout shift when border appears on focus/active. ALWAYS includes rounded-md (6px corner radius)."
+            "logic": "Uses primary brand color (#F84416) as background with white text. Has transparent border in default state to prevent layout shift when border appears on focus/active. ALWAYS includes rounded-md (6px corner radius)."
           },
           "hoverState": {
             "classes": "hover:bg-brandcolor-primaryhover",
-            "logic": "On hover, background changes to brandcolor-primaryhover (#016323) which is a darker shade of primary for better visual feedback."
+            "logic": "On hover, background changes to brandcolor-primaryhover (#EA4C00) which is a darker shade of primary for better visual feedback."
           },
           "focusState": {
             "classes": "focus:border-brandcolor-primary",
-            "logic": "On focus, transparent border changes to primary color (#008B31)."
+            "logic": "On focus, transparent border changes to primary color (#F84416)."
           },
           "activeState": {
             "classes": "active:border-brandcolor-primary active:shadow-button-press",
-            "logic": "On press/active: transparent border changes to primary color (#008B31), and inner shadow appears (inset 3px 3px 10px 0px rgba(0, 26, 49, 0.33))."
+            "logic": "On press/active: transparent border changes to primary color (#F84416), and inner shadow appears (inset 3px 3px 10px 0px rgba(26, 26, 26, 0.33))."
           },
           "disabledState": {
             "classes": "disabled:opacity-50",
@@ -524,7 +524,7 @@
           "description": "Neutral button with textweak color and strokelight border",
           "defaultState": {
             "classes": "border-[1.5px] border-brandcolor-strokelight text-brandcolor-textweak bg-brandcolor-white rounded-md",
-            "logic": "White background with strokelight border (#C5C5C5) at 1.5px width and textweak color text (#5C6166). ALWAYS includes rounded-md (6px corner radius)."
+            "logic": "White background with strokelight border (#F5F5F5) at 1.5px width and textweak color text (#575757). ALWAYS includes rounded-md (6px corner radius)."
           },
           "hoverState": {
             "classes": "hover:bg-brandcolor-neutralhover",
@@ -532,7 +532,7 @@
           },
           "activeState": {
             "classes": "active:border-brandcolor-textweak active:text-brandcolor-textweak active:shadow-button-press",
-            "logic": "On press/active: border changes to textweak color (#5C6166), text remains textweak color, and inner shadow appears (inset 3px 3px 10px 0px rgba(0, 26, 49, 0.33))."
+            "logic": "On press/active: border changes to textweak color (#575757), text remains textweak color, and inner shadow appears (inset 3px 3px 10px 0px rgba(26, 26, 26, 0.33))."
           },
           "disabledState": {
             "classes": "disabled:opacity-50",
@@ -582,7 +582,7 @@
           "ALWAYS include focus:ring-0 to override Flowbite's default focus ring",
           "ALWAYS include focus:outline-none to override browser default outline",
           "NEVER allow Flowbite or browser default focus styles",
-          "Focus border MUST be brandcolor-textstrong (#001A31), NEVER brandcolor-secondary or any other color"
+          "Focus border MUST be brandcolor-textstrong (#1A1A1A), NEVER brandcolor-secondary or any other color"
         ]
       }
     },
@@ -597,11 +597,11 @@
       ],
       "criticalRules": {
         "noHexCodes": {
-          "rule": "NEVER use hex color codes (#008B31, #2F55D9, etc.) directly in HTML, CSS, or inline styles",
+          "rule": "NEVER use hex color codes (#F84416, #0A0A0A, etc.) directly in HTML, CSS, or inline styles",
           "severity": "CRITICAL"
         },
         "noInlineStyles": {
-          "rule": "NEVER use inline styles (style='color: #008B31') or style attributes for colors",
+          "rule": "NEVER use inline styles (style='color: #F84416') or style attributes for colors",
           "severity": "CRITICAL"
         },
         "noHardcodedTailwindColors": {
@@ -624,7 +624,7 @@
           "reason": "Never use hardcoded Tailwind colors. Always use theme classes with required classes."
         },
         "mistake2": {
-          "wrong": "<div style=\"background-color: #008B31\">Content</div>",
+          "wrong": "<div style=\"background-color: #F84416\">Content</div>",
           "correct": "<div class=\"bg-brandcolor-primary\">Content</div>",
           "reason": "Never use inline styles or hex codes. Always use utility classes."
         },

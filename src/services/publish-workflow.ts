@@ -107,3 +107,24 @@ export async function postDeleteComponent(componentId: string): Promise<void> {
     throw new Error(err || `Delete failed: ${res.status}`)
   }
 }
+
+export type PruneCanvasCatalogResponse = {
+  pruned: number
+  removedIds: string[]
+}
+
+/** Remove published canvas-card-* / canvas-primary-* rows not listed in keepIds. */
+export async function postPruneCanvasCatalog(
+  keepIds: string[],
+): Promise<PruneCanvasCatalogResponse> {
+  const res = await helperFetch('/api/prune-canvas-catalog', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ keepIds }),
+  })
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(err || `Prune failed: ${res.status}`)
+  }
+  return res.json() as Promise<PruneCanvasCatalogResponse>
+}

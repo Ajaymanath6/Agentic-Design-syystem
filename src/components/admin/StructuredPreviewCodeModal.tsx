@@ -198,7 +198,7 @@ export function StructuredPreviewCodeModal({
                 onClick={handlePublish}
                 disabled={publishButtonDisabled}
                 aria-label="Publish layout to catalog"
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-brandcolor-white bg-brandcolor-primary transition-colors hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-brandcolor-white !bg-brandcolor-primary transition-colors hover:!bg-brandcolor-primaryhover focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {publishBusy ? 'Working…' : 'Publish'}
               </button>

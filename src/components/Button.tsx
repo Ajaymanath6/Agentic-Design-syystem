@@ -7,7 +7,7 @@ const base =
 
 const variants: Record<Variant, string> = {
   primary:
-    'text-brandcolor-white bg-brandcolor-primary hover:bg-brandcolor-primaryhover active:shadow-button-press',
+    'text-brandcolor-white !bg-brandcolor-primary hover:!bg-brandcolor-primaryhover active:shadow-button-press',
   neutral:
     'border border-1.5 border-brandcolor-strokestrong bg-brandcolor-white text-brandcolor-textstrong hover:bg-brandcolor-neutralhover active:shadow-border-inset-strokelight',
 }

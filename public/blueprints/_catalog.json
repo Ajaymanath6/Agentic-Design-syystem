@@ -1,114 +1,36 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-08T09:29:20.158Z",
+  "lastUpdated": "2026-04-08T13:25:46.634Z",
   "components": [
     {
-      "id": "article-card",
-      "publishedAt": "2026-04-07T05:23:12.045Z",
+      "id": "canvas-card-87add6d8-8c23-4951-bc7b-fe5fd962960d",
+      "publishedAt": "2026-04-08T13:02:30.797Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "ArticleCardComponent",
-      "thumbnailPath": "/generated/article-card-thumbnail.png",
-      "blueprintPath": "/blueprints/article-card.json"
+      "importId": "CanvasCard87add6d88c234951Bc7bFe5fd962960dComponent",
+      "thumbnailPath": "/generated/canvas-card-87add6d8-8c23-4951-bc7b-fe5fd962960d-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-card-87add6d8-8c23-4951-bc7b-fe5fd962960d.json",
+      "kind": "component"
     },
     {
-      "id": "case-card",
-      "publishedAt": "2026-04-07T05:37:26.768Z",
+      "id": "canvas-primary-c7a06fec-fd06-4207-91a0-a2058e662d72",
+      "publishedAt": "2026-04-08T13:24:43.492Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "CaseCardComponent",
-      "thumbnailPath": "/generated/case-card-thumbnail.png",
-      "blueprintPath": "/blueprints/case-card.json"
+      "importId": "CanvasPrimaryC7a06fecFd06420791a0A2058e662d72Component",
+      "thumbnailPath": "/generated/canvas-primary-c7a06fec-fd06-4207-91a0-a2058e662d72-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-primary-c7a06fec-fd06-4207-91a0-a2058e662d72.json",
+      "kind": "component"
     },
     {
-      "id": "demo-canvas-name",
-      "publishedAt": "2026-04-07T13:13:48.719Z",
+      "id": "layout-1o4ytd8",
+      "publishedAt": "2026-04-08T13:25:46.634Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "DemoCanvasNameComponent",
-      "thumbnailPath": "/generated/demo-canvas-name-thumbnail.png",
-      "blueprintPath": "/blueprints/demo-canvas-name.json"
-    },
-    {
-      "id": "demo-canvas-password",
-      "publishedAt": "2026-04-08T07:27:47.779Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "DemoCanvasPasswordComponent",
-      "thumbnailPath": "/generated/demo-canvas-password-thumbnail.png",
-      "blueprintPath": "/blueprints/demo-canvas-password.json"
-    },
-    {
-      "id": "layout-13cmbs9",
-      "publishedAt": "2026-04-08T09:13:05.673Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "Layout13cmbs9Component",
-      "thumbnailPath": "/generated/layout-13cmbs9-thumbnail.png",
-      "blueprintPath": "/blueprints/layout-13cmbs9.json"
-    },
-    {
-      "id": "layout-163sq1o",
-      "publishedAt": "2026-04-08T09:29:20.158Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "Layout163sq1oComponent",
-      "thumbnailPath": "/generated/layout-163sq1o-thumbnail.png",
-      "blueprintPath": "/blueprints/layout-163sq1o.json"
-    },
-    {
-      "id": "layout-7bchwc",
-      "publishedAt": "2026-04-08T09:28:39.376Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "Layout7bchwcComponent",
-      "thumbnailPath": "/generated/layout-7bchwc-thumbnail.png",
-      "blueprintPath": "/blueprints/layout-7bchwc.json"
-    },
-    {
-      "id": "plain-card-dual",
-      "publishedAt": "2026-04-07T05:57:47.916Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "PlainCardDualComponent",
-      "thumbnailPath": "/generated/plain-card-dual-thumbnail.png",
-      "blueprintPath": "/blueprints/plain-card-dual.json"
-    },
-    {
-      "id": "plain-card-single",
-      "publishedAt": "2026-04-07T05:57:38.722Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "PlainCardSingleComponent",
-      "thumbnailPath": "/generated/plain-card-single-thumbnail.png",
-      "blueprintPath": "/blueprints/plain-card-single.json"
-    },
-    {
-      "id": "primary-button-alt",
-      "publishedAt": "2026-04-07T05:45:48.696Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "PrimaryButtonAltComponent",
-      "thumbnailPath": "/generated/primary-button-alt-thumbnail.png",
-      "blueprintPath": "/blueprints/primary-button-alt.json"
-    },
-    {
-      "id": "profile-card",
-      "publishedAt": "2026-04-07T05:22:05.814Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "ProfileCardComponent",
-      "thumbnailPath": "/generated/profile-card-thumbnail.png",
-      "blueprintPath": "/blueprints/profile-card.json"
-    },
-    {
-      "id": "promo-card",
-      "publishedAt": "2026-04-07T05:58:07.416Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "PromoCardComponent",
-      "thumbnailPath": "/generated/promo-card-thumbnail.png",
-      "blueprintPath": "/blueprints/promo-card.json"
+      "importId": "Layout1o4ytd8Component",
+      "thumbnailPath": "/generated/layout-1o4ytd8-thumbnail.png",
+      "blueprintPath": "/blueprints/layout-1o4ytd8.json",
+      "kind": "layout"
     }
   ]
 }

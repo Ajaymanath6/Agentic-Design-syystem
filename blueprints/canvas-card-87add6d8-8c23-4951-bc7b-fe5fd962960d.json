@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-card-87add6d8-8c23-4951-bc7b-fe5fd962960d",
+  "component": "div",
+  "importId": "CanvasCard87add6d88c234951Bc7bFe5fd962960dComponent",
+  "data": {
+    "imageUrl": "/generated/canvas-card-87add6d8-8c23-4951-bc7b-fe5fd962960d-thumbnail.png",
+    "imageAlt": "Canvas card",
+    "sealed": true,
+    "sourceHtml": "<article class=\"rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card px-3 py-3\" style=\"width:280px;box-sizing:border-box\"><h3 class=\"font-sans text-base font-semibold text-brandcolor-textstrong\">Canvas card</h3><p class=\"mt-1 text-sm text-brandcolor-textweak\">Subtitle for context</p><p class=\"mt-2 text-sm leading-relaxed text-brandcolor-textweak\">Paragraph text uses text-brandcolor-textweak with relaxed leading. Drag this card anywhere on the canvas.</p></article>"
+  }
+}

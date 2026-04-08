@@ -10,7 +10,7 @@ import {
 import { StructuredPreviewCodeModal } from '../../components/admin/StructuredPreviewCodeModal'
 import { CanvasPublishModal } from '../../components/canvas/CanvasPublishModal'
 import { CatalogDetailToolbarButton } from '../../components/catalog/CatalogDetailToolbarButton'
-import { useAdminWorkspace } from '../../context/AdminWorkspaceContext'
+import { useLayoutWorkspace } from '../../context/LayoutWorkspaceContext'
 import { useCatalogRefresh } from '../../context/CatalogRefreshContext'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
 import { captureElementFullPng } from '../../lib/capture-screenshot'
@@ -350,7 +350,7 @@ function renderPlanBlock(
  */
 export function AdminLayoutStudio() {
   const { layoutPromptEntries, layoutPlan, layoutPlanBusy, layoutPlanError } =
-    useAdminWorkspace()
+    useLayoutWorkspace()
   const { refreshCatalog } = useCatalogRefresh()
   const { cards, loading, error } = useCatalogCards()
   const [structuredCodeOpen, setStructuredCodeOpen] = useState(false)

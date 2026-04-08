@@ -1,11 +1,30 @@
 {
   "componentGuidelines": {
     "button": {
-      "primary": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary hover:bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0",
-      "primaryDescription": "Background: brand primary green; label uses text-brandcolor-white (white). Used on Admin canvas BlockPreview type button.",
+      "primary": "canvas-primary-button",
+      "primaryCanvasAlias": "primary-canvas-button — same paint as canvas-primary-button (use for in-canvas primary CTAs when needed).",
+      "primaryDescription": "Primary CTA: canvas-primary-button or primary-canvas-button in src/index.css (theme() brandcolor-primary / brandcolor-primaryhover). Label text-brandcolor-white. Do not use brandcolor-badge-success-* for primary or for canvas Published state.",
+      "primaryBackgroundToken": "brandcolor-primary",
+      "primaryHoverToken": "brandcolor-primaryhover",
+      "primaryEquivalentTailwind": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white !bg-brandcolor-primary hover:!bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0",
+      "componentsCanvasExample": "ComponentsCanvasSurface: All blocks live in world space (pan/zoom). Double-click empty grid → card; Shift-double-click → primary button (primary-canvas-button, brandcolor-primary / primaryhover). Hover toolbar: Capture, Code, Delete. Code modal: sourceHtml + blueprint JSON preview. Catalog ids canvas-card-* / canvas-primary-*. Prune orphans: npm run catalog:prune-canvas (see scripts/prune-canvas-catalog.mjs).",
       "neutral": "inline-flex items-center justify-center rounded-md border border-1.5 border-brandcolor-strokestrong bg-brandcolor-white px-4 py-2 text-sm font-medium text-brandcolor-textstrong hover:bg-brandcolor-neutralhover active:shadow-border-inset-strokelight focus:outline-none focus:ring-0"
     },
     "card": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+    "componentsCanvasCard": {
+      "description": "Default block on ComponentsCanvasSurface — same surface token as componentGuidelines.card; typography uses tailwind.config.js brand text colors only. Hover help: parent group/canvas-tip + .canvas-element-tooltip (+ optional .canvas-element-tooltip-detail); avoid title= on canvas chrome to prevent OS tooltips.",
+      "surface": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
+      "widthPx": 280,
+      "title": "font-sans text-base font-semibold text-brandcolor-textstrong",
+      "subtitle": "mt-1 text-sm text-brandcolor-textweak",
+      "body": "mt-2 text-sm leading-relaxed text-brandcolor-textweak"
+    },
+    "componentsCanvasPrimaryButton": {
+      "description": "Components canvas block kind primaryButton: wrapped in same card surface as componentsCanvasCard; inner control uses primary-canvas-button (src/index.css) so fill is theme brandcolor-primary and hover brandcolor-primaryhover (tailwind.config.js). Published sourceHtml uses the same Tailwind utility names as componentGuidelines.button.primaryEquivalentTailwind for static export. Catalog componentId prefix canvas-primary-.",
+      "surface": "Same outer chrome as componentsCanvasCard",
+      "controlClass": "primary-canvas-button",
+      "tokens": "brandcolor-primary, brandcolor-primaryhover, text-brandcolor-white"
+    },
     "caseCard": {
       "description": "Case study card: case name (h2) with share + tag icon actions on the header row, subheading (text-strong), description (text-weak body).",
       "surface": "Same as card — rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
