@@ -119,12 +119,12 @@ You do **not** need a second Flask server. Use **`npm run dev:with-llm`** once P
 
 1. **Service up:** `curl -sS http://127.0.0.1:4302/health` → `{"status":"ok"}` (after `npm run dev:vertex-llm` or `npm run dev:with-llm`).
 2. **Generate:** `curl` `POST /layout/generate` or `POST /generate` with `{"prompt":"Hi"}` → JSON with `"text"`.
-3. **UI:** **Admin → Layout** → **Ask…** → send → quick catalog match first, then **Structured preview** (title/subtitle from theme keys + catalog `sourceHtml`) when `/layout/plan` succeeds; inline warning if the planner fails (heuristic preview remains).
+3. **UI:** **Admin → Layout** → **Ask…** → send → quick catalog match first (single component + repeat/grid), then **Structured preview** (stacked blocks, optional **row** / **split** from the planner) when `/layout/plan` succeeds; inline warning if the planner fails (heuristic preview remains).
 
 ## API
 
 - `GET /health` — liveness
-- `POST /layout/plan` — JSON `{ "prompt": string, "catalogAllowlist": string[] }` → `{ "plan": LayoutPlanV1 }` (validated JSON: `chrome` + `catalog` blocks; catalog refs must match allowlist). Used by **Admin → Layout** structured preview.
+- `POST /layout/plan` — JSON `{ "prompt": string, "catalogAllowlist": string[] }` → `{ "plan": LayoutPlanV1 }` (validated JSON). **Block types:** `chrome`, `catalog`, **`row`** (2–4 columns; each column is a list of chrome/catalog leaves only), **`split`** (`variant: sidebarMain`, `sidebar` + `main` leaf lists, optional `sidebarPlacement` start|end, `sidebarWidth` narrow|default|wide). Catalog refs must match allowlist; invalid nested refs dropped. Rows with fewer than two non-empty columns flatten to a vertical leaf list. Optional **`defaultAfterGap`** and per-block **`afterGap`**: `tight` | `default` | `section` | `hero` (see `src/config/theme-guide.json` → `spacing`). Client infers spacing between top-level blocks (row/split adjacent to catalog/chrome uses `default`; `section` between row↔split or catalog→chrome unless overridden). **Canvas handoff (future):** the same plan JSON can be saved and used to seed Admin canvas blocks or an import flow — not automated in the UI yet.
 - `POST /layout/generate` — JSON `{ "prompt": string, "systemContext"?: string }` → `{ "text": string }` (free-text; tutorials / optional)
 - `POST /generate` — same request/response as `/layout/generate` (alias for docs/tutorials)
 

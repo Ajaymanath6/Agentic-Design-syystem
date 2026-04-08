@@ -6,7 +6,7 @@ import json
 import logging
 import os
 import re
-from typing import Literal
+from typing import Annotated, Any, Literal, Union, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -23,6 +23,10 @@ ALLOWED_THEME_KEYS: frozenset[str] = frozenset(
     }
 )
 
+ALLOWED_AFTER_GAPS: frozenset[str] = frozenset(
+    {"tight", "default", "section", "hero"}
+)
+
 LAYOUT_PLAN_SYSTEM = """You are a layout planner for an internal component catalog admin UI.
 
 Output ONLY a single JSON object. No markdown fences, no backticks, no HTML, no commentary.
@@ -30,8 +34,10 @@ Output ONLY a single JSON object. No markdown fences, no backticks, no HTML, no 
 Required shape:
 {
   "version": 1,
+  "defaultAfterGap": "section",
   "blocks": [ ... ]
 }
+(defaultAfterGap optional; same values as afterGap per block)
 
 Block types (use "type" exactly):
 
@@ -48,9 +54,22 @@ heading.h1, heading.h2, heading.h3, profileCard.name, profileCard.title, profile
 { "type": "catalog", "ref": "<must be one of the allowed catalog refs below>",
   "repeat": 1,
   "layout": "flow",
-  "grid": null }
+  "grid": null,
+  "afterGap": "section" }
 or for a grid:
 { "type": "catalog", "ref": "<ref>", "repeat": 6, "layout": "grid", "grid": { "cols": 3, "rows": 2 } }
+
+Optional on any block (chrome or catalog): "afterGap": "tight" | "default" | "section" | "hero"
+— vertical space before the NEXT block (Tailwind mb-*). Maps to theme spaceScaleRem: default≈space-4 (16px), section≈space-6 (24px), hero≈space-8 (32px), tight≈space-2 (8px).
+Optional on root: "defaultAfterGap" — when set, every block without its own afterGap uses this.
+
+When afterGap is omitted, the UI infers: chrome→catalog and catalog→catalog use default (space-4) for form stacks; catalog→chrome uses section. Use "hero" on chrome when the user asks for a large gap after the title; use "section" for looser stacks.
+
+3) Spacing tokens (see theme-guide spacing.spaceScaleRem and layoutTokenMap in context):
+- tight: space-2 / mb-2 (8px)
+- default: space-4 / mb-4 (16px) — typical between form fields
+- section: space-6 / mb-6 (24px)
+- hero: space-8 / mb-8 (32px)
 
 Rules:
 - "repeat" for flow: how many copies in a row/wrap layout (1–12). For grid, repeat should equal cols*rows.
@@ -60,6 +79,31 @@ Rules:
   - If they ask for a component/card first, then title/subtitle → put catalog block(s) first, then pageHeading chrome.
   - If they list multiple sections in order, interleave chrome and catalog blocks to mirror that order.
 - Use pageHeading chrome when the user wants a visible title and/or subtitle (extract copy from their words when possible).
+- Use type "row" for side-by-side fields or cards (each column's "children" may only be chrome or catalog — never nested row/split).
+- Use type "split" with variant "sidebarMain" when the user wants a sidebar plus main area.
+
+CRITICAL — same row / side by side:
+- If the user asks for fields (e.g. name AND password) side by side, on one row, two columns, next to each other, or horizontally aligned, you MUST use ONE block with "type": "row" and two "columns", each column's "children" holding ONE catalog leaf for that field. Do NOT use two separate top-level "catalog" blocks — that always stacks vertically in the UI.
+- Put pageHeading chrome above that row when they want a title; then the row; then remaining catalog blocks (e.g. button) below the row.
+
+4) Row (2–4 columns; each column is a vertical stack of ONLY chrome + catalog leaves — no nested row/split):
+{ "type": "row", "stackBelow": "sm",
+  "columns": [
+    { "children": [ { "type": "catalog", "ref": "demo-canvas-name", "repeat": 1, "layout": "flow", "grid": null } ] },
+    { "children": [ { "type": "catalog", "ref": "demo-canvas-password", "repeat": 1, "layout": "flow", "grid": null } ] }
+  ],
+  "afterGap": "default" }
+stackBelow optional: "sm" (default UI: side-by-side from 640px, stack only on very narrow viewports) | "md" | "lg" (stack until that breakpoint, then row). Omit stackBelow for the same default as "sm".
+
+5) Split sidebar + main (each side is a list of chrome + catalog leaves only):
+{ "type": "split", "variant": "sidebarMain",
+  "sidebarPlacement": "start",
+  "sidebarWidth": "default",
+  "sidebar": [ { "type": "chrome", "kind": "pageHeading", "title": "Nav", "titleThemeKey": "heading.h3", "subtitleThemeKey": "profileCard.title" } ],
+  "main": [ { "type": "catalog", "ref": "case-card", "repeat": 1, "layout": "flow", "grid": null } ],
+  "afterGap": "section" }
+sidebarPlacement: "start" (sidebar first) or "end" (sidebar on the right on large screens).
+sidebarWidth: "narrow" | "default" | "wide".
 """
 
 
@@ -79,6 +123,7 @@ class ChromeBlockModel(BaseModel):
     subtitle: str | None = Field(default=None, max_length=500)
     titleThemeKey: str = Field(default="heading.h2", max_length=64)
     subtitleThemeKey: str | None = Field(default="profileCard.title", max_length=64)
+    afterGap: str | None = Field(default=None, max_length=32)
 
 
 class CatalogBlockModel(BaseModel):
@@ -89,6 +134,7 @@ class CatalogBlockModel(BaseModel):
     repeat: int = Field(default=1, ge=1, le=36)
     layout: Literal["flow", "grid"] = "flow"
     grid: GridModel | None = None
+    afterGap: str | None = Field(default=None, max_length=32)
 
     @model_validator(mode="after")
     def grid_flow_consistency(self) -> CatalogBlockModel:
@@ -99,11 +145,51 @@ class CatalogBlockModel(BaseModel):
         return self
 
 
+LeafBlock = Annotated[
+    Union[ChromeBlockModel, CatalogBlockModel],
+    Field(discriminator="type"),
+]
+
+
+class RowColumnModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    children: list[LeafBlock] = Field(default_factory=list)
+
+
+class RowBlockModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    type: Literal["row"] = "row"
+    columns: list[RowColumnModel] = Field(default_factory=list, min_length=1, max_length=4)
+    stackBelow: Literal["sm", "md", "lg"] | None = None
+    afterGap: str | None = Field(default=None, max_length=32)
+
+
+class SplitBlockModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    type: Literal["split"] = "split"
+    variant: Literal["sidebarMain"] = "sidebarMain"
+    sidebar: list[LeafBlock] = Field(default_factory=list)
+    main: list[LeafBlock] = Field(default_factory=list)
+    sidebarPlacement: Literal["start", "end"] = "start"
+    sidebarWidth: Literal["narrow", "default", "wide"] = "default"
+    afterGap: str | None = Field(default=None, max_length=32)
+
+
+PlanBlock = Annotated[
+    Union[ChromeBlockModel, CatalogBlockModel, RowBlockModel, SplitBlockModel],
+    Field(discriminator="type"),
+]
+
+
 class LayoutPlanV1Model(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     version: Literal[1] = 1
-    blocks: list[ChromeBlockModel | CatalogBlockModel]
+    defaultAfterGap: str | None = Field(default=None, max_length=32)
+    blocks: list[PlanBlock]
 
 
 def theme_guide_path_default() -> str:
@@ -195,46 +281,135 @@ def _coerce_theme_key(key: str | None, default: str) -> str:
     return key
 
 
-def sanitize_plan(plan: LayoutPlanV1Model, allowlist: list[str]) -> LayoutPlanV1Model:
-    out_blocks: list[ChromeBlockModel | CatalogBlockModel] = []
-    for b in plan.blocks:
+def _coerce_after_gap(raw: str | None) -> str | None:
+    if raw is None:
+        return None
+    if raw not in ALLOWED_AFTER_GAPS:
+        return "section"
+    return raw
+
+
+def _sanitize_chrome(b: ChromeBlockModel) -> ChromeBlockModel:
+    tk = _coerce_theme_key(b.titleThemeKey, "heading.h2")
+    sk = b.subtitleThemeKey
+    if sk is not None and sk not in ALLOWED_THEME_KEYS:
+        sk = "profileCard.title"
+    return ChromeBlockModel(
+        type="chrome",
+        kind="pageHeading",
+        title=b.title,
+        subtitle=b.subtitle,
+        titleThemeKey=tk,
+        subtitleThemeKey=sk,
+        afterGap=_coerce_after_gap(b.afterGap),
+    )
+
+
+def _sanitize_catalog(
+    b: CatalogBlockModel, allowlist: list[str]
+) -> CatalogBlockModel | None:
+    canon = match_catalog_ref(b.ref, allowlist)
+    if canon is None:
+        logger.info("Dropping catalog block: ref %r not in allowlist", b.ref)
+        return None
+    layout = b.layout
+    grid = b.grid
+    if layout == "grid" and grid is not None:
+        cells = min(36, max(1, grid.cols * grid.rows))
+        repeat = cells
+    else:
+        repeat = min(12, max(1, b.repeat))
+    return CatalogBlockModel(
+        type="catalog",
+        ref=canon,
+        repeat=repeat,
+        layout=layout,
+        grid=grid,
+        afterGap=_coerce_after_gap(b.afterGap),
+    )
+
+
+def _sanitize_leaf_list(
+    items: list[ChromeBlockModel | CatalogBlockModel],
+    allowlist: list[str],
+) -> list[ChromeBlockModel | CatalogBlockModel]:
+    out: list[ChromeBlockModel | CatalogBlockModel] = []
+    for b in items:
         if isinstance(b, ChromeBlockModel):
-            tk = _coerce_theme_key(b.titleThemeKey, "heading.h2")
-            sk = b.subtitleThemeKey
-            if sk is not None and sk not in ALLOWED_THEME_KEYS:
-                sk = "profileCard.title"
-            out_blocks.append(
-                ChromeBlockModel(
-                    type="chrome",
-                    kind="pageHeading",
-                    title=b.title,
-                    subtitle=b.subtitle,
-                    titleThemeKey=tk,
-                    subtitleThemeKey=sk,
-                )
-            )
+            out.append(_sanitize_chrome(b))
         else:
-            canon = match_catalog_ref(b.ref, allowlist)
-            if canon is None:
-                logger.info("Dropping catalog block: ref %r not in allowlist", b.ref)
-                continue
-            layout = b.layout
-            grid = b.grid
-            if layout == "grid" and grid is not None:
-                cells = min(36, max(1, grid.cols * grid.rows))
-                repeat = cells
-            else:
-                repeat = min(12, max(1, b.repeat))
-            out_blocks.append(
-                CatalogBlockModel(
-                    type="catalog",
-                    ref=canon,
-                    repeat=repeat,
-                    layout=layout,
-                    grid=grid,
-                )
-            )
-    return LayoutPlanV1Model(version=1, blocks=out_blocks)
+            c = _sanitize_catalog(b, allowlist)
+            if c is not None:
+                out.append(c)
+    return out
+
+
+def _sanitize_row(b: RowBlockModel, allowlist: list[str]) -> list[PlanBlock]:
+    cols_out: list[RowColumnModel] = []
+    for col in b.columns:
+        ch = _sanitize_leaf_list(col.children, allowlist)
+        if ch:
+            cols_out.append(RowColumnModel(children=ch))
+    if len(cols_out) < 2:
+        flat: list[ChromeBlockModel | CatalogBlockModel] = []
+        for c in cols_out:
+            flat.extend(c.children)
+        return cast(list[PlanBlock], flat)
+    trimmed = cols_out[:4]
+    return [
+        RowBlockModel(
+            type="row",
+            columns=trimmed,
+            stackBelow=b.stackBelow,
+            afterGap=_coerce_after_gap(b.afterGap),
+        )
+    ]
+
+
+def _sanitize_split(b: SplitBlockModel, allowlist: list[str]) -> list[PlanBlock]:
+    side = _sanitize_leaf_list(b.sidebar, allowlist)
+    main = _sanitize_leaf_list(b.main, allowlist)
+    if not side and not main:
+        return []
+    if not side:
+        return cast(list[PlanBlock], main)
+    if not main:
+        return cast(list[PlanBlock], side)
+    return [
+        SplitBlockModel(
+            type="split",
+            variant=b.variant,
+            sidebar=side,
+            main=main,
+            sidebarPlacement=b.sidebarPlacement,
+            sidebarWidth=b.sidebarWidth,
+            afterGap=_coerce_after_gap(b.afterGap),
+        )
+    ]
+
+
+def _sanitize_top_level(b: PlanBlock, allowlist: list[str]) -> list[PlanBlock]:
+    if isinstance(b, ChromeBlockModel):
+        return [_sanitize_chrome(b)]
+    if isinstance(b, CatalogBlockModel):
+        c = _sanitize_catalog(b, allowlist)
+        return [c] if c else []
+    if isinstance(b, RowBlockModel):
+        return _sanitize_row(b, allowlist)
+    if isinstance(b, SplitBlockModel):
+        return _sanitize_split(b, allowlist)
+    return []
+
+
+def sanitize_plan(plan: LayoutPlanV1Model, allowlist: list[str]) -> LayoutPlanV1Model:
+    out_blocks: list[PlanBlock] = []
+    for b in plan.blocks:
+        out_blocks.extend(_sanitize_top_level(b, allowlist))
+    return LayoutPlanV1Model(
+        version=1,
+        defaultAfterGap=_coerce_after_gap(plan.defaultAfterGap),
+        blocks=out_blocks,
+    )
 
 
 def parse_and_validate_plan(

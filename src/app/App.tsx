@@ -1,11 +1,11 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import { CatalogLayout } from '../components/CatalogLayout'
-import { AdminCanvasPage } from '../pages/AdminCanvasPage'
-import { CatalogAllPage } from '../pages/catalog/CatalogAllPage'
-import { HomePage } from '../pages/home/HomePage'
-import { CatalogNewPage } from '../pages/CatalogNewPage'
-import { CatalogStubPage } from '../pages/CatalogStubPage'
-import { ComingSoonPage } from '../pages/ComingSoonPage'
+import { Navigate, Route, Routes } from "react-router-dom";
+import { CatalogLayout } from "../components/CatalogLayout";
+import { AdminCanvasPage } from "../pages/AdminCanvasPage";
+import { CatalogAllPage } from "../pages/catalog/CatalogAllPage";
+import { HomePage } from "../pages/home/HomePage";
+import { CatalogNewPage } from "../pages/CatalogNewPage";
+import { CatalogStubPage } from "../pages/CatalogStubPage";
+import { ComingSoonPage } from "../pages/ComingSoonPage";
 
 export function App() {
   return (
@@ -67,5 +67,5 @@ export function App() {
       </Route>
       <Route path="*" element={<Navigate to="/catalog/home" replace />} />
     </Routes>
-  )
+  );
 }

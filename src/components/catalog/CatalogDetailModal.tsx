@@ -1,9 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   RiBookmarkLine,
   RiBookmarkFill,
@@ -19,6 +14,7 @@ import {
   isCatalogBookmarked,
   toggleCatalogBookmark,
 } from '../../lib/catalog-bookmarks'
+import { CatalogDetailToolbarButton } from './CatalogDetailToolbarButton'
 
 type DetailPanel = 'image' | 'code' | 'blueprint'
 
@@ -26,42 +22,6 @@ type Props = {
   open: boolean
   card: CatalogCardModel | null
   onClose: () => void
-}
-
-function ToolbarTextIconButton({
-  label,
-  active,
-  onClick,
-  ariaPressed,
-  title,
-  children,
-}: {
-  label: string
-  active: boolean
-  onClick: () => void
-  ariaPressed?: boolean
-  title?: string
-  children: ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      title={title ?? label}
-      aria-label={label}
-      aria-pressed={ariaPressed}
-      onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 ${
-        active
-          ? 'bg-brandcolor-fill text-brandcolor-textstrong'
-          : 'text-brandcolor-textweak hover:bg-brandcolor-fill hover:text-brandcolor-textstrong'
-      }`}
-    >
-      <span className="whitespace-nowrap">{label}</span>
-      <span className="flex shrink-0 items-center [&>svg]:size-5" aria-hidden>
-        {children}
-      </span>
-    </button>
-  )
 }
 
 /**
@@ -122,22 +82,22 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
             </p>
           </div>
           <div className="flex max-w-full flex-wrap items-center justify-end gap-0.5">
-            <ToolbarTextIconButton
+            <CatalogDetailToolbarButton
               label="Refresh"
               active={false}
               onClick={onRefresh}
             >
               <RiRefreshLine />
-            </ToolbarTextIconButton>
-            <ToolbarTextIconButton
+            </CatalogDetailToolbarButton>
+            <CatalogDetailToolbarButton
               label="Bookmark"
               active={bookmarked}
               ariaPressed={bookmarked}
               onClick={onToggleBookmark}
             >
               {bookmarked ? <RiBookmarkFill /> : <RiBookmarkLine />}
-            </ToolbarTextIconButton>
-            <ToolbarTextIconButton
+            </CatalogDetailToolbarButton>
+            <CatalogDetailToolbarButton
               label="Code"
               active={panel === 'code'}
               ariaPressed={panel === 'code'}
@@ -146,8 +106,8 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
               }
             >
               <RiCodeSSlashLine />
-            </ToolbarTextIconButton>
-            <ToolbarTextIconButton
+            </CatalogDetailToolbarButton>
+            <CatalogDetailToolbarButton
               label="JSON"
               active={panel === 'blueprint'}
               ariaPressed={panel === 'blueprint'}
@@ -156,7 +116,7 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
               }
             >
               <RiBracesLine />
-            </ToolbarTextIconButton>
+            </CatalogDetailToolbarButton>
             <button
               type="button"
               aria-label="Close"

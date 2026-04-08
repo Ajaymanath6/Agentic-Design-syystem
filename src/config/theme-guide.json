@@ -26,11 +26,56 @@
     },
     "input": "w-full rounded-md border border-brandcolor-strokestrong bg-brandcolor-white px-3 py-2 text-sm text-brandcolor-textstrong placeholder:text-brandcolor-textweak focus:border-brandcolor-textstrong focus:outline-none focus:ring-0"
   },
+  "spacing": {
+    "description": "4-point grid: use multiples of 4px for margins, padding, and gaps. Tailwind spacing utilities map 1:1 (space-1 = 0.25rem = 4px at 16px root). Layout plans use semantic afterGap tokens (aliases below).",
+    "spaceScaleRem": {
+      "space-1": "0.25rem",
+      "space-2": "0.5rem",
+      "space-3": "0.75rem",
+      "space-4": "1rem",
+      "space-5": "1.25rem",
+      "space-6": "1.5rem",
+      "space-8": "2rem",
+      "space-12": "3rem",
+      "space-16": "4rem"
+    },
+    "spaceScaleUsage": {
+      "space-1": "4px — icon to text, micro gaps (Tailwind gap-1 / mt-1).",
+      "space-2": "8px — related small elements (gap-2 / mb-2).",
+      "space-4": "16px — default stack gap between fields (gap-4 / mb-4).",
+      "space-6": "24px — larger groups / sections (gap-6 / mb-6).",
+      "space-8": "32px — between sections or cards (gap-8 / mb-8)."
+    },
+    "layoutTokenMap": {
+      "tight": "space-2 — mb-2 / gap-2",
+      "default": "space-4 — mb-4 / gap-4",
+      "section": "space-6 — mb-6 / gap-6",
+      "hero": "space-8 — mb-8 / gap-8"
+    },
+    "scale": {
+      "tight": "mb-2 or gap-2 — 8px (space-2); title–subtitle stack inside pageHeading chrome uses space-y-1 (4px) in UI.",
+      "default": "mb-4 or gap-4 — 16px (space-4); between related catalog blocks in a form stack.",
+      "section": "mb-6 or gap-6 — 24px (space-6); between major sections or before a new chrome heading after catalog.",
+      "hero": "mb-8 or gap-8 — 32px (space-8); strong break after a hero title before first component."
+    },
+    "semantics": [
+      "Title and subtitle inside one chrome block: tight rhythm (space-y-1 ≈ space-1 between lines).",
+      "afterGap on a block sets space BEFORE the next block (margin below this block). Last block has no bottom margin.",
+      "Structured preview: chrome→catalog and catalog→catalog infer default (space-4) when afterGap is omitted; catalog→chrome uses section (space-6).",
+      "Catalog sourceHtml roots: avoid h-full justify-center and heavy outer p-*; use w-full flex-col justify-start so the composer controls vertical rhythm.",
+      "Repeat instances in one catalog block (flow): vertical stack with gap-4 (space-4) between cells.",
+      "Layout plan row: 2–4 columns of chrome/catalog leaves. Default row is side-by-side from 640px (stack only on very narrow viewports). stackBelow md|lg = stack until that breakpoint. split: sidebarMain; sidebarWidth narrow|default|wide.",
+      "Nested row/split inside columns is not allowed — only chrome and catalog leaves inside row columns and split regions."
+    ]
+  },
   "aiInstructions": {
     "criticalRules": [
       "Do not use raw hex color values in JSX, CSS modules, or inline styles for branded UI.",
       "Do not use default Tailwind palette utilities (e.g. bg-gray-*, text-blue-*) for branded surfaces; use bg-brandcolor-*, text-brandcolor-*, border-brandcolor-* only.",
-      "Buttons use rounded-md (6px) per theme; cards use rounded-lg with border-brandcolor-strokeweak and shadow-card."
+      "Buttons use rounded-md (6px) per theme; cards use rounded-lg with border-brandcolor-strokeweak and shadow-card.",
+      "Layout plan: if the user wants two fields side by side or on one row, output ONE type row with two columns (one catalog leaf per column)—never two top-level catalog blocks. Use type split for sidebar + main. afterGap / defaultAfterGap: tight, default, section, hero. Client infers afterGap: row/split next to catalog/chrome uses default (space-4) like stacked fields; section between row↔split or catalog→chrome unless overridden.",
+      "Do not use arbitrary mt-48, mb-20, or one-off pixel classes for stack gaps; refer to spacing.spaceScaleRem and layoutTokenMap.",
+      "Catalog blueprint roots: no h-full justify-center on layout previews; minimal outer padding so gaps match spacing.semantics."
     ]
   }
 }

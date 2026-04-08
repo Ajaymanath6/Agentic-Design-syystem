@@ -35,9 +35,30 @@ const AdminWorkspaceContext = createContext<AdminWorkspaceContextValue | null>(
   null,
 )
 
+const ADMIN_WORKSPACE_MODE_STORAGE_KEY = 'admin-workspace-mode'
+
+function readStoredAdminMode(): AdminWorkspaceMode {
+  if (typeof window === 'undefined') return 'canvas'
+  try {
+    const v = window.sessionStorage.getItem(ADMIN_WORKSPACE_MODE_STORAGE_KEY)
+    if (v === 'layout' || v === 'canvas') return v
+  } catch {
+    /* private mode / quota */
+  }
+  return 'canvas'
+}
+
+function writeStoredAdminMode(mode: AdminWorkspaceMode): void {
+  try {
+    window.sessionStorage.setItem(ADMIN_WORKSPACE_MODE_STORAGE_KEY, mode)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
-  const [mode, setModeState] = useState<AdminWorkspaceMode>('canvas')
+  const [mode, setModeState] = useState<AdminWorkspaceMode>(readStoredAdminMode)
   const [layoutPromptDraft, setLayoutPromptDraft] = useState('')
   const [layoutPromptEntries, setLayoutPromptEntries] = useState<string[]>([])
   const [layoutPlan, setLayoutPlan] = useState<LayoutPlanV1 | null>(null)
@@ -47,6 +68,7 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
 
   const setMode = useCallback((next: AdminWorkspaceMode) => {
     setModeState(next)
+    writeStoredAdminMode(next)
   }, [])
 
   const submitLayoutPrompt = useCallback(
@@ -81,7 +103,9 @@ export function AdminWorkspaceProvider({ children }: { children: ReactNode }) {
   )
 
   useEffect(() => {
-    if (pathname !== '/admin') {
+    if (pathname === '/admin') {
+      setModeState(readStoredAdminMode())
+    } else {
       setModeState('canvas')
     }
   }, [pathname])
