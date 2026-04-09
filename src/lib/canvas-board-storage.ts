@@ -1,3 +1,4 @@
+import { coerceCanvasControlLabel } from './coerce-canvas-control-label'
 import {
   componentCatalogIdForCanvasNode,
   type CanvasNode,
@@ -59,7 +60,7 @@ export function parseStoredCanvasNode(
       id: o.id,
       x: o.x,
       y: o.y,
-      label: o.label,
+      label: coerceCanvasControlLabel(o.label).slice(0, 200),
     }
   }
   if (o.kind === 'secondaryButton') {
@@ -69,7 +70,7 @@ export function parseStoredCanvasNode(
       id: o.id,
       x: o.x,
       y: o.y,
-      label: o.label,
+      label: coerceCanvasControlLabel(o.label).slice(0, 200),
     }
   }
   if (o.kind === 'neutralButton') {
@@ -79,7 +80,7 @@ export function parseStoredCanvasNode(
       id: o.id,
       x: o.x,
       y: o.y,
-      label: o.label,
+      label: coerceCanvasControlLabel(o.label).slice(0, 200),
     }
   }
   if (o.kind === 'confirmPasswordInput') {
@@ -89,7 +90,7 @@ export function parseStoredCanvasNode(
       id: o.id,
       x: o.x,
       y: o.y,
-      label: o.label,
+      label: coerceCanvasControlLabel(o.label).slice(0, 200),
     }
   }
   if (o.kind === 'textInputField') {
@@ -99,7 +100,7 @@ export function parseStoredCanvasNode(
       id: o.id,
       x: o.x,
       y: o.y,
-      label: o.label,
+      label: coerceCanvasControlLabel(o.label).slice(0, 200),
     }
   }
   if (o.kind === 'productSidebar') {

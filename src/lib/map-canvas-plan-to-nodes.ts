@@ -9,6 +9,7 @@ import type {
   CanvasPlanProductSidebarNode,
 } from '../types/canvas-plan'
 import { normalizeCanvasPlan } from '../types/canvas-plan'
+import { coerceCanvasControlLabel } from './coerce-canvas-control-label'
 
 const WORLD_W = 3200
 const WORLD_H = 2400
@@ -182,7 +183,7 @@ export function mapCanvasPlanToNewNodes(
         id,
         x,
         y,
-        label: spec.label.slice(0, 200),
+        label: coerceCanvasControlLabel(spec.label).slice(0, 200),
       })
       cursorY = y + h + STACK_GAP
       continue
@@ -196,7 +197,7 @@ export function mapCanvasPlanToNewNodes(
         id,
         x,
         y,
-        label: spec.label.slice(0, 200),
+        label: coerceCanvasControlLabel(spec.label).slice(0, 200),
       })
       cursorY = y + h + STACK_GAP
     }

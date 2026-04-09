@@ -1067,7 +1067,7 @@ export function ComponentsCanvasSurface() {
                       tabIndex={-1}
                       aria-hidden
                     >
-                      {n.label}
+                      {publishLabelForCanvasNode(n)}
                     </button>
                   </>
                 ) : n.kind === 'confirmPasswordInput' ? (
@@ -1097,7 +1097,7 @@ export function ComponentsCanvasSurface() {
                         htmlFor={`confirm-pw-${n.id}`}
                         className="mb-1 block text-xs font-medium text-brandcolor-textstrong"
                       >
-                        {n.label}
+                        {publishLabelForCanvasNode(n)}
                       </label>
                       <input
                         id={`confirm-pw-${n.id}`}
@@ -1108,7 +1108,7 @@ export function ComponentsCanvasSurface() {
                         placeholder="••••••••"
                         required
                         minLength={8}
-                        aria-label={n.label}
+                        aria-label={publishLabelForCanvasNode(n)}
                       />
                     </div>
                   </>
@@ -1139,7 +1139,7 @@ export function ComponentsCanvasSurface() {
                         htmlFor={`text-field-${n.id}`}
                         className="mb-1 block text-xs font-medium text-brandcolor-textstrong"
                       >
-                        {n.label}
+                        {publishLabelForCanvasNode(n)}
                       </label>
                       <input
                         id={`text-field-${n.id}`}
@@ -1149,7 +1149,7 @@ export function ComponentsCanvasSurface() {
                         className="text-field-canvas-input w-full"
                         placeholder="Type here…"
                         required
-                        aria-label={n.label}
+                        aria-label={publishLabelForCanvasNode(n)}
                       />
                     </div>
                   </>

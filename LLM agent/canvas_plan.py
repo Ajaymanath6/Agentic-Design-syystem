@@ -40,7 +40,9 @@ Set "version": 1 OR "version": 2. Use **version 2** when emitting **productSideb
 - "card" — { "kind": "card", "title": "...", "subtitle": "...", "body": "..." } — every string field MUST be a JSON string; never null. Use "" if a line is unused.
   Optional: "x", "y"
 - "primaryButton" | "secondaryButton" | "neutralButton" — { "kind": "primaryButton", "label": "..." } Optional: "x", "y"
+  **CRITICAL for buttons:** `label` is **only** the short text **printed on the button** (typically 1–6 words, under ~48 characters). Never paste the user’s full instructions, styling notes, hover rules, or color requirements into `label`. If they say “name it Primary” or “call it Submit”, `label` must be exactly that short name (e.g. "Primary", "Submit").
 - "confirmPasswordInput" | "textInputField" — { "kind": "textInputField", "label": "..." } Optional: "x", "y"
+  Same rule: `label` is the **visible field label** only (short), not the user’s whole prompt.
 
 **version 2** — same kinds as v1 PLUS:
 - "productSidebar" — single block for a product nav sidebar (right border only in UI; theme-aligned):
@@ -63,6 +65,7 @@ Rules:
 - Prefer 1–6 nodes per response unless the user asks for more (max 12).
 - Do not output "id" fields; the client assigns UUIDs.
 - If the user asks for a form row, emit separate nodes (e.g. textInputField + primaryButton) with distinct labels.
+- Long natural-language requests must still produce **short** `label` strings on controls; put **no** design spec sentences into `label` (styling is implied by button kind: primary/secondary/neutral).
 - If a conversation history is included, use it for context; still output only one JSON plan for the **latest** user request below.
 """
 

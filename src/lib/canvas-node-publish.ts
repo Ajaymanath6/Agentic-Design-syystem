@@ -1,4 +1,5 @@
 import themeGuide from '../config/theme-guide.json'
+import { coerceCanvasControlLabel } from './coerce-canvas-control-label'
 import { PRODUCT_SIDEBAR_WIDTH_PX } from './canvas-product-sidebar-metrics'
 import {
   canvasCardCatalogId,
@@ -140,26 +141,30 @@ export function buildCanvasCardPublishHtml(n: CanvasCardBlock): string {
 }
 
 export function buildPrimaryButtonPublishHtml(n: CanvasPrimaryButtonBlock): string {
-  return `<button type="button" class="${primaryPublishClasses}">${escapeHtmlText(n.label)}</button>`
+  const text = coerceCanvasControlLabel(n.label)
+  return `<button type="button" class="${primaryPublishClasses}">${escapeHtmlText(text)}</button>`
 }
 
 export function buildSecondaryButtonPublishHtml(
   n: CanvasSecondaryButtonBlock,
 ): string {
-  return `<button type="button" class="${secondaryPublishClasses}">${escapeHtmlText(n.label)}</button>`
+  const text = coerceCanvasControlLabel(n.label)
+  return `<button type="button" class="${secondaryPublishClasses}">${escapeHtmlText(text)}</button>`
 }
 
 export function buildNeutralButtonPublishHtml(n: CanvasNeutralButtonBlock): string {
-  return `<button type="button" class="${NEUTRAL_CANVAS_BUTTON_PUBLISH_CLASSES}">${escapeHtmlText(n.label)}</button>`
+  const text = coerceCanvasControlLabel(n.label)
+  return `<button type="button" class="${NEUTRAL_CANVAS_BUTTON_PUBLISH_CLASSES}">${escapeHtmlText(text)}</button>`
 }
 
 export function buildConfirmPasswordInputPublishHtml(
   n: CanvasConfirmPasswordInputBlock,
 ): string {
   const fieldId = `confirm-pw-${n.id.replace(/[^a-zA-Z0-9-]/g, '-')}`
+  const lab = coerceCanvasControlLabel(n.label)
   return (
     `<div class="w-full" style="width:${CANVAS_CARD_PUBLISH_WIDTH_PX}px;box-sizing:border-box">` +
-    `<label for="${fieldId}" class="mb-1 block text-xs font-medium text-brandcolor-textstrong">${escapeHtmlText(n.label)}</label>` +
+    `<label for="${fieldId}" class="mb-1 block text-xs font-medium text-brandcolor-textstrong">${escapeHtmlText(lab)}</label>` +
     `<input id="${fieldId}" type="password" name="confirmPassword" autocomplete="new-password" class="confirm-password-canvas-input w-full" placeholder="••••••••" required minlength="8" />` +
     `</div>`
   )
@@ -167,9 +172,10 @@ export function buildConfirmPasswordInputPublishHtml(
 
 export function buildTextInputFieldPublishHtml(n: CanvasTextInputFieldBlock): string {
   const fieldId = `text-field-${n.id.replace(/[^a-zA-Z0-9-]/g, '-')}`
+  const lab = coerceCanvasControlLabel(n.label)
   return (
     `<div class="w-full" style="width:${CANVAS_CARD_PUBLISH_WIDTH_PX}px;box-sizing:border-box">` +
-    `<label for="${fieldId}" class="mb-1 block text-xs font-medium text-brandcolor-textstrong">${escapeHtmlText(n.label)}</label>` +
+    `<label for="${fieldId}" class="mb-1 block text-xs font-medium text-brandcolor-textstrong">${escapeHtmlText(lab)}</label>` +
     `<input id="${fieldId}" type="text" name="textInputField" autocomplete="off" class="text-field-canvas-input w-full" placeholder="Type here…" required />` +
     `</div>`
   )
@@ -235,6 +241,18 @@ export function componentCatalogIdForCanvasNode(n: CanvasNode): string {
 
 export function publishLabelForCanvasNode(n: CanvasNode): string {
   if (n.kind === 'card' || n.kind === 'productSidebar') return n.title
+  if (
+    n.kind === 'primaryButton' ||
+    n.kind === 'secondaryButton' ||
+    n.kind === 'neutralButton' ||
+    n.kind === 'confirmPasswordInput' ||
+    n.kind === 'textInputField'
+  ) {
+    return coerceCanvasControlLabel(n.label)
+  }
+  if (n.kind === 'htmlSnippet') {
+    return coerceCanvasControlLabel(n.label)
+  }
   return n.label
 }
 

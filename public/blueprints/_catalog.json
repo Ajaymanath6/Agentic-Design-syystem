@@ -1,15 +1,45 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-09T12:45:34.795Z",
+  "lastUpdated": "2026-04-09T13:05:12.641Z",
   "components": [
     {
+      "id": "canvas-card-f87ca241-98bf-4f76-a0f3-6498614237b6",
+      "publishedAt": "2026-04-09T12:53:08.437Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "CanvasCardF87ca24198bf4f76A0f36498614237b6Component",
+      "thumbnailPath": "/generated/canvas-card-f87ca241-98bf-4f76-a0f3-6498614237b6-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-card-f87ca241-98bf-4f76-a0f3-6498614237b6.json",
+      "kind": "component"
+    },
+    {
+      "id": "canvas-card-fa515936-a25b-4fe7-8f49-a0f756ec92af",
+      "publishedAt": "2026-04-09T13:05:12.640Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "CanvasCardFa515936A25b4fe78f49A0f756ec92afComponent",
+      "thumbnailPath": "/generated/canvas-card-fa515936-a25b-4fe7-8f49-a0f756ec92af-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-card-fa515936-a25b-4fe7-8f49-a0f756ec92af.json",
+      "kind": "component"
+    },
+    {
       "id": "canvas-html-a6db839b-37e7-4722-b20b-13c68c861e84",
-      "publishedAt": "2026-04-09T12:43:06.663Z",
+      "publishedAt": "2026-04-09T12:53:17.641Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
       "importId": "CanvasHtmlA6db839b37e74722B20b13c68c861e84Component",
       "thumbnailPath": "/generated/canvas-html-a6db839b-37e7-4722-b20b-13c68c861e84-thumbnail.png",
       "blueprintPath": "/blueprints/canvas-html-a6db839b-37e7-4722-b20b-13c68c861e84.json",
+      "kind": "component"
+    },
+    {
+      "id": "canvas-neutral-490265bd-a0f4-4787-b920-e94ae35bd76d",
+      "publishedAt": "2026-04-09T12:56:13.465Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "CanvasNeutral490265bdA0f44787B920E94ae35bd76dComponent",
+      "thumbnailPath": "/generated/canvas-neutral-490265bd-a0f4-4787-b920-e94ae35bd76d-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-neutral-490265bd-a0f4-4787-b920-e94ae35bd76d.json",
       "kind": "component"
     },
     {

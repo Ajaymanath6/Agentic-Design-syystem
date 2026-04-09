@@ -54,4 +54,21 @@ describe('mapCanvasPlanToNewNodes', () => {
     const out = mapCanvasPlanToNewNodes(plan, [])
     expect(out[0].kind).toBe('neutralButton')
   })
+
+  it('coerces long prompt-like primary button label to short name', () => {
+    const plan = {
+      version: 1 as const,
+      nodes: [
+        {
+          kind: 'primaryButton' as const,
+          label:
+            'create a primary button naem it primary buuton, the bg of this should be primary color',
+        },
+      ],
+    }
+    const out = mapCanvasPlanToNewNodes(plan, [])
+    expect(out[0].kind).toBe('primaryButton')
+    if (out[0].kind !== 'primaryButton') return
+    expect(out[0].label).toBe('primary buuton')
+  })
 })
