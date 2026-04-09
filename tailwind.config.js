@@ -1,4 +1,11 @@
-/** @type {import('tailwindcss').Config} */
+/**
+ * @type {import('tailwindcss').Config}
+ *
+ * Icons (not Tailwind classes — documented here as a design-system rule):
+ * Use **Remix Icon for React** for all UI icons: `npm i @remixicon/react`
+ * Import named exports, e.g. `import { RiHomeLine } from '@remixicon/react'`.
+ * Browse glyphs: https://remixicon.com — match sizing/colors with Tailwind (`size-4`, `text-brandcolor-textstrong`, …).
+ */
 export default {
   content: [
     './index.html',
@@ -63,6 +70,9 @@ export default {
         /** :user-valid confirm password: tight ring + soft outward blur (primary #F84416). */
         'confirm-password-valid':
           '0 0 0 2px rgba(248, 68, 22, 0.28), 0 0 14px 6px rgba(248, 68, 22, 0.18), 0 8px 28px rgba(248, 68, 22, 0.22)',
+        /** Primary-tinted button / CTA glow — oklch(0.5243 0.1143 214.28) ≈ brandcolor-primary #F84416. */
+        'button-brand-glow':
+          '0 10px 36px -6px oklch(0.5243 0.1143 214.28 / 0.5), 0 6px 24px -4px oklch(0.5243 0.1143 214.28 / 0.38), 0 3px 14px -2px oklch(0.5243 0.1143 214.28 / 0.28)',
       },
       borderWidth: {
         1.5: '1.5px',

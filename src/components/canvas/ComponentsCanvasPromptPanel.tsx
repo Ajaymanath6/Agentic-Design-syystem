@@ -41,6 +41,10 @@ export function ComponentsCanvasPromptPanel({
   const transcriptEndRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
+  const fileBadgeTooltip = extendedDesignContext
+    ? 'Theme guide is the base. Tap @ to send these files with each request. On — higher token use.'
+    : 'Theme guide is the base. Tap @ to send these files with each request.'
+
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [canvasPlanChatMessages.length, busy])
@@ -94,7 +98,10 @@ export function ComponentsCanvasPromptPanel({
       />
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+        <div
+          className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5"
+          aria-label="Design context: @ toggle and source files"
+        >
           <button
             type="button"
             onClick={onToggleExtendedDesignContext}
@@ -118,23 +125,16 @@ export function ComponentsCanvasPromptPanel({
             <RiAtLine className="size-4" aria-hidden />
           </button>
           <span
-            className={`min-w-0 max-w-[min(280px,62vw)] text-[10px] leading-snug ${
-              extendedDesignContext ? 'text-brandcolor-textstrong' : 'text-brandcolor-textweak'
-            }`}
+            className="inline-flex max-w-full cursor-default rounded-md border border-brandcolor-strokeweak bg-brandcolor-fill px-1.5 py-0.5 font-mono text-[9px] leading-tight text-brandcolor-textstrong sm:text-[10px]"
+            title={fileBadgeTooltip}
           >
-            <span className="font-semibold text-brandcolor-textstrong">@</span>
-            <span className="text-brandcolor-textweak">
-              {' '}
-              Theme guide is the base for new components. Tap{' '}
-            </span>
-            <span className="font-semibold text-brandcolor-textstrong">@</span>
-            <span className="text-brandcolor-textweak">
-              {' '}
-              to send the full style guide and design tokens with each request.
-            </span>
-            {extendedDesignContext ? (
-              <span className="text-brandcolor-primary"> On · higher token use.</span>
-            ) : null}
+            @src/config/theme-guide.json
+          </span>
+          <span
+            className="inline-flex max-w-full cursor-default rounded-md border border-brandcolor-strokeweak bg-brandcolor-fill px-1.5 py-0.5 font-mono text-[9px] leading-tight text-brandcolor-textstrong sm:text-[10px]"
+            title={fileBadgeTooltip}
+          >
+            @tailwind.config.js
           </span>
         </div>
         <button

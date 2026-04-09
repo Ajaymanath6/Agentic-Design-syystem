@@ -1,6 +1,14 @@
 {
+  "icons": {
+    "library": "Remix Icon for React",
+    "npmPackage": "@remixicon/react",
+    "browseGlyphs": "https://remixicon.com",
+    "importPattern": "import { RiNameLine } from '@remixicon/react' — use Line (outline) or Fill variants per UI need.",
+    "styling": "Size with Tailwind (e.g. className=\"size-4 shrink-0\"). Color inherits via currentColor — set text-brandcolor-textstrong, text-brandcolor-textweak, text-brandcolor-primary, etc.",
+    "rule": "Use Remix Icon for all icons in React/TSX across catalog, admin, and canvas. Do not mix other icon sets (Heroicons, Lucide, Material Icons) for chrome unless a one-off exception is documented. See tailwind.config.js header comment for the same rule."
+  },
   "componentGuidelines": {
-    "canvasStylingContract": "Components canvas: Tailwind utilities from tailwind.config.js only (no arbitrary hex in canvas JSX). Neutral publish classes live in canvas-node-publish.ts + index.css. Confirm-password valid ring: theme.extend.boxShadow.confirm-password-valid + overflow-visible shell on that block.",
+    "canvasStylingContract": "Components canvas: Tailwind utilities from tailwind.config.js only (no arbitrary hex in canvas JSX). Icons: Remix Icon (@remixicon/react) per theme-guide icons.rule. Neutral publish classes live in canvas-node-publish.ts + index.css. Confirm-password valid ring: theme.extend.boxShadow.confirm-password-valid + overflow-visible shell on that block.",
     "button": {
       "primary": "canvas-primary-button",
       "primaryCanvasAlias": "primary-canvas-button — same paint as canvas-primary-button (use for in-canvas primary CTAs when needed).",
@@ -15,7 +23,9 @@
       "secondaryHoverToken": "brandcolor-secondaryhover",
       "secondaryEquivalentTailwind": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-secondary hover:bg-brandcolor-secondaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0",
       "componentsCanvasExample": "ComponentsCanvasSurface: world pan/zoom; initial card + primary + secondary + neutral + confirm password; localStorage agentic-components-canvas-nodes-v1. Kinds: card, primaryButton, secondaryButton, neutralButton, confirmPasswordInput. Catalog ids canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-*. Prune: scripts/prune-canvas-catalog.mjs.",
-      "neutral": "Reference — neutral canvas: index.css .neutral-canvas-button; strokeweak border, hover strokelight; publish string in canvas-node-publish.ts"
+      "neutral": "Reference — neutral canvas: index.css .neutral-canvas-button; strokeweak border, hover strokelight; publish string in canvas-node-publish.ts",
+      "buttonBrandGlowShadow": "Optional primary-tinted elevation for buttons or focus: theme.extend.boxShadow.button-brand-glow → Tailwind utility shadow-button-brand-glow. Three layered oklch(0.5243 0.1143 214.28 / alpha) glows (stronger spread) aligned with brandcolor-primary (#F84416). Compose with active:shadow-button-press or hover as needed.",
+      "buttonBrandGlowShadowUtility": "shadow-button-brand-glow"
     },
     "card": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
     "componentsCanvasCard": {
@@ -113,6 +123,7 @@
   "aiInstructions": {
     "criticalRules": [
       "Do not use raw hex color values in JSX, CSS modules, or inline styles for branded UI.",
+      "Icons: use Remix Icon for React only (@remixicon/react). Import named components from https://remixicon.com; style with Tailwind size-* and text-brandcolor-* — see theme-guide icons block and tailwind.config.js header.",
       "Do not use default Tailwind palette utilities (e.g. bg-gray-*, text-blue-*) for branded surfaces; use bg-brandcolor-*, text-brandcolor-*, border-brandcolor-* only.",
       "Buttons use rounded-md (6px) per theme; cards use rounded-lg with border-brandcolor-strokeweak and shadow-card.",
       "Layout plan: if the user wants two fields side by side or on one row, output ONE type row with two columns (one catalog leaf per column)—never two top-level catalog blocks. Use type split for sidebar + main. afterGap / defaultAfterGap: tight, default, section, hero. Client infers afterGap: row/split next to catalog/chrome uses default (space-4) like stacked fields; section between row↔split or catalog→chrome unless overridden.",
