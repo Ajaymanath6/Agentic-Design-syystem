@@ -8,19 +8,17 @@ import {
   RiHomeLine,
   RiKeyLine,
   RiTaskLine,
+  type RemixiconComponentType,
 } from '@remixicon/react'
-import type { ComponentType, SVGProps } from 'react'
 
 import type {
   ProductSidebarHeaderIconKey,
   ProductSidebarNavIconKey,
 } from '../../types/canvas-plan'
 
-type IconProps = SVGProps<SVGSVGElement>
-
 const navMap: Record<
   Exclude<ProductSidebarNavIconKey, 'none'>,
-  ComponentType<IconProps>
+  RemixiconComponentType
 > = {
   home: RiHomeLine,
   folder: RiFolderLine,
@@ -32,7 +30,7 @@ const navMap: Record<
 
 const headerMap: Record<
   Exclude<ProductSidebarHeaderIconKey, 'none'>,
-  ComponentType<IconProps>
+  RemixiconComponentType
 > = {
   chevronUpDown: RiArrowUpDownLine,
   chevronUp: RiArrowUpSLine,
