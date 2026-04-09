@@ -68,7 +68,7 @@ function nodeSize(n: CanvasNode): { w: number; h: number } {
   ) {
     return { w: CANVAS_PRIMARY_W, h: CANVAS_PRIMARY_H }
   }
-  if (n.kind === 'confirmPasswordInput') {
+  if (n.kind === 'confirmPasswordInput' || n.kind === 'textInputField') {
     return { w: CANVAS_CARD_W, h: CANVAS_CONFIRM_PW_H }
   }
   return { w: CANVAS_CARD_W, h: CANVAS_CARD_H }
@@ -128,6 +128,17 @@ function createInitialConfirmPasswordInput(): CanvasNode {
   }
 }
 
+function createInitialTextInputField(): CanvasNode {
+  const gap = CANVAS_PRIMARY_H + 20
+  return {
+    kind: 'textInputField',
+    id: crypto.randomUUID(),
+    x: WORLD_W / 2 - CANVAS_CARD_W / 2,
+    y: WORLD_H / 2 + 80 + gap * 4,
+    label: 'Text input field',
+  }
+}
+
 function ensureCanvasHasSecondaryButton(nodes: CanvasNode[]): CanvasNode[] {
   if (nodes.some((n) => n.kind === 'secondaryButton')) return nodes
   return [...nodes, createInitialSecondaryButton()]
@@ -141,6 +152,11 @@ function ensureCanvasHasNeutralButton(nodes: CanvasNode[]): CanvasNode[] {
 function ensureCanvasHasConfirmPasswordInput(nodes: CanvasNode[]): CanvasNode[] {
   if (nodes.some((n) => n.kind === 'confirmPasswordInput')) return nodes
   return [...nodes, createInitialConfirmPasswordInput()]
+}
+
+function ensureCanvasHasTextInputField(nodes: CanvasNode[]): CanvasNode[] {
+  if (nodes.some((n) => n.kind === 'textInputField')) return nodes
+  return [...nodes, createInitialTextInputField()]
 }
 
 function clamp(n: number, lo: number, hi: number) {
@@ -186,15 +202,19 @@ export function ComponentsCanvasSurface() {
   const [nodes, setNodes] = useState<CanvasNode[]>(() => {
     const stored = loadCanvasNodesFromStorage()
     if (stored != null && stored.length > 0) {
-      /** Older saves predate confirm-password; append it if missing (do not re-add deleted secondary/neutral). */
-      return ensureCanvasHasConfirmPasswordInput(stored)
+      /** Older saves: append default inputs if missing. */
+      return ensureCanvasHasTextInputField(
+        ensureCanvasHasConfirmPasswordInput(stored),
+      )
     }
-    return ensureCanvasHasConfirmPasswordInput(
-      ensureCanvasHasNeutralButton(
-        ensureCanvasHasSecondaryButton([
-          createInitialCanvasCard(),
-          createInitialPrimaryButton(),
-        ]),
+    return ensureCanvasHasTextInputField(
+      ensureCanvasHasConfirmPasswordInput(
+        ensureCanvasHasNeutralButton(
+          ensureCanvasHasSecondaryButton([
+            createInitialCanvasCard(),
+            createInitialPrimaryButton(),
+          ]),
+        ),
       ),
     )
   })
@@ -758,7 +778,9 @@ export function ComponentsCanvasSurface() {
             )
             const toolbarLabel = publishLabelForCanvasNode(n)
             const blockWidth =
-              n.kind === 'card' || n.kind === 'confirmPasswordInput'
+              n.kind === 'card' ||
+              n.kind === 'confirmPasswordInput' ||
+              n.kind === 'textInputField'
                 ? CANVAS_CARD_W
                 : CANVAS_PRIMARY_W
             const isDragging = draggingNodeId === n.id
@@ -777,7 +799,10 @@ export function ComponentsCanvasSurface() {
                 x={n.x}
                 y={n.y}
                 width={blockWidth}
-                clipShell={n.kind !== 'confirmPasswordInput'}
+                clipShell={
+                  n.kind !== 'confirmPasswordInput' &&
+                  n.kind !== 'textInputField'
+                }
                 isDragging={isDragging}
                 rootRef={(el) => {
                   const m = cardRootRefs.current
@@ -872,6 +897,47 @@ export function ComponentsCanvasSurface() {
                         placeholder="••••••••"
                         required
                         minLength={8}
+                        aria-label={n.label}
+                      />
+                    </div>
+                  </>
+                ) : n.kind === 'textInputField' ? (
+                  <>
+                    <div className="mb-2 flex items-start justify-end gap-2">
+                      {capturingHideChromeId !== n.id ? (
+                        <span
+                          className={
+                            published ? publishedBadgeClass : draftBadgeClass
+                          }
+                          data-canvas-catalog-badge
+                          aria-label={
+                            published
+                              ? 'Published to catalog — republishing updates the same entry'
+                              : 'Not in catalog yet — publish from Capture'
+                          }
+                        >
+                          {published ? 'Published' : 'Not published'}
+                        </span>
+                      ) : null}
+                    </div>
+                    <div
+                      onPointerDown={(e) => e.stopPropagation()}
+                      className="min-w-0"
+                    >
+                      <label
+                        htmlFor={`text-field-${n.id}`}
+                        className="mb-1 block text-xs font-medium text-brandcolor-textstrong"
+                      >
+                        {n.label}
+                      </label>
+                      <input
+                        id={`text-field-${n.id}`}
+                        type="text"
+                        name="textInputField"
+                        autoComplete="off"
+                        className="text-field-canvas-input w-full"
+                        placeholder="Type here…"
+                        required
                         aria-label={n.label}
                       />
                     </div>

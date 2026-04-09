@@ -82,13 +82,13 @@
   }
 
   /**
-   * Confirm password: explicit border (preflight zeros native input borders). Kill UA blue
-   * focus ring — only our border + shadow show.
-   * Default: stroke weak. Active (focus, not yet valid): stroke strong. :user-valid: primary
-   * border + outward primary glow (theme boxShadow.confirm-password-valid).
+   * Confirm password + text field: same border/focus/:user-valid treatment (theme
+   * boxShadow.confirm-password-valid). Kill UA focus ring — only our border + shadow show.
    */
   input.confirm-password-canvas-input,
-  .confirm-password-canvas-input {
+  .confirm-password-canvas-input,
+  input.text-field-canvas-input,
+  .text-field-canvas-input {
     -webkit-appearance: none;
     appearance: none;
     @apply w-full rounded-md px-3 py-2 text-sm text-brandcolor-textstrong shadow-none ring-0;
@@ -99,13 +99,19 @@
   input.confirm-password-canvas-input:focus:not(:user-valid),
   input.confirm-password-canvas-input:focus-visible:not(:user-valid),
   .confirm-password-canvas-input:focus:not(:user-valid),
-  .confirm-password-canvas-input:focus-visible:not(:user-valid) {
+  .confirm-password-canvas-input:focus-visible:not(:user-valid),
+  input.text-field-canvas-input:focus:not(:user-valid),
+  input.text-field-canvas-input:focus-visible:not(:user-valid),
+  .text-field-canvas-input:focus:not(:user-valid),
+  .text-field-canvas-input:focus-visible:not(:user-valid) {
     outline: none;
     border: 1.5px solid theme('colors.brandcolor-strokestrong');
     box-shadow: none;
   }
   input.confirm-password-canvas-input:user-valid,
-  .confirm-password-canvas-input:user-valid {
+  .confirm-password-canvas-input:user-valid,
+  input.text-field-canvas-input:user-valid,
+  .text-field-canvas-input:user-valid {
     outline: none;
     border: 1.5px solid theme('colors.brandcolor-primary');
     box-shadow: theme('boxShadow.confirm-password-valid');

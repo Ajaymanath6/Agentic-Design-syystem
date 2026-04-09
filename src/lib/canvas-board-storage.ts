@@ -13,7 +13,8 @@ export function isCanvasWorldCatalogId(id: string): boolean {
       id.startsWith('canvas-primary-') ||
       id.startsWith('canvas-secondary-') ||
       id.startsWith('canvas-neutral-') ||
-      id.startsWith('canvas-confirm-password-'))
+      id.startsWith('canvas-confirm-password-') ||
+      id.startsWith('canvas-text-field-'))
   )
 }
 
@@ -61,6 +62,16 @@ export function parseStoredCanvasNode(
     if (typeof o.label !== 'string') return null
     return {
       kind: 'confirmPasswordInput',
+      id: o.id,
+      x: o.x,
+      y: o.y,
+      label: o.label,
+    }
+  }
+  if (o.kind === 'textInputField') {
+    if (typeof o.label !== 'string') return null
+    return {
+      kind: 'textInputField',
       id: o.id,
       x: o.x,
       y: o.y,

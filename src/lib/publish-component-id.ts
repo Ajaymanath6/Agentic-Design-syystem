@@ -38,6 +38,11 @@ export function canvasConfirmPasswordInputCatalogId(nodeId: string): string {
   return toKebabComponentId(`canvas-confirm-password-${nodeId}`)
 }
 
+/** Catalog `entry.id` for a components-canvas text input field after publish. */
+export function canvasTextInputFieldCatalogId(nodeId: string): string {
+  return toKebabComponentId(`canvas-text-field-${nodeId}`)
+}
+
 /**
  * Matches `toImportId` in server/publish-helper.mjs (PascalCase segments + `Component`).
  */

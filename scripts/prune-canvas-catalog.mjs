@@ -55,6 +55,10 @@ function canvasConfirmPasswordInputCatalogId(nodeId) {
   return toKebabComponentId(`canvas-confirm-password-${nodeId}`)
 }
 
+function canvasTextInputFieldCatalogId(nodeId) {
+  return toKebabComponentId(`canvas-text-field-${nodeId}`)
+}
+
 function catalogIdFromBoardRow(row) {
   if (row && row.kind === 'primaryButton' && typeof row.id === 'string') {
     return canvasPrimaryButtonCatalogId(row.id)
@@ -67,6 +71,9 @@ function catalogIdFromBoardRow(row) {
   }
   if (row && row.kind === 'confirmPasswordInput' && typeof row.id === 'string') {
     return canvasConfirmPasswordInputCatalogId(row.id)
+  }
+  if (row && row.kind === 'textInputField' && typeof row.id === 'string') {
+    return canvasTextInputFieldCatalogId(row.id)
   }
   if (row && typeof row.id === 'string') {
     return canvasCardCatalogId(row.id)
@@ -120,7 +127,8 @@ function isComponentsCanvasCatalogId(id) {
       id.startsWith('canvas-primary-') ||
       id.startsWith('canvas-secondary-') ||
       id.startsWith('canvas-neutral-') ||
-      id.startsWith('canvas-confirm-password-'))
+      id.startsWith('canvas-confirm-password-') ||
+      id.startsWith('canvas-text-field-'))
   )
 }
 

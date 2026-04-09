@@ -181,7 +181,8 @@ function isComponentsCanvasCatalogId(id) {
       id.startsWith('canvas-primary-') ||
       id.startsWith('canvas-secondary-') ||
       id.startsWith('canvas-neutral-') ||
-      id.startsWith('canvas-confirm-password-'))
+      id.startsWith('canvas-confirm-password-') ||
+      id.startsWith('canvas-text-field-'))
   )
 }
 
@@ -310,7 +311,7 @@ app.post('/api/delete-component', (req, res) => {
 })
 
 /**
- * Drop canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* catalog rows (and files) not listed in keepIds.
+ * Drop canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* / canvas-text-field-* catalog rows (and files) not listed in keepIds.
  * Keeps UI catalog in sync when cards were removed without calling delete (e.g. refresh).
  */
 app.post('/api/prune-canvas-catalog', (req, res) => {

@@ -5,6 +5,7 @@ import {
   canvasNeutralButtonCatalogId,
   canvasPrimaryButtonCatalogId,
   canvasSecondaryButtonCatalogId,
+  canvasTextInputFieldCatalogId,
   catalogImportIdFromKebabId,
 } from './publish-component-id'
 
@@ -67,12 +68,21 @@ export type CanvasConfirmPasswordInputBlock = {
   label: string
 }
 
+export type CanvasTextInputFieldBlock = {
+  kind: 'textInputField'
+  id: string
+  x: number
+  y: number
+  label: string
+}
+
 export type CanvasNode =
   | CanvasCardBlock
   | CanvasPrimaryButtonBlock
   | CanvasSecondaryButtonBlock
   | CanvasNeutralButtonBlock
   | CanvasConfirmPasswordInputBlock
+  | CanvasTextInputFieldBlock
 
 export function escapeHtmlText(s: string): string {
   return s
@@ -119,12 +129,25 @@ export function buildConfirmPasswordInputPublishHtml(
   )
 }
 
+export function buildTextInputFieldPublishHtml(n: CanvasTextInputFieldBlock): string {
+  const fieldId = `text-field-${n.id.replace(/[^a-zA-Z0-9-]/g, '-')}`
+  return (
+    `<div class="w-full" style="width:${CANVAS_CARD_PUBLISH_WIDTH_PX}px;box-sizing:border-box">` +
+    `<label for="${fieldId}" class="mb-1 block text-xs font-medium text-brandcolor-textstrong">${escapeHtmlText(n.label)}</label>` +
+    `<input id="${fieldId}" type="text" name="textInputField" autocomplete="off" class="text-field-canvas-input w-full" placeholder="Type here…" required />` +
+    `</div>`
+  )
+}
+
 export function componentCatalogIdForCanvasNode(n: CanvasNode): string {
   if (n.kind === 'card') return canvasCardCatalogId(n.id)
   if (n.kind === 'primaryButton') return canvasPrimaryButtonCatalogId(n.id)
   if (n.kind === 'secondaryButton') return canvasSecondaryButtonCatalogId(n.id)
   if (n.kind === 'neutralButton') return canvasNeutralButtonCatalogId(n.id)
-  return canvasConfirmPasswordInputCatalogId(n.id)
+  if (n.kind === 'confirmPasswordInput') {
+    return canvasConfirmPasswordInputCatalogId(n.id)
+  }
+  return canvasTextInputFieldCatalogId(n.id)
 }
 
 export function publishLabelForCanvasNode(n: CanvasNode): string {
@@ -146,7 +169,9 @@ export function buildBlueprintPreviewDocument(n: CanvasNode): Record<string, unk
           ? buildSecondaryButtonPublishHtml(n)
           : n.kind === 'neutralButton'
             ? buildNeutralButtonPublishHtml(n)
-            : buildConfirmPasswordInputPublishHtml(n)
+            : n.kind === 'confirmPasswordInput'
+              ? buildConfirmPasswordInputPublishHtml(n)
+              : buildTextInputFieldPublishHtml(n)
   const thumbnailPublicPath = `/generated/${componentId}-thumbnail.png`
   return {
     schemaVersion: '1.0',
@@ -166,5 +191,8 @@ export function buildSourceHtmlForCanvasNode(n: CanvasNode): string {
   if (n.kind === 'primaryButton') return buildPrimaryButtonPublishHtml(n)
   if (n.kind === 'secondaryButton') return buildSecondaryButtonPublishHtml(n)
   if (n.kind === 'neutralButton') return buildNeutralButtonPublishHtml(n)
-  return buildConfirmPasswordInputPublishHtml(n)
+  if (n.kind === 'confirmPasswordInput') {
+    return buildConfirmPasswordInputPublishHtml(n)
+  }
+  return buildTextInputFieldPublishHtml(n)
 }

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-09T09:12:56.331Z",
+  "lastUpdated": "2026-04-09T09:24:32.818Z",
   "components": [
     {
       "id": "canvas-card-f87ca241-98bf-4f76-a0f3-6498614237b6",
@@ -43,6 +43,16 @@
       "kind": "component"
     },
     {
+      "id": "canvas-text-field-9dba37b3-bb99-44fc-a99b-9484b1753357",
+      "publishedAt": "2026-04-09T09:20:18.072Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "CanvasTextField9dba37b3Bb9944fcA99b9484b1753357Component",
+      "thumbnailPath": "/generated/canvas-text-field-9dba37b3-bb99-44fc-a99b-9484b1753357-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-text-field-9dba37b3-bb99-44fc-a99b-9484b1753357.json",
+      "kind": "component"
+    },
+    {
       "id": "layout-1o4ytd8",
       "publishedAt": "2026-04-08T13:25:46.634Z",
       "hasBlueprint": true,
@@ -50,6 +60,16 @@
       "importId": "Layout1o4ytd8Component",
       "thumbnailPath": "/generated/layout-1o4ytd8-thumbnail.png",
       "blueprintPath": "/blueprints/layout-1o4ytd8.json",
+      "kind": "layout"
+    },
+    {
+      "id": "layout-v234sl",
+      "publishedAt": "2026-04-09T09:23:26.178Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "LayoutV234slComponent",
+      "thumbnailPath": "/generated/layout-v234sl-thumbnail.png",
+      "blueprintPath": "/blueprints/layout-v234sl.json",
       "kind": "layout"
     }
   ]

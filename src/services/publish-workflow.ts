@@ -113,7 +113,7 @@ export type PruneCanvasCatalogResponse = {
   removedIds: string[]
 }
 
-/** Remove published canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* rows not listed in keepIds. */
+/** Remove published canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* / canvas-text-field-* rows not listed in keepIds. */
 export async function postPruneCanvasCatalog(
   keepIds: string[],
 ): Promise<PruneCanvasCatalogResponse> {
