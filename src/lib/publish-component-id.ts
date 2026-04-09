@@ -23,6 +23,21 @@ export function canvasPrimaryButtonCatalogId(nodeId: string): string {
   return toKebabComponentId(`canvas-primary-${nodeId}`)
 }
 
+/** Catalog `entry.id` for a components-canvas secondary button after publish. */
+export function canvasSecondaryButtonCatalogId(nodeId: string): string {
+  return toKebabComponentId(`canvas-secondary-${nodeId}`)
+}
+
+/** Catalog `entry.id` for a components-canvas neutral button after publish. */
+export function canvasNeutralButtonCatalogId(nodeId: string): string {
+  return toKebabComponentId(`canvas-neutral-${nodeId}`)
+}
+
+/** Catalog `entry.id` for a components-canvas confirm-password field after publish. */
+export function canvasConfirmPasswordInputCatalogId(nodeId: string): string {
+  return toKebabComponentId(`canvas-confirm-password-${nodeId}`)
+}
+
 /**
  * Matches `toImportId` in server/publish-helper.mjs (PascalCase segments + `Component`).
  */

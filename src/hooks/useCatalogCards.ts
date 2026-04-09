@@ -6,6 +6,12 @@ import {
 } from '../services/catalog-reader'
 import type { CatalogCardModel } from '../types/catalog'
 
+/**
+ * Loads every catalog row that has a blueprint. We do **not** hide `canvas-*` rows when the
+ * current components-canvas board omits them — that cross-filter caused Published badges to flip
+ * when board state and `_catalog.json` disagreed for a moment. Orphans are removed by
+ * `postPruneCanvasCatalog` when blocks are deleted from the canvas.
+ */
 export function useCatalogCards() {
   const { catalogVersion } = useCatalogRefresh()
   const [cards, setCards] = useState<CatalogCardModel[]>([])
@@ -20,9 +26,15 @@ export function useCatalogCards() {
       try {
         const index = await fetchCatalogIndex(catalogVersion)
         const withBlueprint = index.components.filter((c) => c.hasBlueprint)
+        const seenIds = new Set<string>()
+        const uniqueById = withBlueprint.filter((c) => {
+          if (seenIds.has(c.id)) return false
+          seenIds.add(c.id)
+          return true
+        })
         const bust = catalogVersion
         const loaded = await Promise.all(
-          withBlueprint.map(async (entry) => {
+          uniqueById.map(async (entry) => {
             try {
               const blueprint = await fetchBlueprintJson(
                 entry.blueprintPath,
@@ -43,7 +55,7 @@ export function useCatalogCards() {
       } catch (e) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : String(e))
-          setCards([])
+          /** Keep prior cards so Published badges do not flip to “not published” on a failed refetch. */
         }
       } finally {
         if (!cancelled) setLoading(false)

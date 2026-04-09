@@ -1,14 +1,21 @@
 {
   "componentGuidelines": {
+    "canvasStylingContract": "Components canvas: Tailwind utilities from tailwind.config.js only (no arbitrary hex in canvas JSX). Neutral publish classes live in canvas-node-publish.ts + index.css. Confirm-password valid ring: theme.extend.boxShadow.confirm-password-valid + overflow-visible shell on that block.",
     "button": {
       "primary": "canvas-primary-button",
       "primaryCanvasAlias": "primary-canvas-button — same paint as canvas-primary-button (use for in-canvas primary CTAs when needed).",
       "primaryDescription": "Primary CTA: canvas-primary-button or primary-canvas-button in src/index.css (theme() brandcolor-primary / brandcolor-primaryhover). Label text-brandcolor-white. Do not use brandcolor-badge-success-* for primary or for canvas Published state.",
       "primaryBackgroundToken": "brandcolor-primary",
       "primaryHoverToken": "brandcolor-primaryhover",
-      "primaryEquivalentTailwind": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white !bg-brandcolor-primary hover:!bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0",
-      "componentsCanvasExample": "ComponentsCanvasSurface: All blocks live in world space (pan/zoom). Double-click empty grid → card; Shift-double-click → primary button (primary-canvas-button, brandcolor-primary / primaryhover). Hover toolbar: Capture, Code, Delete. Code modal: sourceHtml + blueprint JSON preview. Catalog ids canvas-card-* / canvas-primary-*. Prune orphans: npm run catalog:prune-canvas (see scripts/prune-canvas-catalog.mjs).",
-      "neutral": "inline-flex items-center justify-center rounded-md border border-1.5 border-brandcolor-strokestrong bg-brandcolor-white px-4 py-2 text-sm font-medium text-brandcolor-textstrong hover:bg-brandcolor-neutralhover active:shadow-border-inset-strokelight focus:outline-none focus:ring-0"
+      "primaryEquivalentTailwind": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary hover:bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0",
+      "secondary": "canvas-secondary-button",
+      "secondaryCanvasAlias": "secondary-canvas-button — same paint as canvas-secondary-button (in-canvas secondary CTAs).",
+      "secondaryDescription": "Secondary CTA: canvas-secondary-button or secondary-canvas-button in src/index.css (theme() brandcolor-secondary / brandcolor-secondaryhover). Label text-brandcolor-white.",
+      "secondaryBackgroundToken": "brandcolor-secondary",
+      "secondaryHoverToken": "brandcolor-secondaryhover",
+      "secondaryEquivalentTailwind": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-secondary hover:bg-brandcolor-secondaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0",
+      "componentsCanvasExample": "ComponentsCanvasSurface: world pan/zoom; initial card + primary + secondary + neutral + confirm password; localStorage agentic-components-canvas-nodes-v1. Kinds: card, primaryButton, secondaryButton, neutralButton, confirmPasswordInput. Catalog ids canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-*. Prune: scripts/prune-canvas-catalog.mjs.",
+      "neutral": "Reference — neutral canvas: index.css .neutral-canvas-button; strokeweak border, hover strokelight; publish string in canvas-node-publish.ts"
     },
     "card": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
     "componentsCanvasCard": {
@@ -24,6 +31,22 @@
       "surface": "Same outer chrome as componentsCanvasCard",
       "controlClass": "primary-canvas-button",
       "tokens": "brandcolor-primary, brandcolor-primaryhover, text-brandcolor-white"
+    },
+    "componentsCanvasSecondaryButton": {
+      "description": "Components canvas block kind secondaryButton: same outer chrome as componentsCanvasCard; inner control uses secondary-canvas-button (src/index.css) for brandcolor-secondary and hover brandcolor-secondaryhover (tailwind.config.js). Published sourceHtml uses componentGuidelines.button.secondaryEquivalentTailwind. Catalog componentId prefix canvas-secondary-.",
+      "surface": "Same outer chrome as componentsCanvasCard",
+      "controlClass": "secondary-canvas-button",
+      "tokens": "brandcolor-secondary, brandcolor-secondaryhover, text-brandcolor-white"
+    },
+    "componentsCanvasNeutralButton": {
+      "description": "Canvas neutralButton: same card chrome; neutral-canvas-button in index.css. Catalog prefix canvas-neutral-.",
+      "controlClass": "neutral-canvas-button",
+      "tokens": "brandcolor-white, brandcolor-strokeweak, brandcolor-strokelight"
+    },
+    "componentsCanvasConfirmPasswordInput": {
+      "description": "Canvas confirmPasswordInput: .confirm-password-canvas-input — default border-brandcolor-strokeweak; :focus and :user-valid use border (1px) border-brandcolor-primary + theme boxShadow.confirm-password-valid (0 0 0 2px #F8441633). Shell clipShell=false. Catalog prefix canvas-confirm-password-.",
+      "validStateShadowToken": "confirm-password-valid (theme.extend.boxShadow)",
+      "validStateShadowCss": "0px 0px 0px 2px #F8441633 (with 1px solid border-brandcolor-primary)"
     },
     "caseCard": {
       "description": "Case study card: case name (h2) with share + tag icon actions on the header row, subheading (text-strong), description (text-weak body).",

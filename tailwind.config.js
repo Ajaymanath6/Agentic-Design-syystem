@@ -60,6 +60,9 @@ export default {
         'tab-option': '0 1px 5px 0 rgba(0, 0, 0, 0.2)',
         card: '0 0 5px 0 rgba(102, 118, 131, 0.2)',
         'sidebar-toggle': '0 1px 4px 0 rgba(0, 0, 0, 0.08)',
+        /** :user-valid confirm password: tight ring + soft outward blur (primary #F84416). */
+        'confirm-password-valid':
+          '0 0 0 2px rgba(248, 68, 22, 0.28), 0 0 14px 6px rgba(248, 68, 22, 0.18), 0 8px 28px rgba(248, 68, 22, 0.22)',
       },
       borderWidth: {
         1.5: '1.5px',

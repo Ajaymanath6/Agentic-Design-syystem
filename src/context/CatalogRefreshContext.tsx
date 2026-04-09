@@ -21,6 +21,7 @@ export function CatalogRefreshProvider({ children }: { children: ReactNode }) {
   const refreshCatalog = useCallback(() => {
     setCatalogVersion((v) => v + 1)
   }, [])
+
   const value = useMemo(
     () => ({ catalogVersion, refreshCatalog }),
     [catalogVersion, refreshCatalog],

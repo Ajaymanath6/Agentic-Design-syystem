@@ -58,6 +58,14 @@ function readCatalog() {
 }
 
 function writeCatalog(catalog) {
+  /** One row per `id` — last occurrence wins (fixes any historical duplicates). */
+  const byId = new Map()
+  for (const c of catalog.components) {
+    if (c && typeof c.id === 'string' && c.id) {
+      byId.set(c.id, c)
+    }
+  }
+  catalog.components = Array.from(byId.values())
   catalog.lastUpdated = new Date().toISOString()
   catalog.components.sort((a, b) => a.id.localeCompare(b.id))
   fs.writeFileSync(catalogIndexPath, JSON.stringify(catalog, null, 2), 'utf8')
@@ -140,10 +148,10 @@ function buildBlueprint({
   }
 }
 
+/** Upsert: remove every row with `entry.id`, then append (republish / capture again = update, never a second row). */
 function mergeCatalogEntry(catalog, entry) {
-  const idx = catalog.components.findIndex((c) => c.id === entry.id)
-  if (idx >= 0) catalog.components[idx] = entry
-  else catalog.components.push(entry)
+  catalog.components = catalog.components.filter((c) => c.id !== entry.id)
+  catalog.components.push(entry)
 }
 
 function removeComponentArtifacts(componentId) {
@@ -165,11 +173,15 @@ function removeComponentArtifacts(componentId) {
   }
 }
 
-/** True for components-canvas world publishes (cards + primary buttons). */
+/** True for components-canvas world publishes (cards, buttons, confirm-password, etc.). */
 function isComponentsCanvasCatalogId(id) {
   return (
     typeof id === 'string' &&
-    (id.startsWith('canvas-card-') || id.startsWith('canvas-primary-'))
+    (id.startsWith('canvas-card-') ||
+      id.startsWith('canvas-primary-') ||
+      id.startsWith('canvas-secondary-') ||
+      id.startsWith('canvas-neutral-') ||
+      id.startsWith('canvas-confirm-password-'))
   )
 }
 
@@ -298,7 +310,7 @@ app.post('/api/delete-component', (req, res) => {
 })
 
 /**
- * Drop canvas-card-* / canvas-primary-* catalog rows (and files) not listed in keepIds.
+ * Drop canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* catalog rows (and files) not listed in keepIds.
  * Keeps UI catalog in sync when cards were removed without calling delete (e.g. refresh).
  */
 app.post('/api/prune-canvas-catalog', (req, res) => {

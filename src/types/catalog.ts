@@ -2,8 +2,10 @@ export type CatalogComponentKind = 'component' | 'layout'
 
 /**
  * One row in `_catalog.json` after publish. `id` is kebab-case (publish helper
- * `toKebabComponentId`). Components canvas uses `canvas-card-{nodeUuid}` for cards
- * and `canvas-primary-{nodeUuid}` for primary-button blocks
+ * `toKebabComponentId`). Components canvas uses `canvas-card-{nodeUuid}` for cards,
+ * `canvas-primary-{nodeUuid}` for primary-button blocks, `canvas-secondary-{nodeUuid}` for
+ * secondary-button blocks, `canvas-neutral-{nodeUuid}` for neutral buttons, and
+ * `canvas-confirm-password-{nodeUuid}` for confirm-password inputs
  * once normalized — the same id is sent to `postDeleteComponent` when that
  * block is removed so the catalog row and generated blueprint/thumbnails are
  * cleared (no orphan entries).

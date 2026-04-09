@@ -5,6 +5,8 @@
  *
  * Usage:
  *   node scripts/prune-canvas-catalog.mjs --uuid <node-uuid> [--uuid <uuid> ...]
+ *   node scripts/prune-canvas-catalog.mjs --secondary-uuid <node-uuid> (secondary button blocks)
+ *   node scripts/prune-canvas-catalog.mjs --neutral-uuid <node-uuid> (neutral button blocks)
  *   node scripts/prune-canvas-catalog.mjs --board-json path/to/agentic-components-canvas-nodes-v1.json
  *   node scripts/prune-canvas-catalog.mjs --keep-latest-canvas 1
  *   node scripts/prune-canvas-catalog.mjs --dry-run --uuid ...
@@ -41,9 +43,30 @@ function canvasPrimaryButtonCatalogId(nodeId) {
   return toKebabComponentId(`canvas-primary-${nodeId}`)
 }
 
+function canvasSecondaryButtonCatalogId(nodeId) {
+  return toKebabComponentId(`canvas-secondary-${nodeId}`)
+}
+
+function canvasNeutralButtonCatalogId(nodeId) {
+  return toKebabComponentId(`canvas-neutral-${nodeId}`)
+}
+
+function canvasConfirmPasswordInputCatalogId(nodeId) {
+  return toKebabComponentId(`canvas-confirm-password-${nodeId}`)
+}
+
 function catalogIdFromBoardRow(row) {
   if (row && row.kind === 'primaryButton' && typeof row.id === 'string') {
     return canvasPrimaryButtonCatalogId(row.id)
+  }
+  if (row && row.kind === 'secondaryButton' && typeof row.id === 'string') {
+    return canvasSecondaryButtonCatalogId(row.id)
+  }
+  if (row && row.kind === 'neutralButton' && typeof row.id === 'string') {
+    return canvasNeutralButtonCatalogId(row.id)
+  }
+  if (row && row.kind === 'confirmPasswordInput' && typeof row.id === 'string') {
+    return canvasConfirmPasswordInputCatalogId(row.id)
   }
   if (row && typeof row.id === 'string') {
     return canvasCardCatalogId(row.id)
@@ -93,13 +116,19 @@ function removeComponentArtifacts(componentId) {
 function isComponentsCanvasCatalogId(id) {
   return (
     typeof id === 'string' &&
-    (id.startsWith('canvas-card-') || id.startsWith('canvas-primary-'))
+    (id.startsWith('canvas-card-') ||
+      id.startsWith('canvas-primary-') ||
+      id.startsWith('canvas-secondary-') ||
+      id.startsWith('canvas-neutral-') ||
+      id.startsWith('canvas-confirm-password-'))
   )
 }
 
 function parseArgs(argv) {
   const uuids = []
   const primaryUuids = []
+  const secondaryUuids = []
+  const neutralUuids = []
   let boardJson = null
   let keepLatestCanvas = 0
   let dryRun = false
@@ -109,6 +138,10 @@ function parseArgs(argv) {
       uuids.push(argv[++i])
     } else if (a === '--primary-uuid') {
       primaryUuids.push(argv[++i])
+    } else if (a === '--secondary-uuid') {
+      secondaryUuids.push(argv[++i])
+    } else if (a === '--neutral-uuid') {
+      neutralUuids.push(argv[++i])
     } else if (a === '--board-json') {
       boardJson = argv[++i]
     } else if (a === '--keep-latest-canvas') {
@@ -120,16 +153,37 @@ function parseArgs(argv) {
       process.exit(0)
     }
   }
-  return { uuids, primaryUuids, boardJson, keepLatestCanvas, dryRun }
+  return {
+    uuids,
+    primaryUuids,
+    secondaryUuids,
+    neutralUuids,
+    boardJson,
+    keepLatestCanvas,
+    dryRun,
+  }
 }
 
-function collectKeepIds({ uuids, primaryUuids, boardJson, keepLatestCanvas }) {
+function collectKeepIds({
+  uuids,
+  primaryUuids,
+  secondaryUuids,
+  neutralUuids,
+  boardJson,
+  keepLatestCanvas,
+}) {
   const keep = new Set()
   for (const u of uuids) {
     if (u) keep.add(canvasCardCatalogId(u))
   }
   for (const u of primaryUuids) {
     if (u) keep.add(canvasPrimaryButtonCatalogId(u))
+  }
+  for (const u of secondaryUuids) {
+    if (u) keep.add(canvasSecondaryButtonCatalogId(u))
+  }
+  for (const u of neutralUuids) {
+    if (u) keep.add(canvasNeutralButtonCatalogId(u))
   }
   if (boardJson) {
     const raw = fs.readFileSync(path.resolve(boardJson), 'utf8')
@@ -164,7 +218,7 @@ function main() {
   const keep = collectKeepIds(opts)
   if (keep.size === 0) {
     console.error(
-      'Nothing to keep: pass --uuid / --primary-uuid, --board-json, or --keep-latest-canvas N',
+      'Nothing to keep: pass --uuid / --primary-uuid / --secondary-uuid / --neutral-uuid, --board-json, or --keep-latest-canvas N',
     )
     process.exit(1)
   }
