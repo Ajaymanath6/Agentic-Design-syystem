@@ -5,6 +5,7 @@ import {
   canvasConfirmPasswordInputCatalogId,
   canvasNeutralButtonCatalogId,
   canvasPrimaryButtonCatalogId,
+  canvasHtmlSnippetCatalogId,
   canvasProductSidebarCatalogId,
   canvasSecondaryButtonCatalogId,
   canvasTextInputFieldCatalogId,
@@ -99,6 +100,16 @@ export type CanvasProductSidebarBlock = {
   sections: CanvasProductSidebarSectionBlock[]
 }
 
+/** Sanitized HTML fragment from creator mode; `label` is toolbar / publish title. */
+export type CanvasHtmlSnippetBlock = {
+  kind: 'htmlSnippet'
+  id: string
+  x: number
+  y: number
+  label: string
+  html: string
+}
+
 export type CanvasNode =
   | CanvasCardBlock
   | CanvasPrimaryButtonBlock
@@ -107,6 +118,7 @@ export type CanvasNode =
   | CanvasConfirmPasswordInputBlock
   | CanvasTextInputFieldBlock
   | CanvasProductSidebarBlock
+  | CanvasHtmlSnippetBlock
 
 export function escapeHtmlText(s: string): string {
   return s
@@ -215,6 +227,9 @@ export function componentCatalogIdForCanvasNode(n: CanvasNode): string {
   if (n.kind === 'productSidebar') {
     return canvasProductSidebarCatalogId(n.id)
   }
+  if (n.kind === 'htmlSnippet') {
+    return canvasHtmlSnippetCatalogId(n.id)
+  }
   return canvasTextInputFieldCatalogId(n.id)
 }
 
@@ -241,7 +256,9 @@ export function buildBlueprintPreviewDocument(n: CanvasNode): Record<string, unk
               ? buildConfirmPasswordInputPublishHtml(n)
               : n.kind === 'productSidebar'
                 ? buildProductSidebarPublishHtml(n)
-                : buildTextInputFieldPublishHtml(n)
+                : n.kind === 'htmlSnippet'
+                  ? n.html
+                  : buildTextInputFieldPublishHtml(n)
   const thumbnailPublicPath = `/generated/${componentId}-thumbnail.png`
   return {
     schemaVersion: '1.0',
@@ -266,6 +283,9 @@ export function buildSourceHtmlForCanvasNode(n: CanvasNode): string {
   }
   if (n.kind === 'productSidebar') {
     return buildProductSidebarPublishHtml(n)
+  }
+  if (n.kind === 'htmlSnippet') {
+    return n.html
   }
   return buildTextInputFieldPublishHtml(n)
 }

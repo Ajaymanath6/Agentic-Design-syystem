@@ -37,7 +37,8 @@ export function isCanvasWorldCatalogId(id: string): boolean {
       id.startsWith('canvas-neutral-') ||
       id.startsWith('canvas-confirm-password-') ||
       id.startsWith('canvas-text-field-') ||
-      id.startsWith('canvas-product-sidebar-'))
+      id.startsWith('canvas-product-sidebar-') ||
+      id.startsWith('canvas-html-'))
   )
 }
 
@@ -143,6 +144,18 @@ export function parseStoredCanvasNode(
       search_placeholder: sp == null ? '' : sp,
       neutral_button_label: nb == null ? '' : nb,
       sections,
+    }
+  }
+  if (o.kind === 'htmlSnippet') {
+    if (typeof o.label !== 'string' || o.label.length < 1) return null
+    if (typeof o.html !== 'string' || o.html.length < 1) return null
+    return {
+      kind: 'htmlSnippet',
+      id: o.id,
+      x: o.x,
+      y: o.y,
+      label: o.label,
+      html: o.html,
     }
   }
   if (

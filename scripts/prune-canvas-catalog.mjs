@@ -63,6 +63,10 @@ function canvasProductSidebarCatalogId(nodeId) {
   return toKebabComponentId(`canvas-product-sidebar-${nodeId}`)
 }
 
+function canvasHtmlSnippetCatalogId(nodeId) {
+  return toKebabComponentId(`canvas-html-${nodeId}`)
+}
+
 function catalogIdFromBoardRow(row) {
   if (row && row.kind === 'primaryButton' && typeof row.id === 'string') {
     return canvasPrimaryButtonCatalogId(row.id)
@@ -81,6 +85,9 @@ function catalogIdFromBoardRow(row) {
   }
   if (row && row.kind === 'productSidebar' && typeof row.id === 'string') {
     return canvasProductSidebarCatalogId(row.id)
+  }
+  if (row && row.kind === 'htmlSnippet' && typeof row.id === 'string') {
+    return canvasHtmlSnippetCatalogId(row.id)
   }
   if (row && typeof row.id === 'string') {
     return canvasCardCatalogId(row.id)
@@ -136,7 +143,8 @@ function isComponentsCanvasCatalogId(id) {
       id.startsWith('canvas-neutral-') ||
       id.startsWith('canvas-confirm-password-') ||
       id.startsWith('canvas-text-field-') ||
-      id.startsWith('canvas-product-sidebar-'))
+      id.startsWith('canvas-product-sidebar-') ||
+      id.startsWith('canvas-html-'))
   )
 }
 

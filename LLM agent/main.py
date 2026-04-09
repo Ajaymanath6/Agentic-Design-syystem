@@ -22,6 +22,10 @@ from google.auth import aws as google_auth_aws
 from google.genai.types import HttpOptions
 from pydantic import BaseModel, Field, ValidationError
 
+from canvas_html_generate import (
+    build_canvas_html_contents,
+    parse_html_generate_response,
+)
 from canvas_plan import (
     CanvasPlanPromptBody,
     build_canvas_plan_contents,
@@ -304,3 +308,41 @@ def _canvas_plan_impl(body: CanvasPlanPromptBody) -> dict[str, Any]:
 def canvas_plan(body: CanvasPlanPromptBody) -> dict[str, Any]:
     """Structured JSON components-canvas nodes; used by Admin Components canvas AI bar."""
     return _canvas_plan_impl(body)
+
+
+def _canvas_generate_html_impl(body: CanvasPlanPromptBody) -> dict[str, Any]:
+    model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
+    contents = build_canvas_html_contents(body)
+    try:
+        client = get_genai_client()
+    except Exception as e:
+        logger.exception("Client init failed")
+        raise HTTPException(status_code=503, detail=str(e)) from e
+    try:
+        response = client.models.generate_content(model=model, contents=contents)
+    except Exception as e:
+        logger.exception("canvas_generate_html generate_content failed")
+        raise HTTPException(status_code=502, detail=str(e)) from e
+    text = getattr(response, "text", None)
+    if text is None and getattr(response, "candidates", None):
+        try:
+            c0 = response.candidates[0]
+            text = c0.content.parts[0].text  # type: ignore[attr-defined]
+        except (IndexError, AttributeError, TypeError):
+            text = None
+    if not text:
+        raise HTTPException(status_code=502, detail="Empty model response")
+    try:
+        return parse_html_generate_response(text, body.prompt)
+    except ValueError as e:
+        logger.warning("canvas_generate_html parse failed: %s", e)
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid or unsafe HTML from model: {e}",
+        ) from e
+
+
+@app.post("/canvas/generate-html")
+def canvas_generate_html(body: CanvasPlanPromptBody) -> dict[str, Any]:
+    """Raw HTML fragment for components canvas creator mode (parallel to /canvas/plan)."""
+    return _canvas_generate_html_impl(body)

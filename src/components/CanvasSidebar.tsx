@@ -7,12 +7,12 @@ import { ViewModeToggle } from './ViewModeToggle'
 import { WorkspacePromptComposer } from './workspace/WorkspacePromptComposer'
 
 const segBase =
-  'flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-2 text-center text-xs font-semibold transition-colors transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brandcolor-white'
+  'flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-2 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brandcolor-strokeweak focus-visible:ring-offset-1 focus-visible:ring-offset-brandcolor-fill'
 const segInactive =
-  'border-transparent text-brandcolor-textweak hover:bg-brandcolor-neutralhover hover:text-brandcolor-textstrong'
-/** Selected segment: white surface, strokeweak border, primary label/icon, stronger shadow-button-brand-glow. */
+  'border-transparent text-brandcolor-textweak hover:bg-brandcolor-white/70 hover:text-brandcolor-textstrong'
+/** Selected: flat white chip inside the gray track — no colored glow/shadow. */
 const segActive =
-  'border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-primary shadow-button-brand-glow'
+  'border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong shadow-none'
 
 function CanvasSidebarInner() {
   const [searchParams, setSearchParams] = useSearchParams()

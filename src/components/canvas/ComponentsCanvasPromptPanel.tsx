@@ -5,6 +5,7 @@ import {
 } from '@remixicon/react'
 import { useEffect, useRef } from 'react'
 
+import type { ComponentsCanvasAiMode } from '../../context/ComponentsCanvasAiContext'
 import type { CanvasPlanChatMessage } from '../../types/components-canvas-plan-request'
 
 export type ComponentsCanvasPromptPanelProps = {
@@ -17,6 +18,9 @@ export type ComponentsCanvasPromptPanelProps = {
   textareaId?: string
   extendedDesignContext: boolean
   onToggleExtendedDesignContext: () => void
+  /** JSON plan vs HTML creator (parallel Vertex endpoints). */
+  aiMode: ComponentsCanvasAiMode
+  onAiModeChange: (mode: ComponentsCanvasAiMode) => void
   className?: string
 }
 
@@ -36,6 +40,8 @@ export function ComponentsCanvasPromptPanel({
   textareaId = 'components-canvas-ai-prompt',
   extendedDesignContext,
   onToggleExtendedDesignContext,
+  aiMode,
+  onAiModeChange,
   className = '',
 }: ComponentsCanvasPromptPanelProps) {
   const transcriptEndRef = useRef<HTMLDivElement>(null)
@@ -100,6 +106,39 @@ export function ComponentsCanvasPromptPanel({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div
           className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5"
+          role="group"
+          aria-label="AI mode: structured plan or HTML creator"
+        >
+          <button
+            type="button"
+            onClick={() => onAiModeChange('plan')}
+            aria-pressed={aiMode === 'plan'}
+            className={`rounded-md border px-2 py-1 text-[11px] font-semibold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brandcolor-strokeweak focus-visible:ring-offset-1 focus-visible:ring-offset-brandcolor-white ${
+              aiMode === 'plan'
+                ? 'border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong'
+                : 'border-transparent bg-transparent text-brandcolor-textweak hover:bg-brandcolor-white/80 hover:text-brandcolor-textstrong'
+            }`}
+          >
+            Plan
+          </button>
+          <button
+            type="button"
+            onClick={() => onAiModeChange('htmlCreator')}
+            aria-pressed={aiMode === 'htmlCreator'}
+            title="Generates one HTML block via Vertex; client sanitizes with DOMPurify. Tailwind classes may need theme tokens to style correctly."
+            className={`rounded-md border px-2 py-1 text-[11px] font-semibold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brandcolor-strokeweak focus-visible:ring-offset-1 focus-visible:ring-offset-brandcolor-white ${
+              aiMode === 'htmlCreator'
+                ? 'border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong'
+                : 'border-transparent bg-transparent text-brandcolor-textweak hover:bg-brandcolor-white/80 hover:text-brandcolor-textstrong'
+            }`}
+          >
+            HTML
+          </button>
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <div
+          className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5"
           aria-label="Design context: @ toggle and source files"
         >
           <button
@@ -111,10 +150,10 @@ export function ComponentsCanvasPromptPanel({
                 ? '@ is on: each request includes the full theme guide and Tailwind token file for the model.'
                 : 'Turn @ on to attach the full theme guide and Tailwind tokens so new components follow your style system.'
             }
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-brandcolor-textstrong transition-colors ${
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-brandcolor-textstrong transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brandcolor-strokeweak focus-visible:ring-offset-1 focus-visible:ring-offset-brandcolor-white ${
               extendedDesignContext
-                ? 'border-brandcolor-primary bg-brandcolor-primary/10 text-brandcolor-primary'
-                : 'border-brandcolor-strokeweak bg-brandcolor-white hover:bg-brandcolor-neutralhover'
+                ? 'border-brandcolor-strokeweak bg-brandcolor-white'
+                : 'border-brandcolor-strokeweak/70 bg-brandcolor-fill/80 hover:bg-brandcolor-fill'
             }`}
             aria-label={
               extendedDesignContext

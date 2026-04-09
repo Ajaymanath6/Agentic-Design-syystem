@@ -109,6 +109,7 @@ From `LLM agent/` with the project venv activated (or `.venv/bin/python`):
 
 ```bash
 python -m unittest tests.test_canvas_plan_contents -v
+python -m unittest tests.test_canvas_html_generate -v
 ```
 
 ## Layout “Ask…” vs Flask-style tutorials
@@ -137,6 +138,7 @@ You do **not** need a second Flask server. Use **`npm run dev:with-llm`** once P
 - `POST /layout/generate` — JSON `{ "prompt": string, "systemContext"?: string }` → `{ "text": string }` (free-text; tutorials / optional)
 - `POST /generate` — same request/response as `/layout/generate` (alias for docs/tutorials)
 - `POST /canvas/plan` — JSON `{ "prompt": string, "messages"?: { "role": "user"|"assistant", "content": string }[], "extended_design_context"?: boolean }` → `{ "plan": CanvasPlanV1 }` (components canvas). **Backward compatible:** `prompt` only matches the previous behavior. **Multi-turn:** optional `messages` is prior transcript (server formats as “Conversation”); `prompt` is always the latest user turn. **`extended_design_context: true`** attaches the full `tailwind.config.js` (truncated if huge) and a larger `theme-guide.json` slice; default `false` keeps the short in-prompt Tailwind summary only (higher token use when true).
+- `POST /canvas/generate-html` — same request JSON shape as `/canvas/plan` → `{ "html": string, "title": string }`. **HTML creator mode:** Vertex returns a single safe HTML fragment (server strips markdown fences, removes `<script>`, enforces a **16k** character cap). The browser **sanitizes again** with DOMPurify before render/storage. **Tailwind JIT caveat:** classes that appear **only** inside runtime HTML strings are often **not** picked up by Tailwind’s build-time scan, so the live canvas preview may look partially unstyled unless you use tokens already present in scanned source files, maintain a **safelist**, or constrain the model to known utilities. After **publish**, stored blueprint JSON lives under paths covered by `tailwind.config.js` `content`, so a production **`npm run build`** can include new class names from those files.
 
 ## curl
 
@@ -158,4 +160,12 @@ Alias (Flask-style path):
 curl -sS -X POST http://127.0.0.1:4302/generate \
   -H 'Content-Type: application/json' \
   -d '{"prompt":"Say hello in one sentence."}'
+```
+
+Components canvas HTML creator (optional; same body keys as `/canvas/plan`):
+
+```bash
+curl -sS -X POST http://127.0.0.1:4302/canvas/generate-html \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"A compact card with title and two lines of body text using brandcolor tokens."}'
 ```

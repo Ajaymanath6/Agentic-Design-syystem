@@ -51,4 +51,20 @@ describe('summarizeAppendedCanvasNodes', () => {
     expect(s).toContain('productSidebar')
     expect(s).toContain('My app nav')
   })
+
+  it('uses label for htmlSnippet without dumping HTML', () => {
+    const s = summarizeAppendedCanvasNodes([
+      {
+        kind: 'htmlSnippet',
+        id: 'h1',
+        x: 0,
+        y: 0,
+        label: 'Hero strip',
+        html: '<div class="secret">do not leak</div>',
+      },
+    ])
+    expect(s).toContain('htmlSnippet')
+    expect(s).toContain('Hero strip')
+    expect(s).not.toContain('secret')
+  })
 })

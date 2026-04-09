@@ -48,6 +48,11 @@ export function canvasProductSidebarCatalogId(nodeId: string): string {
   return toKebabComponentId(`canvas-product-sidebar-${nodeId}`)
 }
 
+/** Catalog `entry.id` for a components-canvas HTML snippet (creator mode) after publish. */
+export function canvasHtmlSnippetCatalogId(nodeId: string): string {
+  return toKebabComponentId(`canvas-html-${nodeId}`)
+}
+
 /**
  * Matches `toImportId` in server/publish-helper.mjs (PascalCase segments + `Component`).
  */

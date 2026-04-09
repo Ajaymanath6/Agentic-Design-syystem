@@ -23,7 +23,12 @@ import {
   loadCanvasNodesFromStorage,
   persistCanvasNodesToStorage,
 } from '../../lib/canvas-board-storage'
+import {
+  HTML_SNIPPET_BLOCK_H,
+  HTML_SNIPPET_BLOCK_W,
+} from '../../lib/append-html-snippet-canvas-node'
 import { heightPxForProductSidebarPayload } from '../../lib/canvas-product-sidebar-metrics'
+import { sanitizeCanvasHtmlFragment } from '../../lib/sanitize-canvas-html'
 import {
   buildBlueprintPreviewDocument,
   buildSourceHtmlForCanvasNode,
@@ -66,6 +71,9 @@ const CANVAS_CONFIRM_PW_H = 152
 const PRODUCT_SIDEBAR_W = 260
 
 function nodeSize(n: CanvasNode): { w: number; h: number } {
+  if (n.kind === 'htmlSnippet') {
+    return { w: HTML_SNIPPET_BLOCK_W, h: HTML_SNIPPET_BLOCK_H }
+  }
   if (n.kind === 'productSidebar') {
     return {
       w: PRODUCT_SIDEBAR_W,
@@ -252,6 +260,8 @@ export function ComponentsCanvasSurface() {
     setExtendedDesignContext,
     componentsPlanBusy,
     componentsPlanError,
+    componentsCanvasAiMode,
+    setComponentsCanvasAiMode,
     submitComponentsPrompt,
   } = useComponentsCanvasAi()
   const [nodes, setNodes] = useState<CanvasNode[]>(() => {
@@ -294,6 +304,10 @@ export function ComponentsCanvasSurface() {
   publishTargetRef.current = publishTarget
   const [publishScreenshot, setPublishScreenshot] = useState<string | null>(null)
   const [publishBusy, setPublishBusy] = useState(false)
+  /** Ephemeral confirmation after publish; in-memory only — full refresh clears it (expected). */
+  const [publishSuccessMessage, setPublishSuccessMessage] = useState<
+    string | null
+  >(null)
   const [captureBusyId, setCaptureBusyId] = useState<string | null>(null)
   /** World node id while block drag is active — light neutral selection ring on any block. */
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null)
@@ -575,6 +589,7 @@ export function ComponentsCanvasSurface() {
       alert('Block is not ready for capture.')
       return
     }
+    setPublishSuccessMessage(null)
     setCapturingHideChromeId(n.id)
     await new Promise<void>((resolve) => {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
@@ -598,10 +613,11 @@ export function ComponentsCanvasSurface() {
       if (!publishScreenshot || !publishTarget) return
       setPublishBusy(true)
       try {
+        const label = publishLabelForCanvasNode(publishTarget)
         // Same componentId as catalog entry id — server mergeCatalogEntry updates in place (no duplicate row).
         await postPublish({
           componentId: componentCatalogIdForCanvasNode(publishTarget),
-          label: publishLabelForCanvasNode(publishTarget),
+          label,
           screenshot: publishScreenshot,
           sourceHtml: buildSourceHtmlForCanvasNode(publishTarget),
           description: opts.description || undefined,
@@ -611,6 +627,7 @@ export function ComponentsCanvasSurface() {
         persistCanvasNodesToStorage(nodesRef.current)
         refreshCatalog()
         closePublishModal()
+        setPublishSuccessMessage(`Published “${label}” to the catalog.`)
       } catch (err) {
         alert(err instanceof Error ? err.message : String(err))
       } finally {
@@ -624,6 +641,12 @@ export function ComponentsCanvasSurface() {
       closePublishModal,
     ],
   )
+
+  useEffect(() => {
+    if (!publishSuccessMessage) return
+    const t = window.setTimeout(() => setPublishSuccessMessage(null), 5000)
+    return () => window.clearTimeout(t)
+  }, [publishSuccessMessage])
 
   const handleDelete = useCallback(
     (id: string) => {
@@ -723,6 +746,24 @@ export function ComponentsCanvasSurface() {
           {nodes.length === 1 ? ' block' : ' blocks'} on canvas
         </span>
       </div>
+      {publishSuccessMessage ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex shrink-0 items-center justify-between gap-3 border-b border-l-4 border-brandcolor-strokeweak border-l-brandcolor-badge-success-text bg-brandcolor-white px-3 py-2"
+        >
+          <p className="min-w-0 text-xs font-medium text-brandcolor-badge-success-text">
+            {publishSuccessMessage}
+          </p>
+          <button
+            type="button"
+            className="shrink-0 rounded-md px-2 py-1 text-[11px] font-medium text-brandcolor-textstrong ring-1 ring-brandcolor-strokeweak transition-colors hover:bg-brandcolor-fill focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2"
+            onClick={() => setPublishSuccessMessage(null)}
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
       {codeFor ? (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 p-4"
@@ -858,11 +899,17 @@ export function ComponentsCanvasSurface() {
             onChange={setComponentsPromptDraft}
             onSubmit={() => void handleComponentsAiSubmit()}
             busy={componentsPlanBusy}
-            placeholder="Ask…"
+            placeholder={
+              componentsCanvasAiMode === 'htmlCreator'
+                ? 'Describe UI to generate as HTML (Tailwind tokens)…'
+                : 'Describe blocks: card, buttons, product sidebar…'
+            }
             extendedDesignContext={extendedDesignContext}
             onToggleExtendedDesignContext={() =>
               setExtendedDesignContext(!extendedDesignContext)
             }
+            aiMode={componentsCanvasAiMode}
+            onAiModeChange={setComponentsCanvasAiMode}
             className="mx-auto"
           />
         </div>
@@ -906,8 +953,8 @@ export function ComponentsCanvasSurface() {
                   ? 'group/canvas-secondary cursor-grab px-3 py-3 active:cursor-grabbing'
                   : n.kind === 'neutralButton'
                     ? 'group/canvas-neutral cursor-grab px-3 py-3 active:cursor-grabbing'
-                    : n.kind === 'productSidebar'
-                      ? 'cursor-grab overflow-hidden px-0 py-0 active:cursor-grabbing'
+                    : n.kind === 'productSidebar' || n.kind === 'htmlSnippet'
+                      ? 'flex min-h-0 flex-col cursor-grab overflow-hidden px-0 py-0 active:cursor-grabbing'
                       : 'cursor-grab px-3 py-3 active:cursor-grabbing'
 
             return (
@@ -920,7 +967,7 @@ export function ComponentsCanvasSurface() {
                   n.kind === 'productSidebar' ? 'sidebar' : 'default'
                 }
                 bodyStyle={
-                  n.kind === 'productSidebar'
+                  n.kind === 'productSidebar' || n.kind === 'htmlSnippet'
                     ? { height: blockH, boxSizing: 'border-box' }
                     : undefined
                 }
@@ -948,7 +995,38 @@ export function ComponentsCanvasSurface() {
                 onBodyPointerUp={(e) => endNodeDrag(e, n.id)}
                 onBodyPointerCancel={(e) => endNodeDrag(e, n.id)}
               >
-                {n.kind === 'productSidebar' ? (
+                {n.kind === 'htmlSnippet' ? (
+                  <>
+                    {capturingHideChromeId !== n.id ? (
+                      <div className="flex shrink-0 justify-end px-3 pt-2">
+                        <span
+                          className={
+                            published ? publishedBadgeClass : draftBadgeClass
+                          }
+                          data-canvas-catalog-badge
+                          aria-label={
+                            published
+                              ? 'Published to catalog — republishing updates the same entry'
+                              : 'Not in catalog yet — publish from Capture'
+                          }
+                        >
+                          {published ? 'Published' : 'Not published'}
+                        </span>
+                      </div>
+                    ) : null}
+                    <div
+                      className="min-h-0 flex-1 overflow-y-auto px-3 pb-3 pt-1"
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <div
+                        className="canvas-html-snippet-root min-w-0 text-left [&_a]:pointer-events-none [&_button]:pointer-events-none [&_input]:pointer-events-auto"
+                        dangerouslySetInnerHTML={{
+                          __html: sanitizeCanvasHtmlFragment(n.html),
+                        }}
+                      />
+                    </div>
+                  </>
+                ) : n.kind === 'productSidebar' ? (
                   <CanvasProductSidebarPreview
                     node={n}
                     hideBadgeRow={capturingHideChromeId === n.id}

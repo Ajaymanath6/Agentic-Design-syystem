@@ -24,10 +24,11 @@ export function ViewModeToggle({ placement = 'default' }: ViewModeToggleProps) {
     location.pathname.startsWith('/admin/canvas/')
 
   const segmentBase =
-    'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2.5 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brandcolor-white'
+    'flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-2.5 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brandcolor-strokeweak focus-visible:ring-offset-1 focus-visible:ring-offset-brandcolor-fill'
   const segmentInactive =
-    'text-brandcolor-textweak hover:bg-brandcolor-neutralhover hover:text-brandcolor-textstrong'
-  const segmentActive = 'bg-brandcolor-primary text-brandcolor-white'
+    'border-transparent text-brandcolor-textweak hover:bg-brandcolor-white/70 hover:text-brandcolor-textstrong'
+  const segmentActive =
+    'border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong shadow-none'
 
   const outerClass =
     placement === 'embedded'

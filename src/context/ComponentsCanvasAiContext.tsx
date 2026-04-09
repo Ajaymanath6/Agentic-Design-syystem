@@ -9,9 +9,12 @@ import {
   type ReactNode,
 } from 'react'
 
+import { createHtmlSnippetCanvasNode } from '../lib/append-html-snippet-canvas-node'
 import type { CanvasNode } from '../lib/canvas-node-publish'
+import { sanitizeCanvasHtmlFragment } from '../lib/sanitize-canvas-html'
 import { summarizeAppendedCanvasNodes } from '../lib/summarize-canvas-appended-nodes'
 import { mapCanvasPlanToNewNodes } from '../lib/map-canvas-plan-to-nodes'
+import { callComponentsCanvasGenerateHtml } from '../services/components-canvas-html'
 import { callComponentsCanvasPlan } from '../services/components-canvas-llm'
 import type { CanvasPlanChatMessage } from '../types/components-canvas-plan-request'
 import {
@@ -21,6 +24,10 @@ import {
 
 const EXTENDED_DESIGN_CONTEXT_STORAGE_KEY =
   'components-canvas-extended-design-context'
+
+const COMPONENTS_CANVAS_AI_MODE_KEY = 'components-canvas-ai-mode'
+
+export type ComponentsCanvasAiMode = 'plan' | 'htmlCreator'
 
 function clampChatMessageContent(content: string): string {
   if (content.length <= MAX_CANVAS_CHAT_MESSAGE_CHARS) return content
@@ -36,7 +43,10 @@ export type ComponentsCanvasAiContextValue = {
   setExtendedDesignContext: (v: boolean) => void
   componentsPlanBusy: boolean
   componentsPlanError: string | null
-  /** Calls Vertex `/canvas/plan`. Returns nodes to append; `error` set when the request fails. */
+  /** `plan` = JSON node plan (`/canvas/plan`). `htmlCreator` = HTML fragment (`/canvas/generate-html`). */
+  componentsCanvasAiMode: ComponentsCanvasAiMode
+  setComponentsCanvasAiMode: (v: ComponentsCanvasAiMode) => void
+  /** Calls Vertex `/canvas/plan` or `/canvas/generate-html` per mode. Returns nodes to append. */
   submitComponentsPrompt: (
     existingNodes: CanvasNode[],
   ) => Promise<{ appended: CanvasNode[]; error: string | null }>
@@ -55,6 +65,8 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
   const [componentsPlanError, setComponentsPlanError] = useState<string | null>(
     null,
   )
+  const [componentsCanvasAiMode, setComponentsCanvasAiModeState] =
+    useState<ComponentsCanvasAiMode>('plan')
   const planGenRef = useRef(0)
 
   useEffect(() => {
@@ -63,6 +75,19 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       if (v === '1' || v === 'true') {
         setExtendedDesignContextState(true)
       }
+      const m = sessionStorage.getItem(COMPONENTS_CANVAS_AI_MODE_KEY)
+      if (m === 'htmlCreator' || m === 'plan') {
+        setComponentsCanvasAiModeState(m)
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  const setComponentsCanvasAiMode = useCallback((v: ComponentsCanvasAiMode) => {
+    setComponentsCanvasAiModeState(v)
+    try {
+      sessionStorage.setItem(COMPONENTS_CANVAS_AI_MODE_KEY, v)
     } catch {
       /* ignore */
     }
@@ -90,21 +115,49 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       setComponentsPlanError(null)
       setComponentsPlanBusy(true)
       try {
-        const plan = await callComponentsCanvasPlan({
-          prompt: promptForApi,
-          messages:
-            priorMessages.length > 0
-              ? priorMessages.map((m) => ({
-                  role: m.role,
-                  content: clampChatMessageContent(m.content),
-                }))
-              : undefined,
-          extended_design_context: extendedDesignContext,
-        })
+        let appended: CanvasNode[]
+        if (componentsCanvasAiMode === 'htmlCreator') {
+          const res = await callComponentsCanvasGenerateHtml({
+            prompt: promptForApi,
+            messages:
+              priorMessages.length > 0
+                ? priorMessages.map((m) => ({
+                    role: m.role,
+                    content: clampChatMessageContent(m.content),
+                  }))
+                : undefined,
+            extended_design_context: extendedDesignContext,
+          })
+          if (planGenRef.current !== gen) {
+            return { appended: [], error: null }
+          }
+          const safe = sanitizeCanvasHtmlFragment(res.html)
+          if (!safe.trim()) {
+            throw new Error('Model HTML was empty after sanitization')
+          }
+          appended = [
+            createHtmlSnippetCanvasNode(existingNodes, safe, res.title),
+          ]
+        } else {
+          const plan = await callComponentsCanvasPlan({
+            prompt: promptForApi,
+            messages:
+              priorMessages.length > 0
+                ? priorMessages.map((m) => ({
+                    role: m.role,
+                    content: clampChatMessageContent(m.content),
+                  }))
+                : undefined,
+            extended_design_context: extendedDesignContext,
+          })
+          if (planGenRef.current !== gen) {
+            return { appended: [], error: null }
+          }
+          appended = mapCanvasPlanToNewNodes(plan, existingNodes)
+        }
         if (planGenRef.current !== gen) {
           return { appended: [], error: null }
         }
-        const appended = mapCanvasPlanToNewNodes(plan, existingNodes)
         const assistantContent = summarizeAppendedCanvasNodes(appended)
         setCanvasPlanChatMessages((prev) => {
           const next: CanvasPlanChatMessage[] = [
@@ -146,6 +199,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
     [
       canvasPlanChatMessages,
       componentsPromptDraft,
+      componentsCanvasAiMode,
       extendedDesignContext,
     ],
   )
@@ -159,6 +213,8 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       setExtendedDesignContext,
       componentsPlanBusy,
       componentsPlanError,
+      componentsCanvasAiMode,
+      setComponentsCanvasAiMode,
       submitComponentsPrompt,
     }),
     [
@@ -167,6 +223,8 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       extendedDesignContext,
       componentsPlanBusy,
       componentsPlanError,
+      componentsCanvasAiMode,
+      setComponentsCanvasAiMode,
       submitComponentsPrompt,
       setExtendedDesignContext,
     ],

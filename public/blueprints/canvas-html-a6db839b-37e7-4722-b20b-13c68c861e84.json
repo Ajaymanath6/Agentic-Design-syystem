@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-a6db839b-37e7-4722-b20b-13c68c861e84",
+  "component": "div",
+  "importId": "CanvasHtmlA6db839b37e74722B20b13c68c861e84Component",
+  "data": {
+    "imageUrl": "/generated/canvas-html-a6db839b-37e7-4722-b20b-13c68c861e84-thumbnail.png",
+    "imageAlt": "Create a success alert with a white background",
+    "sealed": true,
+    "sourceHtml": "<div class=\"rounded-lg bg-brandcolor-white shadow-card p-4 border border-brandcolor-strokeweak\">\n  <div class=\"flex\">\n    <div class=\"flex-shrink-0\">\n      \n    </div>\n    <div class=\"ml-3\">\n      <h3 class=\"text-sm font-medium text-brandcolor-textstrong\">Success</h3>\n      <div class=\"mt-2 text-sm text-brandcolor-textweak\">\n        <p>Your changes have been saved.</p>\n      </div>\n    </div>\n  </div>\n</div>"
+  }
+}
