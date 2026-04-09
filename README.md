@@ -5,7 +5,7 @@ Design-system catalog shell with **Admin Canvas → Publish → Catalog home**. 
 ### Local development
 
 - **Default:** `npm run dev` starts **Vite + publish helper** together (helper on **4301**).
-- **With Layout / Gemini:** `npm run dev:with-llm` starts **Vite + publish helper + LLM agent** (**4302**). One-time: see [LLM agent/README.md](LLM%20agent/README.md) (venv + copy `.env.llm.example` → `.env.llm`). Daily: refresh your AWS INI file only.
+- **With Layout / Gemini:** `npm run dev:with-llm` starts **Vite + publish helper + LLM agent** (**4302**). One-time: see [LLM agent/README.md](LLM%20agent/README.md) (venv + copy `.env.llm.example` → `.env.llm`). Daily: refresh your AWS INI file only. **Admin → Components** bottom chat sends `POST /canvas/plan` with optional multi-turn `messages` and an **@** toggle for `extended_design_context` (full Tailwind file + larger theme-guide in the model prompt — see that README).
 - **Vite only:** `npm run dev:vite` (publish/inspect API calls will fail until you run the helper).
 - **Helper only:** `npm run dev:helper`.
 - **LLM agent only:** `npm run dev:vertex-llm` (loads `LLM agent/.env.llm` via `run.sh`).

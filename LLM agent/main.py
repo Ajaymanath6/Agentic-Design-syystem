@@ -20,8 +20,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 from google.auth import aws as google_auth_aws
 from google.genai.types import HttpOptions
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
+from canvas_plan import (
+    CanvasPlanPromptBody,
+    build_canvas_plan_contents,
+    parse_and_validate_canvas_plan,
+)
 from layout_plan import (
     LAYOUT_PLAN_SYSTEM,
     PlanRequestBody,
@@ -260,3 +265,42 @@ def _layout_plan_impl(body: PlanRequestBody) -> dict[str, Any]:
 def layout_plan(body: PlanRequestBody) -> dict[str, Any]:
     """Structured JSON layout plan (catalog + theme keys); used by Admin Layout preview upgrade."""
     return _layout_plan_impl(body)
+
+
+def _canvas_plan_impl(body: CanvasPlanPromptBody) -> dict[str, Any]:
+    model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
+    contents = build_canvas_plan_contents(body)
+    try:
+        client = get_genai_client()
+    except Exception as e:
+        logger.exception("Client init failed")
+        raise HTTPException(status_code=503, detail=str(e)) from e
+    try:
+        response = client.models.generate_content(model=model, contents=contents)
+    except Exception as e:
+        logger.exception("canvas_plan generate_content failed")
+        raise HTTPException(status_code=502, detail=str(e)) from e
+    text = getattr(response, "text", None)
+    if text is None and getattr(response, "candidates", None):
+        try:
+            c0 = response.candidates[0]
+            text = c0.content.parts[0].text  # type: ignore[attr-defined]
+        except (IndexError, AttributeError, TypeError):
+            text = None
+    if not text:
+        raise HTTPException(status_code=502, detail="Empty model response")
+    try:
+        plan = parse_and_validate_canvas_plan(text)
+    except (ValueError, json.JSONDecodeError, ValidationError) as e:
+        logger.warning("canvas_plan parse/validate failed: %s", e)
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid or empty canvas plan JSON: {e}",
+        ) from e
+    return {"plan": plan.model_dump(mode="json")}
+
+
+@app.post("/canvas/plan")
+def canvas_plan(body: CanvasPlanPromptBody) -> dict[str, Any]:
+    """Structured JSON components-canvas nodes; used by Admin Components canvas AI bar."""
+    return _canvas_plan_impl(body)

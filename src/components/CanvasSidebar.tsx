@@ -1,17 +1,10 @@
-import {
-  RiAddLine,
-  RiArrowDownSLine,
-  RiArrowUpLine,
-  RiArtboard2Line,
-  RiCropLine,
-  RiLayoutLine,
-  RiLoader4Line,
-} from '@remixicon/react'
+import { RiArtboard2Line, RiLayoutLine } from '@remixicon/react'
 import { Suspense } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useLayoutWorkspace } from '../context/LayoutWorkspaceContext'
 import { SidebarBrandHeader } from './SidebarBrandHeader'
 import { ViewModeToggle } from './ViewModeToggle'
+import { WorkspacePromptComposer } from './workspace/WorkspacePromptComposer'
 
 const segBase =
   'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-2 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brandcolor-white'
@@ -90,61 +83,15 @@ function CanvasSidebarInner() {
 
       {isLayout ? (
         <div className="shrink-0 border-t border-brandcolor-strokeweak p-3">
-          <div className="rounded-xl border border-brandcolor-strokeweak bg-brandcolor-fill p-2">
-            <textarea
-              value={layoutPromptDraft}
-              onChange={(e) => setLayoutPromptDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  submitLayoutPrompt()
-                }
-              }}
-              placeholder="Ask…"
-              rows={3}
-              disabled={layoutPlanBusy}
-              className="mb-2 w-full resize-none rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white px-2.5 py-2 text-[13px] text-brandcolor-textstrong placeholder:text-brandcolor-textweak focus:outline-none focus:ring-2 focus:ring-brandcolor-primary disabled:cursor-not-allowed disabled:opacity-60"
-            />
-            <div className="flex flex-wrap items-center gap-1.5">
-              <button
-                type="button"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong hover:bg-brandcolor-neutralhover"
-                aria-label="Add"
-              >
-                <RiAddLine className="size-4" />
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1 rounded-full border border-brandcolor-strokeweak bg-brandcolor-white px-2 py-1 text-[11px] font-medium text-brandcolor-textstrong hover:bg-brandcolor-neutralhover"
-              >
-                <RiCropLine className="size-3.5" aria-hidden />
-                Visual edits
-              </button>
-              <span className="flex-1" />
-              <button
-                type="button"
-                className="inline-flex items-center gap-0.5 rounded-full border border-brandcolor-strokeweak bg-brandcolor-white px-2 py-1 text-[11px] font-medium text-brandcolor-textstrong hover:bg-brandcolor-neutralhover"
-              >
-                Build
-                <RiArrowDownSLine className="size-3.5" aria-hidden />
-              </button>
-              <button
-                type="button"
-                onClick={() => submitLayoutPrompt()}
-                disabled={layoutPlanBusy}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brandcolor-primary text-brandcolor-white shadow-sm hover:bg-brandcolor-primaryhover disabled:cursor-not-allowed disabled:opacity-60"
-                aria-label="Send prompt"
-                title="Send"
-                aria-busy={layoutPlanBusy}
-              >
-                {layoutPlanBusy ? (
-                  <RiLoader4Line className="size-4 animate-spin" aria-hidden />
-                ) : (
-                  <RiArrowUpLine className="size-4" aria-hidden />
-                )}
-              </button>
-            </div>
-          </div>
+          <WorkspacePromptComposer
+            variant="sidebar"
+            textareaId="layout-workspace-prompt"
+            value={layoutPromptDraft}
+            onChange={setLayoutPromptDraft}
+            onSubmit={() => submitLayoutPrompt()}
+            busy={layoutPlanBusy}
+            placeholder="Ask…"
+          />
         </div>
       ) : null}
 

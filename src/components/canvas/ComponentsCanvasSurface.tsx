@@ -14,6 +14,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 
+import { useComponentsCanvasAi } from '../../context/ComponentsCanvasAiContext'
 import { useCatalogRefresh } from '../../context/CatalogRefreshContext'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
 import { captureElementFullPng } from '../../lib/capture-screenshot'
@@ -36,11 +37,12 @@ import {
   postPublish,
 } from '../../services/publish-workflow'
 import { CanvasPublishModal } from './CanvasPublishModal'
+import { ComponentsCanvasPromptPanel } from './ComponentsCanvasPromptPanel'
 import { CanvasWorldBlock } from './CanvasWorldBlock'
 
 const GRID_PX = 24
-/** Viewport-fixed grid (#F5F5F5 fill + lines); world pans/zooms on top. */
-const GRID_LINE = '#D0D0D0'
+/** Viewport-fixed grid (fill + lines); world pans/zooms on top. Fill = brandcolor-fill; lines = brandcolor-strokeweak (tailwind.config.js). */
+const GRID_LINE = '#E5E5E5'
 const VIEWPORT_GRID_STYLE: CSSProperties = {
   backgroundColor: '#F5F5F5',
   backgroundImage: `linear-gradient(to right, ${GRID_LINE} 1px, transparent 1px), linear-gradient(to bottom, ${GRID_LINE} 1px, transparent 1px)`,
@@ -72,6 +74,40 @@ function nodeSize(n: CanvasNode): { w: number; h: number } {
     return { w: CANVAS_CARD_W, h: CANVAS_CONFIRM_PW_H }
   }
   return { w: CANVAS_CARD_W, h: CANVAS_CARD_H }
+}
+
+/** Pan/zoom the viewport so these world nodes are framed (after AI append). */
+function focusViewportOnCanvasNodes(
+  viewport: HTMLDivElement,
+  targets: CanvasNode[],
+  setTx: (v: number) => void,
+  setTy: (v: number) => void,
+  setScale: (v: number) => void,
+) {
+  if (targets.length === 0) return
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  for (const n of targets) {
+    const { w: bw, h: bh } = nodeSize(n)
+    minX = Math.min(minX, n.x)
+    minY = Math.min(minY, n.y)
+    maxX = Math.max(maxX, n.x + bw)
+    maxY = Math.max(maxY, n.y + bh)
+  }
+  const r = viewport.getBoundingClientRect()
+  const pad = 56
+  const cw = maxX - minX + pad * 2
+  const ch = maxY - minY + pad * 2
+  const s = clamp(
+    Math.min((r.width - 32) / cw, (r.height - 32) / ch),
+    SCALE_MIN,
+    Math.min(SCALE_MAX, 1.35),
+  )
+  setScale(s)
+  setTx((r.width - cw * s) / 2 - minX * s + pad * s * 0.5)
+  setTy((r.height - ch * s) / 2 - minY * s + pad * s * 0.5)
 }
 
 function createInitialCanvasCard(): CanvasNode {
@@ -199,6 +235,16 @@ const draftBadgeClass =
 /** Canvas: grid on viewport; pan on stage — Space+drag or middle mouse. */
 export function ComponentsCanvasSurface() {
   const { refreshCatalog } = useCatalogRefresh()
+  const {
+    componentsPromptDraft,
+    setComponentsPromptDraft,
+    canvasPlanChatMessages,
+    extendedDesignContext,
+    setExtendedDesignContext,
+    componentsPlanBusy,
+    componentsPlanError,
+    submitComponentsPrompt,
+  } = useComponentsCanvasAi()
   const [nodes, setNodes] = useState<CanvasNode[]>(() => {
     const stored = loadCanvasNodesFromStorage()
     if (stored != null && stored.length > 0) {
@@ -293,6 +339,8 @@ export function ComponentsCanvasSurface() {
   } | null>(null)
   const didInitialFitRef = useRef(false)
   const didCenterViewportRef = useRef(false)
+  /** After AI adds nodes, frame them in the viewport (initial fit only runs once). */
+  const pendingFocusNodesRef = useRef<CanvasNode[] | null>(null)
 
   const fitView = useCallback(() => {
     const el = viewportRef.current
@@ -364,6 +412,15 @@ export function ComponentsCanvasSurface() {
       fitView()
     }
   }, [nodes.length, fitView])
+
+  useLayoutEffect(() => {
+    const targets = pendingFocusNodesRef.current
+    if (!targets?.length) return
+    pendingFocusNodesRef.current = null
+    const el = viewportRef.current
+    if (!el) return
+    focusViewportOnCanvasNodes(el, targets, setTx, setTy, setScale)
+  }, [nodes])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -636,8 +693,27 @@ export function ComponentsCanvasSurface() {
     willChange: 'transform',
   } as const
 
+  const handleComponentsAiSubmit = useCallback(async () => {
+    const { appended } = await submitComponentsPrompt(nodesRef.current)
+    if (appended.length > 0) {
+      pendingFocusNodesRef.current = appended
+      setNodes((prev) => [...prev, ...appended])
+    }
+  }, [submitComponentsPrompt])
+
   return (
     <div className="relative flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden bg-brandcolor-fill">
+      <div
+        className="flex shrink-0 items-center justify-center border-b border-brandcolor-strokeweak bg-brandcolor-white px-3 py-1"
+        role="status"
+        aria-live="polite"
+        aria-label={`${nodes.length} UI block${nodes.length === 1 ? '' : 's'} on canvas`}
+      >
+        <span className="text-[11px] font-medium tabular-nums text-brandcolor-textweak">
+          <span className="text-brandcolor-textstrong">{nodes.length}</span>
+          {nodes.length === 1 ? ' block' : ' blocks'} on canvas
+        </span>
+      </div>
       {codeFor ? (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 p-4"
@@ -747,6 +823,40 @@ export function ComponentsCanvasSurface() {
           <RiFullscreenLine className="size-4" aria-hidden />
           </button>
         </span>
+      </div>
+
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 right-0 z-40 flex justify-center px-3 pb-6 pt-8"
+        aria-label="Components canvas AI prompt"
+      >
+        <div
+          className="pointer-events-auto w-full max-w-[min(560px,calc(100%-2rem))]"
+          onWheel={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          {componentsPlanError ? (
+            <p
+              role="alert"
+              className="mb-2 rounded-md border border-brandcolor-destructive/40 bg-brandcolor-white px-2 py-1.5 text-center text-[11px] text-brandcolor-destructive"
+            >
+              {componentsPlanError}
+            </p>
+          ) : null}
+          <ComponentsCanvasPromptPanel
+            canvasPlanChatMessages={canvasPlanChatMessages}
+            textareaId="components-canvas-ai-prompt"
+            value={componentsPromptDraft}
+            onChange={setComponentsPromptDraft}
+            onSubmit={() => void handleComponentsAiSubmit()}
+            busy={componentsPlanBusy}
+            placeholder="Ask…"
+            extendedDesignContext={extendedDesignContext}
+            onToggleExtendedDesignContext={() =>
+              setExtendedDesignContext(!extendedDesignContext)
+            }
+            className="mx-auto"
+          />
+        </div>
       </div>
 
       <div
