@@ -94,8 +94,7 @@ export function HomePage() {
             {componentCards.map((card) => {
               const thumb =
                 card.entry.thumbnailPath || card.blueprint?.data?.imageUrl || ''
-              const componentName =
-                card.entry.importId || card.entry.id
+              const componentName = catalogCardDisplayName(card)
               return (
                 <li
                   key={card.entry.id}

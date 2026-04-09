@@ -181,7 +181,7 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
                 {thumbSrc ? (
                   <img
                     src={thumbSrc}
-                    alt={card.blueprint?.data?.imageAlt ?? card.entry.id}
+                    alt={catalogCardDisplayName(card)}
                     className="max-h-full max-w-full rounded-lg border border-brandcolor-strokeweak object-contain"
                   />
                 ) : (
