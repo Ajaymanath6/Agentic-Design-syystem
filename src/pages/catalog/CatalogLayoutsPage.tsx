@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
 import { catalogCardDisplayName } from '../../lib/catalog-display-name'
@@ -18,11 +18,10 @@ export function CatalogLayoutsPage() {
   const [modalOpen, setModalOpen] = useState(false)
 
   const selectedId = selected?.entry.id
-  useEffect(() => {
-    if (!modalOpen || !selectedId) return
-    const updated = layoutCards.find((c) => c.entry.id === selectedId)
-    if (updated) setSelected(updated)
-  }, [layoutCards, modalOpen, selectedId])
+  const modalCard = useMemo(() => {
+    if (!modalOpen || !selectedId) return selected
+    return layoutCards.find((c) => c.entry.id === selectedId) ?? selected
+  }, [modalOpen, selectedId, layoutCards, selected])
 
   const openCard = (card: CatalogCardModel) => {
     setSelected(card)
@@ -101,7 +100,7 @@ export function CatalogLayoutsPage() {
 
       <CatalogDetailModal
         open={modalOpen}
-        card={selected}
+        card={modalCard}
         onClose={() => {
           setModalOpen(false)
           setSelected(null)

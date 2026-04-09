@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RiArrowRightSLine } from '@remixicon/react'
 import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
@@ -34,11 +34,10 @@ export function HomePage() {
   const pagesStripRef = useRef<HTMLUListElement>(null)
 
   const selectedId = selected?.entry.id
-  useEffect(() => {
-    if (!modalOpen || !selectedId) return
-    const updated = cards.find((c) => c.entry.id === selectedId)
-    if (updated) setSelected(updated)
-  }, [cards, modalOpen, selectedId])
+  const modalCard = useMemo(() => {
+    if (!modalOpen || !selectedId) return selected
+    return cards.find((c) => c.entry.id === selectedId) ?? selected
+  }, [modalOpen, selectedId, cards, selected])
 
   const scrollStripForward = useCallback(() => {
     const el = stripRef.current
@@ -310,7 +309,7 @@ export function HomePage() {
 
       <CatalogDetailModal
         open={modalOpen}
-        card={selected}
+        card={modalCard}
         onClose={() => {
           setModalOpen(false)
           setSelected(null)

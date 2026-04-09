@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 const STORAGE_KEY = 'admin-sidebar-width-px'
 const MIN_W = 240
@@ -24,11 +24,12 @@ type Props = {
 export function AdminResizableSidebar({ children }: Props) {
   const [width, setWidth] = useState(readStoredWidth)
   const widthRef = useRef(width)
-  widthRef.current = width
 
   const dragRef = useRef<{ startX: number; startW: number } | null>(null)
   const handleRef = useRef<HTMLButtonElement>(null)
   const pointerIdRef = useRef<number | null>(null)
+  /** Same reference as `endDrag` for removeEventListener (avoids TDZ / stale self-ref). */
+  const endDragRef = useRef<() => void>(() => {})
 
   const onPointerMove = useCallback((e: PointerEvent) => {
     const d = dragRef.current
@@ -42,7 +43,7 @@ export function AdminResizableSidebar({ children }: Props) {
   }, [])
 
   const endDrag = useCallback(
-    (_e: PointerEvent) => {
+    () => {
       const btn = handleRef.current
       if (btn && pointerIdRef.current != null) {
         try {
@@ -54,8 +55,9 @@ export function AdminResizableSidebar({ children }: Props) {
       }
       dragRef.current = null
       window.removeEventListener('pointermove', onPointerMove)
-      window.removeEventListener('pointerup', endDrag)
-      window.removeEventListener('pointercancel', endDrag)
+      const end = endDragRef.current
+      window.removeEventListener('pointerup', end)
+      window.removeEventListener('pointercancel', end)
       try {
         localStorage.setItem(STORAGE_KEY, String(widthRef.current))
       } catch {
@@ -64,6 +66,14 @@ export function AdminResizableSidebar({ children }: Props) {
     },
     [onPointerMove],
   )
+
+  useLayoutEffect(() => {
+    endDragRef.current = endDrag
+  }, [endDrag])
+
+  useLayoutEffect(() => {
+    widthRef.current = width
+  }, [width])
 
   const onResizePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     e.preventDefault()

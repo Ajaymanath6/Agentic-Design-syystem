@@ -57,15 +57,19 @@ export function StructuredPreviewCodeModal({
   >('idle')
   const [formatNote, setFormatNote] = useState<string | null>(null)
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null)
-
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (!open) {
       setStatus('idle')
       setDisplayText('')
       setFormatNote(null)
       setCopyFeedback(null)
-      return
     }
+  }
+
+  useEffect(() => {
+    if (!open) return
 
     let cancelled = false
     const ac = new AbortController()

@@ -37,11 +37,14 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
   const [bookmarked, setBookmarked] = useState(false)
   const [deleteBusy, setDeleteBusy] = useState(false)
 
+  // Intentionally `[open, card?.entry.id]` only: catalog refresh can replace `card` with a new object for the
+  // same id; listing `card` would reset the panel on every refresh while the modal stays open.
   useEffect(() => {
     if (open && card) {
       setPanel('image')
       setBookmarked(isCatalogBookmarked(card.entry.id))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, card?.entry.id])
 
   const onToggleBookmark = useCallback(() => {
