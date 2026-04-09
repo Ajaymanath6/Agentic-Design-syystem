@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
+import { catalogCardDisplayName } from '../../lib/catalog-display-name'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import type { CatalogCardModel } from '../../types/catalog'
 
@@ -59,7 +60,7 @@ export function CatalogLayoutsPage() {
           {layoutCards.map((card) => {
             const thumb =
               card.entry.thumbnailPath || card.blueprint?.data?.imageUrl || ''
-            const name = card.entry.importId || card.entry.id
+            const name = catalogCardDisplayName(card)
             return (
               <li key={card.entry.id} className="min-w-0">
                 <button

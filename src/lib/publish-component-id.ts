@@ -43,6 +43,11 @@ export function canvasTextInputFieldCatalogId(nodeId: string): string {
   return toKebabComponentId(`canvas-text-field-${nodeId}`)
 }
 
+/** Catalog `entry.id` for a components-canvas product sidebar block after publish. */
+export function canvasProductSidebarCatalogId(nodeId: string): string {
+  return toKebabComponentId(`canvas-product-sidebar-${nodeId}`)
+}
+
 /**
  * Matches `toImportId` in server/publish-helper.mjs (PascalCase segments + `Component`).
  */

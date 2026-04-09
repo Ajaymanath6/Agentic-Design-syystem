@@ -22,7 +22,7 @@
       "secondaryBackgroundToken": "brandcolor-secondary",
       "secondaryHoverToken": "brandcolor-secondaryhover",
       "secondaryEquivalentTailwind": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-secondary hover:bg-brandcolor-secondaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0",
-      "componentsCanvasExample": "ComponentsCanvasSurface: world pan/zoom; initial card + primary + secondary + neutral + confirm password; localStorage agentic-components-canvas-nodes-v1. Kinds: card, primaryButton, secondaryButton, neutralButton, confirmPasswordInput. Catalog ids canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-*. Prune: scripts/prune-canvas-catalog.mjs.",
+      "componentsCanvasExample": "ComponentsCanvasSurface: world pan/zoom; initial card + primary + secondary + neutral + confirm password + text field; localStorage agentic-components-canvas-nodes-v1. Kinds: card, primaryButton, secondaryButton, neutralButton, confirmPasswordInput, textInputField, productSidebar (CanvasPlan v2). Catalog ids canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* / canvas-text-field-* / canvas-product-sidebar-*. Prune: scripts/prune-canvas-catalog.mjs.",
       "neutral": "Reference — neutral canvas: index.css .neutral-canvas-button; strokeweak border, hover strokelight; publish string in canvas-node-publish.ts",
       "buttonBrandGlowShadow": "Optional primary-tinted elevation for buttons or focus: theme.extend.boxShadow.button-brand-glow → Tailwind utility shadow-button-brand-glow. Three layered oklch(0.5243 0.1143 214.28 / alpha) glows (stronger spread) aligned with brandcolor-primary (#F84416). Compose with active:shadow-button-press or hover as needed.",
       "buttonBrandGlowShadowUtility": "shadow-button-brand-glow"
@@ -57,6 +57,13 @@
       "description": "Canvas confirmPasswordInput: .confirm-password-canvas-input — default border-brandcolor-strokeweak; :focus and :user-valid use border (1px) border-brandcolor-primary + theme boxShadow.confirm-password-valid (0 0 0 2px #F8441633). Shell clipShell=false. Catalog prefix canvas-confirm-password-.",
       "validStateShadowToken": "confirm-password-valid (theme.extend.boxShadow)",
       "validStateShadowCss": "0px 0px 0px 2px #F8441633 (with 1px solid border-brandcolor-primary)"
+    },
+    "componentsCanvasProductSidebar": {
+      "description": "Generative productSidebar (CanvasPlan version 2): nav shell aligned with components canvas contract — Tailwind tokens only, Remix icons via fixed iconKey maps in code (no free-form icon names from the model). Preview width 260px; world chrome uses CanvasWorldBlock chromeVariant sidebar: only border-r border-brandcolor-strokeweak on the outer shell (no full box border). Inner surface bg-brandcolor-white; header border-b border-brandcolor-strokeweak; section headings text-[11px] uppercase text-brandcolor-textweak; rows hover:bg-brandcolor-fill. Optional search uses text-field-canvas-input; optional CTA uses neutral-canvas-button. Published sourceHtml: buildProductSidebarPublishHtml in canvas-node-publish.ts (nav icons omitted in static HTML). Catalog prefix canvas-product-sidebar-.",
+      "widthPx": 260,
+      "borderRule": "Outer preview: border-0 border-r border-brandcolor-strokeweak only (see CanvasWorldBlock chromeVariant sidebar).",
+      "iconKeysNav": "home | folder | task | fileText | key | history | none",
+      "iconKeysHeader": "chevronUpDown | chevronUp | chevronDown | none"
     },
     "caseCard": {
       "description": "Case study card: case name (h2) with share + tag icon actions on the header row, subheading (text-strong), description (text-weak body).",

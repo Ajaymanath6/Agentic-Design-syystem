@@ -14,6 +14,7 @@ import { useLayoutWorkspace } from '../../context/LayoutWorkspaceContext'
 import { useCatalogRefresh } from '../../context/CatalogRefreshContext'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
 import { captureElementFullPng } from '../../lib/capture-screenshot'
+import { catalogCardDisplayName } from '../../lib/catalog-display-name'
 import { findCardByPlanRef } from '../../lib/layout-plan-catalog'
 import {
   rowColumnClass,
@@ -160,10 +161,11 @@ function renderCatalogBlock(
     block.layout,
     block.grid,
   )
+  const displayName = catalogCardDisplayName(card)
   const a11yName =
     block.layout === 'grid' && block.grid != null
-      ? `${block.grid.cols} by ${block.grid.rows} grid, ${block.repeat} cells, ${card.entry.importId || card.entry.id}`
-      : `${block.repeat} × ${card.entry.importId || card.entry.id}`
+      ? `${block.grid.cols} by ${block.grid.rows} grid, ${block.repeat} cells, ${displayName}`
+      : `${block.repeat} × ${displayName}`
 
   return (
     <div

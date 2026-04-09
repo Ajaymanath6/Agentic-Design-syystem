@@ -13,12 +13,15 @@ import {
   RiLoader4Line,
 } from '@remixicon/react'
 import {
+  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
 
 const toolbarBtn =
   'inline-flex shrink-0 items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold text-brandcolor-textstrong transition-colors hover:bg-brandcolor-white'
+
+export type CanvasWorldBlockChromeVariant = 'default' | 'sidebar'
 
 export type CanvasWorldBlockProps = {
   x: number
@@ -40,6 +43,9 @@ export type CanvasWorldBlockProps = {
   children: ReactNode
   /** false → overflow-visible so valid-state input shadows are not clipped */
   clipShell?: boolean
+  /** `sidebar` → right-edge stroke only (product nav preview). */
+  chromeVariant?: CanvasWorldBlockChromeVariant
+  bodyStyle?: CSSProperties
 }
 
 export function CanvasWorldBlock({
@@ -61,10 +67,17 @@ export function CanvasWorldBlock({
   onBodyPointerCancel,
   children,
   clipShell = true,
+  chromeVariant = 'default',
+  bodyStyle,
 }: CanvasWorldBlockProps) {
-  const blockShell = isDragging
-    ? 'border-2 border-brandcolor-strokeweak'
-    : 'border border-brandcolor-strokeweak'
+  const blockShell =
+    chromeVariant === 'sidebar'
+      ? isDragging
+        ? 'border-2 border-brandcolor-strokeweak'
+        : 'border-0 border-r border-brandcolor-strokeweak'
+      : isDragging
+        ? 'border-2 border-brandcolor-strokeweak'
+        : 'border border-brandcolor-strokeweak'
 
   return (
     <div
@@ -135,6 +148,7 @@ export function CanvasWorldBlock({
       </div>
       <div
         className={bodyClassName}
+        style={bodyStyle}
         onPointerDown={onBodyPointerDown}
         onPointerMove={onBodyPointerMove}
         onPointerUp={onBodyPointerUp}

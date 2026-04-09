@@ -17,6 +17,7 @@ import {
 } from '../../lib/catalog-bookmarks'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import { postDeleteComponent } from '../../services/publish-workflow'
+import { catalogCardDisplayName } from '../../lib/catalog-display-name'
 import { CatalogDetailToolbarButton } from './CatalogDetailToolbarButton'
 
 type DetailPanel = 'image' | 'code' | 'blueprint'
@@ -55,7 +56,7 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
   const handleDeleteLayout = useCallback(async () => {
     if (!card || !isCatalogLayoutEntry(card.entry)) return
     const id = card.entry.id
-    const name = card.entry.importId || id
+    const name = catalogCardDisplayName(card)
     const ok = window.confirm(
       `Remove "${name}" from the catalog? This deletes this published layout (blueprint, thumbnail, and index entry) everywhere it appears. This cannot be undone.`,
     )
@@ -87,7 +88,7 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
     ? JSON.stringify(card.blueprint, null, 2)
     : card.loadError ?? 'Blueprint not loaded.'
   const thumbSrc = card.entry.thumbnailPath || card.blueprint?.data?.imageUrl
-  const title = card.entry.importId || card.entry.id
+  const title = catalogCardDisplayName(card)
   const createdLine = formatPublishedDateLabel(card.entry.publishedAt)
 
   return (

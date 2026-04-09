@@ -1,9 +1,31 @@
 import {
   componentCatalogIdForCanvasNode,
   type CanvasNode,
+  type CanvasProductSidebarBlock,
 } from './canvas-node-publish'
+import type {
+  ProductSidebarHeaderIconKey,
+  ProductSidebarNavIconKey,
+} from '../types/canvas-plan'
 
 export const CANVAS_NODES_STORAGE_KEY = 'agentic-components-canvas-nodes-v1'
+
+const NAV_ICON_KEYS = new Set<ProductSidebarNavIconKey>([
+  'home',
+  'folder',
+  'task',
+  'fileText',
+  'key',
+  'history',
+  'none',
+])
+
+const HEADER_ICON_KEYS = new Set<ProductSidebarHeaderIconKey>([
+  'chevronUpDown',
+  'chevronUp',
+  'chevronDown',
+  'none',
+])
 
 /** Catalog ids produced from the components canvas world (publish / prune targets). */
 export function isCanvasWorldCatalogId(id: string): boolean {
@@ -14,7 +36,8 @@ export function isCanvasWorldCatalogId(id: string): boolean {
       id.startsWith('canvas-secondary-') ||
       id.startsWith('canvas-neutral-') ||
       id.startsWith('canvas-confirm-password-') ||
-      id.startsWith('canvas-text-field-'))
+      id.startsWith('canvas-text-field-') ||
+      id.startsWith('canvas-product-sidebar-'))
   )
 }
 
@@ -76,6 +99,50 @@ export function parseStoredCanvasNode(
       x: o.x,
       y: o.y,
       label: o.label,
+    }
+  }
+  if (o.kind === 'productSidebar') {
+    if (typeof o.title !== 'string' || o.title.length < 1) return null
+    const tk = o.trailing_icon_key ?? o.trailingIconKey
+    const trailing_icon_key: ProductSidebarHeaderIconKey =
+      typeof tk === 'string' && HEADER_ICON_KEYS.has(tk as ProductSidebarHeaderIconKey)
+        ? (tk as ProductSidebarHeaderIconKey)
+        : 'none'
+    const sp = o.search_placeholder ?? o.searchPlaceholder
+    const nb = o.neutral_button_label ?? o.neutralButtonLabel
+    if (sp != null && typeof sp !== 'string') return null
+    if (nb != null && typeof nb !== 'string') return null
+    if (!Array.isArray(o.sections) || o.sections.length < 1) return null
+    const sections: CanvasProductSidebarBlock['sections'] = []
+    for (const sec of o.sections) {
+      if (!sec || typeof sec !== 'object') return null
+      const s = sec as Record<string, unknown>
+      if (typeof s.heading !== 'string' || s.heading.length < 1) return null
+      if (!Array.isArray(s.items) || s.items.length < 1) return null
+      const items: CanvasProductSidebarBlock['sections'][0]['items'] = []
+      for (const it of s.items) {
+        if (!it || typeof it !== 'object') return null
+        const row = it as Record<string, unknown>
+        if (typeof row.label !== 'string' || row.label.length < 1) return null
+        const ik = row.icon_key ?? row.iconKey
+        const icon_key: ProductSidebarNavIconKey =
+          typeof ik === 'string' && NAV_ICON_KEYS.has(ik as ProductSidebarNavIconKey)
+            ? (ik as ProductSidebarNavIconKey)
+            : 'none'
+        items.push({ label: row.label, icon_key })
+      }
+      sections.push({ heading: s.heading, items })
+    }
+    return {
+      kind: 'productSidebar',
+      id: o.id,
+      x: o.x,
+      y: o.y,
+      title: o.title,
+      trailing_icon_key,
+      search_placeholder: sp == null ? '' : sp,
+      neutral_button_label: nb == null ? '' : nb,
+      sections,
     }
   }
   if (

@@ -5,6 +5,7 @@
  * Use **Remix Icon for React** for all UI icons: `npm i @remixicon/react`
  * Import named exports, e.g. `import { RiHomeLine } from '@remixicon/react'`.
  * Browse glyphs: https://remixicon.com — match sizing/colors with Tailwind (`size-4`, `text-brandcolor-textstrong`, …).
+ * Components canvas **productSidebar** (plan v2): icons only from the fixed enum maps in TS — same Remix package, no ad-hoc glyph names from the LLM.
  */
 export default {
   content: [

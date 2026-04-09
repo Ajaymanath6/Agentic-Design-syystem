@@ -23,6 +23,7 @@ import {
   loadCanvasNodesFromStorage,
   persistCanvasNodesToStorage,
 } from '../../lib/canvas-board-storage'
+import { heightPxForProductSidebarPayload } from '../../lib/canvas-product-sidebar-metrics'
 import {
   buildBlueprintPreviewDocument,
   buildSourceHtmlForCanvasNode,
@@ -36,6 +37,7 @@ import {
   postPruneCanvasCatalog,
   postPublish,
 } from '../../services/publish-workflow'
+import { CanvasProductSidebarPreview } from './CanvasProductSidebarPreview'
 import { CanvasPublishModal } from './CanvasPublishModal'
 import { ComponentsCanvasPromptPanel } from './ComponentsCanvasPromptPanel'
 import { CanvasWorldBlock } from './CanvasWorldBlock'
@@ -61,8 +63,15 @@ const CANVAS_CARD_H = 200
 const CANVAS_PRIMARY_W = 220
 const CANVAS_PRIMARY_H = 112
 const CANVAS_CONFIRM_PW_H = 152
+const PRODUCT_SIDEBAR_W = 260
 
 function nodeSize(n: CanvasNode): { w: number; h: number } {
+  if (n.kind === 'productSidebar') {
+    return {
+      w: PRODUCT_SIDEBAR_W,
+      h: heightPxForProductSidebarPayload(n),
+    }
+  }
   if (
     n.kind === 'primaryButton' ||
     n.kind === 'secondaryButton' ||
@@ -887,12 +896,8 @@ export function ComponentsCanvasSurface() {
               componentCatalogIdForCanvasNode(n),
             )
             const toolbarLabel = publishLabelForCanvasNode(n)
-            const blockWidth =
-              n.kind === 'card' ||
-              n.kind === 'confirmPasswordInput' ||
-              n.kind === 'textInputField'
-                ? CANVAS_CARD_W
-                : CANVAS_PRIMARY_W
+            const { w: blockW, h: blockH } = nodeSize(n)
+            const blockWidth = blockW
             const isDragging = draggingNodeId === n.id
             const bodyClassName =
               n.kind === 'primaryButton'
@@ -901,7 +906,9 @@ export function ComponentsCanvasSurface() {
                   ? 'group/canvas-secondary cursor-grab px-3 py-3 active:cursor-grabbing'
                   : n.kind === 'neutralButton'
                     ? 'group/canvas-neutral cursor-grab px-3 py-3 active:cursor-grabbing'
-                    : 'cursor-grab px-3 py-3 active:cursor-grabbing'
+                    : n.kind === 'productSidebar'
+                      ? 'cursor-grab overflow-hidden px-0 py-0 active:cursor-grabbing'
+                      : 'cursor-grab px-3 py-3 active:cursor-grabbing'
 
             return (
               <CanvasWorldBlock
@@ -909,6 +916,14 @@ export function ComponentsCanvasSurface() {
                 x={n.x}
                 y={n.y}
                 width={blockWidth}
+                chromeVariant={
+                  n.kind === 'productSidebar' ? 'sidebar' : 'default'
+                }
+                bodyStyle={
+                  n.kind === 'productSidebar'
+                    ? { height: blockH, boxSizing: 'border-box' }
+                    : undefined
+                }
                 clipShell={
                   n.kind !== 'confirmPasswordInput' &&
                   n.kind !== 'textInputField'
@@ -933,9 +948,17 @@ export function ComponentsCanvasSurface() {
                 onBodyPointerUp={(e) => endNodeDrag(e, n.id)}
                 onBodyPointerCancel={(e) => endNodeDrag(e, n.id)}
               >
-                {n.kind === 'primaryButton' ||
-                n.kind === 'secondaryButton' ||
-                n.kind === 'neutralButton' ? (
+                {n.kind === 'productSidebar' ? (
+                  <CanvasProductSidebarPreview
+                    node={n}
+                    hideBadgeRow={capturingHideChromeId === n.id}
+                    published={published}
+                    publishedBadgeClass={publishedBadgeClass}
+                    draftBadgeClass={draftBadgeClass}
+                  />
+                ) : n.kind === 'primaryButton' ||
+                  n.kind === 'secondaryButton' ||
+                  n.kind === 'neutralButton' ? (
                   <>
                     <div className="mb-2 flex items-start justify-end gap-2">
                       {capturingHideChromeId !== n.id ? (

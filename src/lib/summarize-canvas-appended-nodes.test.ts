@@ -31,4 +31,24 @@ describe('summarizeAppendedCanvasNodes', () => {
     expect(s).toContain('neutralButton')
     expect(s).toContain('Cancel')
   })
+
+  it('uses title for productSidebar', () => {
+    const s = summarizeAppendedCanvasNodes([
+      {
+        kind: 'productSidebar',
+        id: '1',
+        x: 0,
+        y: 0,
+        title: 'My app nav',
+        trailing_icon_key: 'none',
+        search_placeholder: '',
+        neutral_button_label: '',
+        sections: [
+          { heading: 'A', items: [{ label: 'B', icon_key: 'none' }] },
+        ],
+      },
+    ])
+    expect(s).toContain('productSidebar')
+    expect(s).toContain('My app nav')
+  })
 })

@@ -11,4 +11,4 @@ If you add secrets, use environment variables only — never commit them to git.
 
 - Vertex / Gemini credentials for layout prompts are **not** in the frontend. The optional service `LLM agent/` loads GCP workload identity JSON from **AWS Secrets Manager** using local AWS credentials (`LLM_AGENT_AWS_CREDENTIALS_FILE` for an INI file, or default credential chain). Never copy that secret JSON or AWS keys into `VITE_*` env vars or commit them to git.
 
-- `POST /canvas/plan` (components canvas AI bar) uses the same Vertex proxy as `/layout/plan`; the browser only sends prompt text — no AWS/GCP secrets in the client.
+- `POST /canvas/plan` (components canvas AI bar) uses the same Vertex proxy as `/layout/plan`; the browser only sends prompt text — no AWS/GCP secrets in the client. Plan versions 1 and 2 (including `productSidebar`) are still JSON over the same endpoint — no new credential surfaces.

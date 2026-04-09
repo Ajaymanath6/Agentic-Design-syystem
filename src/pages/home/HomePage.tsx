@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { RiArrowRightSLine } from '@remixicon/react'
 import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
+import { catalogCardDisplayName } from '../../lib/catalog-display-name'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import type { CatalogCardModel } from '../../types/catalog'
 
@@ -177,8 +178,7 @@ export function HomePage() {
                     card.entry.thumbnailPath ||
                     card.blueprint?.data?.imageUrl ||
                     ''
-                  const pageName =
-                    card.entry.importId || card.entry.id
+                  const pageName = catalogCardDisplayName(card)
                   return (
                     <li
                       key={card.entry.id}
@@ -231,8 +231,7 @@ export function HomePage() {
                     card.entry.thumbnailPath ||
                     card.blueprint?.data?.imageUrl ||
                     ''
-                  const pageName =
-                    card.entry.importId || card.entry.id
+                  const pageName = catalogCardDisplayName(card)
                   return (
                     <li
                       key={card.entry.id}

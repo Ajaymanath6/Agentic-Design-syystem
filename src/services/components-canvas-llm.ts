@@ -1,7 +1,7 @@
 import { LAYOUT_LLM_BASE_URL } from '../config/env'
 import type { ComponentsCanvasPlanRequest } from '../types/components-canvas-plan-request'
-import type { CanvasPlanV1 } from '../types/canvas-plan'
-import { isCanvasPlanV1 } from '../types/canvas-plan'
+import type { CanvasPlan } from '../types/canvas-plan'
+import { isCanvasPlan } from '../types/canvas-plan'
 
 function parseDetail(data: {
   detail?: string | Array<{ msg?: string }>
@@ -20,7 +20,7 @@ function parseDetail(data: {
  */
 export async function callComponentsCanvasPlan(
   body: ComponentsCanvasPlanRequest,
-): Promise<CanvasPlanV1> {
+): Promise<CanvasPlan> {
   const payload: Record<string, unknown> = {
     prompt: body.prompt.trim(),
     extended_design_context: Boolean(body.extended_design_context),
@@ -44,7 +44,7 @@ export async function callComponentsCanvasPlan(
       extra ? `Request failed (${res.status}): ${extra}` : `Request failed (${res.status})`,
     )
   }
-  if (!isCanvasPlanV1(data.plan)) {
+  if (!isCanvasPlan(data.plan)) {
     throw new Error('Invalid components canvas plan response')
   }
   return data.plan
