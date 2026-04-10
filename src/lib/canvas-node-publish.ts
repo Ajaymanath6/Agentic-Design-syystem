@@ -246,14 +246,13 @@ export function publishLabelForCanvasNode(n: CanvasNode): string {
     n.kind === 'secondaryButton' ||
     n.kind === 'neutralButton' ||
     n.kind === 'confirmPasswordInput' ||
-    n.kind === 'textInputField'
+    n.kind === 'textInputField' ||
+    n.kind === 'htmlSnippet'
   ) {
     return coerceCanvasControlLabel(n.label)
   }
-  if (n.kind === 'htmlSnippet') {
-    return coerceCanvasControlLabel(n.label)
-  }
-  return n.label
+  const _exhaustive: never = n
+  return _exhaustive
 }
 
 /** Shape aligned with server `buildBlueprint` / saved `.json` (preview before publish). */
