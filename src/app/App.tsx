@@ -4,6 +4,7 @@ import { AdminCanvasOutlet } from "../pages/AdminCanvasOutlet";
 import { CatalogAllPage } from "../pages/catalog/CatalogAllPage";
 import { HomePage } from "../pages/home/HomePage";
 import { CatalogNewPage } from "../pages/CatalogNewPage";
+import { CatalogIntegrationPage } from "../pages/catalog/CatalogIntegrationPage";
 import { CatalogLayoutsPage } from "../pages/catalog/CatalogLayoutsPage";
 import { CatalogStubPage } from "../pages/CatalogStubPage";
 import { ComingSoonPage } from "../pages/ComingSoonPage";
@@ -22,6 +23,10 @@ export function App() {
         <Route path="catalog/home" element={<HomePage />} />
         <Route path="catalog/all" element={<CatalogAllPage />} />
         <Route path="catalog/layouts" element={<CatalogLayoutsPage />} />
+        <Route
+          path="catalog/integration"
+          element={<CatalogIntegrationPage />}
+        />
         <Route path="catalog/new" element={<CatalogNewPage />} />
         <Route
           path="catalog/categories"

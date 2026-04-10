@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "catalog": {
+      "command": "node",
+      "args": ["${workspaceFolder}/mcp-server/dist/src/index.js"],
+      "env": {
+        "AGENTIC_ROOT": "${workspaceFolder}"
+      }
+    }
+  }
+}

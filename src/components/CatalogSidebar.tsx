@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { RiHome4Line } from '@remixicon/react'
+import { RiHome4Line, RiPlugLine } from '@remixicon/react'
 import { SearchBar } from './SearchBar'
 import { SidebarBrandHeader } from './SidebarBrandHeader'
 import { SidebarComponentsExplorer } from './SidebarComponentsExplorer'
@@ -18,6 +18,7 @@ type NavItem = {
 
 const primaryNav: NavItem[] = [
   { to: '/catalog/home', label: 'Home', Icon: RiHome4Line },
+  { to: '/catalog/integration', label: 'Integration', Icon: RiPlugLine },
 ]
 
 function NavRow({ item }: { item: NavItem }) {
