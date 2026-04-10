@@ -13,6 +13,10 @@ import { createHtmlSnippetCanvasNode } from '../lib/append-html-snippet-canvas-n
 import type { CanvasNode } from '../lib/canvas-node-publish'
 import { sanitizeCanvasHtmlFragment } from '../lib/sanitize-canvas-html'
 import { summarizeAppendedCanvasNodes } from '../lib/summarize-canvas-appended-nodes'
+import {
+  buildCanvasReferencesForRequest,
+  canvasMentionDisplayName,
+} from '../lib/canvas-node-llm-context'
 import { mapCanvasPlanToNewNodes } from '../lib/map-canvas-plan-to-nodes'
 import { callComponentsCanvasGenerateHtml } from '../services/components-canvas-html'
 import { callComponentsCanvasPlan } from '../services/components-canvas-llm'
@@ -27,6 +31,10 @@ const EXTENDED_DESIGN_CONTEXT_STORAGE_KEY =
 
 const COMPONENTS_CANVAS_AI_MODE_KEY = 'components-canvas-ai-mode'
 
+/** Backend requires non-empty prompt; used when the user only picked canvas refs (no typed text). */
+const REF_ONLY_PROMPT_FALLBACK =
+  'Use the referenced canvas blocks as context.'
+
 export type ComponentsCanvasAiMode = 'plan' | 'htmlCreator'
 
 function clampChatMessageContent(content: string): string {
@@ -37,6 +45,12 @@ function clampChatMessageContent(content: string): string {
 export type ComponentsCanvasAiContextValue = {
   componentsPromptDraft: string
   setComponentsPromptDraft: (v: string) => void
+  /**
+   * Picked canvas blocks (badges); not duplicated as `@canvas:` text in the draft.
+   * Order is stable: first pick → first in array → first in API `canvas_references` merge.
+   */
+  componentsCanvasRefIds: string[]
+  setComponentsCanvasRefIds: (ids: string[]) => void
   /** Prior turns only; current prompt is not included until after submit. */
   canvasPlanChatMessages: CanvasPlanChatMessage[]
   extendedDesignContext: boolean
@@ -57,6 +71,9 @@ const ComponentsCanvasAiContext =
 
 export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }) {
   const [componentsPromptDraft, setComponentsPromptDraft] = useState('')
+  const [componentsCanvasRefIds, setComponentsCanvasRefIds] = useState<string[]>(
+    [],
+  )
   const [canvasPlanChatMessages, setCanvasPlanChatMessages] = useState<
     CanvasPlanChatMessage[]
   >([])
@@ -107,11 +124,33 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       existingNodes: CanvasNode[],
     ): Promise<{ appended: CanvasNode[]; error: string | null }> => {
       const t = componentsPromptDraft.trim()
-      if (!t) return { appended: [], error: null }
+      if (!t && componentsCanvasRefIds.length === 0) {
+        return { appended: [], error: null }
+      }
       const gen = ++planGenRef.current
       const priorMessages = canvasPlanChatMessages
-      const promptForApi = t.slice(0, 32000)
+      const refLabels = componentsCanvasRefIds
+        .map((id) => existingNodes.find((n) => n.id === id))
+        .filter((n): n is CanvasNode => n != null)
+        .map((n) => canvasMentionDisplayName(n))
+      const basePrompt = t || REF_ONLY_PROMPT_FALLBACK
+      const refOrderLine =
+        refLabels.length > 0
+          ? `\n\nReferenced components (in order): ${refLabels.join(', ')}`
+          : ''
+      const promptForApi = (basePrompt + refOrderLine).slice(0, 32000)
+      const canvasRefs = buildCanvasReferencesForRequest(
+        promptForApi,
+        existingNodes,
+        componentsCanvasRefIds,
+      )
+      const transcriptUserContent =
+        t ||
+        (refLabels.length > 0
+          ? `Referenced: ${refLabels.join(', ')}`
+          : promptForApi)
       setComponentsPromptDraft('')
+      setComponentsCanvasRefIds([])
       setComponentsPlanError(null)
       setComponentsPlanBusy(true)
       try {
@@ -127,6 +166,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
                   }))
                 : undefined,
             extended_design_context: extendedDesignContext,
+            canvas_references: canvasRefs,
           })
           if (planGenRef.current !== gen) {
             return { appended: [], error: null }
@@ -149,6 +189,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
                   }))
                 : undefined,
             extended_design_context: extendedDesignContext,
+            canvas_references: canvasRefs,
           })
           if (planGenRef.current !== gen) {
             return { appended: [], error: null }
@@ -162,7 +203,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
         setCanvasPlanChatMessages((prev) => {
           const next: CanvasPlanChatMessage[] = [
             ...prev,
-            { role: 'user', content: promptForApi },
+            { role: 'user', content: transcriptUserContent },
             { role: 'assistant', content: assistantContent },
           ]
           return next.length > MAX_CANVAS_CHAT_MESSAGES
@@ -179,7 +220,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
         setCanvasPlanChatMessages((prev) => {
           const next: CanvasPlanChatMessage[] = [
             ...prev,
-            { role: 'user', content: promptForApi },
+            { role: 'user', content: transcriptUserContent },
             {
               role: 'assistant',
               content: clampChatMessageContent(`Error: ${msg}`),
@@ -198,6 +239,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
     },
     [
       canvasPlanChatMessages,
+      componentsCanvasRefIds,
       componentsPromptDraft,
       componentsCanvasAiMode,
       extendedDesignContext,
@@ -208,6 +250,8 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
     () => ({
       componentsPromptDraft,
       setComponentsPromptDraft,
+      componentsCanvasRefIds,
+      setComponentsCanvasRefIds,
       canvasPlanChatMessages,
       extendedDesignContext,
       setExtendedDesignContext,
@@ -218,6 +262,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       submitComponentsPrompt,
     }),
     [
+      componentsCanvasRefIds,
       componentsPromptDraft,
       canvasPlanChatMessages,
       extendedDesignContext,

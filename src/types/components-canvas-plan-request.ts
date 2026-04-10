@@ -7,10 +7,17 @@ export type CanvasPlanChatMessage = {
   content: string
 }
 
+export type CanvasReferencePayload = {
+  node_id: string
+  kind: string
+  context: string
+}
+
 export type ComponentsCanvasPlanRequest = {
   prompt: string
   messages?: CanvasPlanChatMessage[]
   extended_design_context?: boolean
+  canvas_references?: CanvasReferencePayload[]
 }
 
 /** Keep in sync with `LLM agent/canvas_plan.py`. */

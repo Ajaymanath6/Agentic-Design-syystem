@@ -255,6 +255,8 @@ export function ComponentsCanvasSurface() {
   const {
     componentsPromptDraft,
     setComponentsPromptDraft,
+    componentsCanvasRefIds,
+    setComponentsCanvasRefIds,
     canvasPlanChatMessages,
     extendedDesignContext,
     setExtendedDesignContext,
@@ -893,10 +895,13 @@ export function ComponentsCanvasSurface() {
             </p>
           ) : null}
           <ComponentsCanvasPromptPanel
+            canvasNodes={nodes}
             canvasPlanChatMessages={canvasPlanChatMessages}
             textareaId="components-canvas-ai-prompt"
             value={componentsPromptDraft}
             onChange={setComponentsPromptDraft}
+            canvasRefIds={componentsCanvasRefIds}
+            onCanvasRefIdsChange={setComponentsCanvasRefIds}
             onSubmit={() => void handleComponentsAiSubmit()}
             busy={componentsPlanBusy}
             placeholder={

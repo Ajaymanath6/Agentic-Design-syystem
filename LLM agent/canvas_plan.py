@@ -73,6 +73,29 @@ MAX_CANVAS_CHAT_MESSAGES = 20
 MAX_CANVAS_CHAT_MESSAGE_CHARS = 4000
 MAX_CANVAS_HISTORY_TOTAL_CHARS = 24000
 
+MAX_CANVAS_REFERENCE_BLOCKS = 12
+MAX_CANVAS_REFERENCE_CONTEXT_CHARS = 10_000
+
+
+class CanvasReferenceBlock(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    node_id: str = Field(..., min_length=1, max_length=128)
+    kind: str = Field(..., min_length=1, max_length=64)
+    context: str = Field(..., min_length=1, max_length=MAX_CANVAS_REFERENCE_CONTEXT_CHARS)
+
+
+def format_canvas_references_block(refs: list[CanvasReferenceBlock]) -> str:
+    if not refs:
+        return ""
+    lines = [
+        "Referenced canvas blocks (use as layout/style context; user may reference these via @canvas:<node_id> in the prompt):",
+    ]
+    for r in refs:
+        lines.append(f"--- node_id={r.node_id} kind={r.kind} ---")
+        lines.append(r.context.strip())
+    return "\n".join(lines)
+
 
 class CanvasPlanChatMessage(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -90,6 +113,10 @@ class CanvasPlanPromptBody(BaseModel):
         max_length=MAX_CANVAS_CHAT_MESSAGES,
     )
     extended_design_context: bool = Field(default=False)
+    canvas_references: list[CanvasReferenceBlock] | None = Field(
+        default=None,
+        max_length=MAX_CANVAS_REFERENCE_BLOCKS,
+    )
 
 
 class CardNodeModel(BaseModel):
@@ -330,6 +357,11 @@ def build_canvas_plan_contents(body: CanvasPlanPromptBody) -> str:
     history = _normalize_chat_messages(body.messages)
     if history:
         parts.append(_format_conversation_block(history))
+
+    if body.canvas_references:
+        ref_block = format_canvas_references_block(body.canvas_references)
+        if ref_block:
+            parts.append(ref_block)
 
     parts.extend(
         [

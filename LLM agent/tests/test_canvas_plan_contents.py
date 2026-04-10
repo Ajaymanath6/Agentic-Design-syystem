@@ -7,6 +7,7 @@ import unittest
 from canvas_plan import (
     CanvasPlanChatMessage,
     CanvasPlanPromptBody,
+    CanvasReferenceBlock,
     build_canvas_plan_contents,
     parse_and_validate_canvas_plan,
 )
@@ -40,6 +41,22 @@ class TestBuildCanvasPlanContents(unittest.TestCase):
         text = build_canvas_plan_contents(body)
         self.assertIn("Tailwind config (reference", text)
         self.assertIn("tailwind.config", text.lower())
+
+    def test_canvas_references_before_latest_request(self) -> None:
+        body = CanvasPlanPromptBody(
+            prompt="add below",
+            canvas_references=[
+                CanvasReferenceBlock(
+                    node_id="n1",
+                    kind="primaryButton",
+                    context="<button>Go</button>",
+                ),
+            ],
+        )
+        text = build_canvas_plan_contents(body)
+        self.assertIn("Referenced canvas blocks", text)
+        self.assertIn("node_id=n1", text)
+        self.assertLess(text.index("Referenced canvas blocks"), text.index("Latest user request:"))
 
     def test_card_null_subtitle_coerced_to_empty_string(self) -> None:
         raw = (

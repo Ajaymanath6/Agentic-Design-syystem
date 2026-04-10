@@ -37,6 +37,9 @@ export async function callComponentsCanvasGenerateHtml(
   if (body.messages != null && body.messages.length > 0) {
     payload.messages = body.messages
   }
+  if (body.canvas_references != null && body.canvas_references.length > 0) {
+    payload.canvas_references = body.canvas_references
+  }
   const res = await fetch(`${LAYOUT_LLM_BASE_URL}/canvas/generate-html`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

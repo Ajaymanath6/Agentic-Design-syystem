@@ -52,19 +52,42 @@ describe('summarizeAppendedCanvasNodes', () => {
     expect(s).toContain('My app nav')
   })
 
-  it('uses label for htmlSnippet without dumping HTML', () => {
+  it('uses generic line for htmlSnippet so transcript does not echo user prompt title', () => {
     const s = summarizeAppendedCanvasNodes([
       {
         kind: 'htmlSnippet',
         id: 'h1',
         x: 0,
         y: 0,
-        label: 'Hero strip',
+        label: 'create a card with long user-like title',
         html: '<div class="secret">do not leak</div>',
       },
     ])
-    expect(s).toContain('htmlSnippet')
-    expect(s).toContain('Hero strip')
+    expect(s).toMatch(/added an html block/i)
+    expect(s).not.toContain('create a card')
     expect(s).not.toContain('secret')
+  })
+
+  it('pluralizes when multiple htmlSnippet nodes', () => {
+    expect(
+      summarizeAppendedCanvasNodes([
+        {
+          kind: 'htmlSnippet',
+          id: 'a',
+          x: 0,
+          y: 0,
+          label: 'x',
+          html: '<p>a</p>',
+        },
+        {
+          kind: 'htmlSnippet',
+          id: 'b',
+          x: 0,
+          y: 0,
+          label: 'y',
+          html: '<p>b</p>',
+        },
+      ]),
+    ).toMatch(/2 HTML blocks/i)
   })
 })

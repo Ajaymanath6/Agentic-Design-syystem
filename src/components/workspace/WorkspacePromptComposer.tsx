@@ -38,6 +38,7 @@ export function WorkspacePromptComposer({
   textareaId = 'workspace-prompt-composer',
 }: WorkspacePromptComposerProps) {
   const shell = variant === 'floating' ? shellFloating : shellSidebar
+  const canSend = Boolean(value.trim()) && !busy
 
   return (
     <div className={`${shell} ${className}`.trim()}>
@@ -47,6 +48,10 @@ export function WorkspacePromptComposer({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
+            if (!canSend) {
+              e.preventDefault()
+              return
+            }
             e.preventDefault()
             onSubmit()
           }
@@ -67,7 +72,7 @@ export function WorkspacePromptComposer({
         <button
           type="button"
           onClick={() => onSubmit()}
-          disabled={busy}
+          disabled={!canSend}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brandcolor-primary text-brandcolor-white shadow-sm hover:bg-brandcolor-primaryhover disabled:cursor-not-allowed disabled:opacity-60"
           aria-label="Send prompt"
           title="Send"

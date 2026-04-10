@@ -5,10 +5,12 @@ from __future__ import annotations
 import unittest
 
 from canvas_html_generate import (
+    build_canvas_html_contents,
     normalize_model_html,
     parse_html_generate_response,
     strip_markdown_fences,
 )
+from canvas_plan import CanvasPlanPromptBody, CanvasReferenceBlock
 
 
 class TestStripMarkdownFences(unittest.TestCase):
@@ -42,6 +44,27 @@ class TestParseHtmlGenerateResponse(unittest.TestCase):
         d = parse_html_generate_response("<article>ok</article>", "Build a card")
         self.assertEqual(d["html"], "<article>ok</article>")
         self.assertEqual(d["title"], "Build a card")
+
+
+class TestBuildCanvasHtmlContentsReferences(unittest.TestCase):
+    def test_includes_reference_block_before_latest_request(self) -> None:
+        body = CanvasPlanPromptBody(
+            prompt="Add a row below",
+            canvas_references=[
+                CanvasReferenceBlock(
+                    node_id="abc-123",
+                    kind="htmlSnippet",
+                    context="<div>existing</div>",
+                ),
+            ],
+        )
+        text = build_canvas_html_contents(body)
+        self.assertIn("Referenced canvas blocks", text)
+        self.assertIn("node_id=abc-123", text)
+        self.assertIn("<div>existing</div>", text)
+        idx_ref = text.index("Referenced canvas blocks")
+        idx_latest = text.index("Latest user request")
+        self.assertLess(idx_ref, idx_latest)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,7 @@ from canvas_plan import (
     TAILWIND_BRAND_CONTRACT,
     _format_conversation_block,
     _normalize_chat_messages,
+    format_canvas_references_block,
 )
 from layout_plan import load_tailwind_config_snippet, load_theme_guide_snippet
 
@@ -141,6 +142,11 @@ def build_canvas_html_contents(body: CanvasPlanPromptBody) -> str:
     history = _normalize_chat_messages(body.messages)
     if history:
         parts.append(_format_conversation_block(history))
+
+    if body.canvas_references:
+        ref_block = format_canvas_references_block(body.canvas_references)
+        if ref_block:
+            parts.append(ref_block)
 
     parts.extend(
         [

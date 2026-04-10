@@ -14,8 +14,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "catalog:prune-canvas": "node scripts/prune-canvas-catalog.mjs",
-    "mcp:catalog": "node mcp-server/dist/src/index.js"
+    "catalog:prune-canvas": "node scripts/prune-canvas-catalog.mjs"
   },
   "dependencies": {
     "@remixicon/react": "^4.9.0",
