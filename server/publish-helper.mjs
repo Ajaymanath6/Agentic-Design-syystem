@@ -8,6 +8,15 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import {
+  mergeBrandColorsFromPayload,
+  mergeShadowsFromPayload,
+  mergeTypographyFromPayload,
+  writeThemeBrandColors,
+  writeThemeShadowArtifacts,
+  writeThemeTypographyArtifacts,
+} from './theme-sync-write.mjs'
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(__dirname, '..')
 const publicRoot = path.join(projectRoot, 'public')
@@ -188,6 +197,16 @@ function isComponentsCanvasCatalogId(id) {
   )
 }
 
+function isLocalThemeSyncRequest(req) {
+  const addr = req.socket?.remoteAddress || req.ip || ''
+  return (
+    addr === '127.0.0.1' ||
+    addr === '::1' ||
+    addr === '::ffff:127.0.0.1' ||
+    addr.endsWith('127.0.0.1')
+  )
+}
+
 const app = express()
 app.use(cors({ origin: '*' }))
 app.use(express.json({ limit: '25mb' }))
@@ -316,6 +335,55 @@ app.post('/api/delete-component', (req, res) => {
  * Drop canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* / canvas-text-field-* / canvas-product-sidebar-* / canvas-html-* catalog rows (and files) not listed in keepIds.
  * Keeps UI catalog in sync when cards were removed without calling delete (e.g. refresh).
  */
+/**
+ * Write brand color defaults to src/config/brand-theme-colors.ts and :root RGB in src/index.css.
+ * Localhost only. If THEME_SYNC_SECRET is set in the helper environment, require header
+ * x-theme-sync-token to match.
+ */
+app.post('/api/theme/sync', (req, res) => {
+  try {
+    if (!isLocalThemeSyncRequest(req)) {
+      return res
+        .status(403)
+        .json({ error: 'Theme sync is only allowed from localhost' })
+    }
+    const secret = process.env.THEME_SYNC_SECRET
+    if (secret != null && String(secret).trim() !== '') {
+      const tok = req.headers['x-theme-sync-token']
+      if (tok !== secret) {
+        return res.status(403).json({
+          error:
+            'Invalid or missing x-theme-sync-token (set THEME_SYNC_SECRET on helper + VITE_THEME_SYNC_TOKEN in .env for the app)',
+        })
+      }
+    }
+    const body = req.body || {}
+    const colors = mergeBrandColorsFromPayload(body)
+    writeThemeBrandColors(projectRoot, colors)
+    const written = new Set([
+      'src/config/brand-theme-colors.ts',
+      'src/index.css',
+    ])
+    const shadows = mergeShadowsFromPayload(body)
+    if (shadows) {
+      writeThemeShadowArtifacts(projectRoot, shadows)
+      written.add('src/config/theme-shadow-defaults.ts')
+    }
+    const typography = mergeTypographyFromPayload(body)
+    if (typography) {
+      writeThemeTypographyArtifacts(projectRoot, typography)
+      written.add('src/config/theme-typography-defaults.ts')
+    }
+    res.json({
+      ok: true,
+      written: [...written],
+    })
+  } catch (e) {
+    console.error(e)
+    res.status(400).json({ error: String(e?.message || e) })
+  }
+})
+
 app.post('/api/prune-canvas-catalog', (req, res) => {
   try {
     ensureDirs()

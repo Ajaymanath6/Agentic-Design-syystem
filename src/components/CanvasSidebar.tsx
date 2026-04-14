@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useLayoutWorkspace } from '../context/LayoutWorkspaceContext'
 import { SidebarBrandHeader } from './SidebarBrandHeader'
+import { SidebarDesignSystemNavLink } from './SidebarDesignSystemNavLink'
 import { ViewModeToggle } from './ViewModeToggle'
 import { WorkspacePromptComposer } from './workspace/WorkspacePromptComposer'
 
@@ -39,7 +40,8 @@ function CanvasSidebarInner() {
       aria-label="Canvas sidebar"
     >
       <SidebarBrandHeader />
-      <div className="shrink-0 border-b border-brandcolor-strokeweak p-3">
+      <div className="shrink-0 space-y-3 border-b border-brandcolor-strokeweak p-3">
+        <SidebarDesignSystemNavLink className="px-2" />
         <div
           className="flex gap-0.5 rounded-lg bg-brandcolor-fill p-1"
           role="group"

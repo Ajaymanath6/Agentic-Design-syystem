@@ -45,6 +45,15 @@ class TestParseHtmlGenerateResponse(unittest.TestCase):
         self.assertEqual(d["html"], "<article>ok</article>")
         self.assertEqual(d["title"], "Build a card")
 
+    def test_parse_shortens_long_prompt_title(self) -> None:
+        long_prompt = (
+            "create a new card which has title sub title one and a paragraph "
+            "which shows dummy case details of a case between google and apple"
+        )
+        d = parse_html_generate_response("<div>ok</div>", long_prompt)
+        self.assertLess(len(d["title"]), len(long_prompt))
+        self.assertNotIn("google and apple", d["title"])
+
 
 class TestBuildCanvasHtmlContentsReferences(unittest.TestCase):
     def test_includes_reference_block_before_latest_request(self) -> None:

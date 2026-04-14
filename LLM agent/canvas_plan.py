@@ -39,6 +39,7 @@ Set "version": 1 OR "version": 2. Use **version 2** when emitting **productSideb
 **version 1** — nodes kinds:
 - "card" — { "kind": "card", "title": "...", "subtitle": "...", "body": "..." } — every string field MUST be a JSON string; never null. Use "" if a line is unused.
   Optional: "x", "y"
+  **CRITICAL for cards:** `title` is **only** a short **catalog / block name** (target ~1–4 words, under ~48 characters), e.g. "Case card", "Profile card", "Settings row". Never paste the user’s full instructions, story, or layout spec into `title`. Put the narrative, dummy copy, and requirements in `body`; use `subtitle` for a short supporting line if needed (also keep concise, not the whole prompt).
 - "primaryButton" | "secondaryButton" | "neutralButton" — { "kind": "primaryButton", "label": "..." } Optional: "x", "y"
   **CRITICAL for buttons:** `label` is **only** the short text **printed on the button** (typically 1–6 words, under ~48 characters). Never paste the user’s full instructions, styling notes, hover rules, or color requirements into `label`. If they say “name it Primary” or “call it Submit”, `label` must be exactly that short name (e.g. "Primary", "Submit").
 - "confirmPasswordInput" | "textInputField" — { "kind": "textInputField", "label": "..." } Optional: "x", "y"
@@ -66,6 +67,7 @@ Rules:
 - Do not output "id" fields; the client assigns UUIDs.
 - If the user asks for a form row, emit separate nodes (e.g. textInputField + primaryButton) with distinct labels.
 - Long natural-language requests must still produce **short** `label` strings on controls; put **no** design spec sentences into `label` (styling is implied by button kind: primary/secondary/neutral).
+- Long natural-language requests must still produce a **short** `title` on **card** nodes (catalog name only); put the long user request into `body`, not into `title` or `subtitle`.
 - If a conversation history is included, use it for context; still output only one JSON plan for the **latest** user request below.
 """
 

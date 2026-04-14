@@ -6,6 +6,11 @@
  * Import named exports, e.g. `import { RiHomeLine } from '@remixicon/react'`.
  * Browse glyphs: https://remixicon.com — match sizing/colors with Tailwind (`size-4`, `text-brandcolor-textstrong`, …).
  * Components canvas **productSidebar** (plan v2): icons only from the fixed enum maps in TS — same Remix package, no ad-hoc glyph names from the LLM.
+ * Canvas **htmlSnippet** (raw HTML): use `<i class="ri-name-line">` webfont classes; `index.html` loads remixicon.css (see theme-guide icons.canvasHtmlFragmentWebfont).
+ *
+ * **Theme configuration (Typography + Shadows + Colors):** compact rows use `bg-brandcolor-fill` and
+ * `hover:bg-brandcolor-strokelight`. Text fields / modal textareas / color hex inputs: `border-brandcolor-strokeweak`,
+ * `hover:bg-brandcolor-fill`, `focus:border-brandcolor-primary` (or `focus-within:border-brandcolor-primary` on wrappers). See theme-guide.json → componentGuidelines.themeConfigurationTypography, themeConfigurationShadows, themeConfigurationColors.
  */
 export default {
   content: [
@@ -20,61 +25,180 @@ export default {
         c_md: '768px',
         c_xl: '1280px',
       },
+      /* @agentic-theme-typography-tw-start */
       fontFamily: {
-        sans: ['IBM Plex Sans', 'sans-serif'],
-        lora: ['Lora', 'serif'],
+        sans: ['var(--font-sans-stack)'],
+        lora: ['var(--font-lora-stack)'],
       },
+      fontSize: {
+        'theme-title-h1': [
+          'var(--fs-theme-title-h1)',
+          { lineHeight: 'var(--lh-theme-title-h1)' },
+        ],
+        'theme-title-h2': [
+          'var(--fs-theme-title-h2)',
+          { lineHeight: 'var(--lh-theme-title-h2)' },
+        ],
+        'theme-title-h3': [
+          'var(--fs-theme-title-h3)',
+          { lineHeight: 'var(--lh-theme-title-h3)' },
+        ],
+        'theme-title-h4': [
+          'var(--fs-theme-title-h4)',
+          { lineHeight: 'var(--lh-theme-title-h4)' },
+        ],
+        'theme-title-h5': [
+          'var(--fs-theme-title-h5)',
+          { lineHeight: 'var(--lh-theme-title-h5)' },
+        ],
+        'theme-title-h6': [
+          'var(--fs-theme-title-h6)',
+          { lineHeight: 'var(--lh-theme-title-h6)' },
+        ],
+        'theme-body-large-regular': [
+          'var(--fs-theme-body-large-regular)',
+          { lineHeight: 'var(--lh-theme-body-large-regular)' },
+        ],
+        'theme-body-large-emphasis': [
+          'var(--fs-theme-body-large-emphasis)',
+          { lineHeight: 'var(--lh-theme-body-large-emphasis)' },
+        ],
+        'theme-body-large-bold': [
+          'var(--fs-theme-body-large-bold)',
+          { lineHeight: 'var(--lh-theme-body-large-bold)' },
+        ],
+        'theme-body-medium-regular': [
+          'var(--fs-theme-body-medium-regular)',
+          { lineHeight: 'var(--lh-theme-body-medium-regular)' },
+        ],
+        'theme-body-medium-emphasis': [
+          'var(--fs-theme-body-medium-emphasis)',
+          { lineHeight: 'var(--lh-theme-body-medium-emphasis)' },
+        ],
+        'theme-body-medium-bold': [
+          'var(--fs-theme-body-medium-bold)',
+          { lineHeight: 'var(--lh-theme-body-medium-bold)' },
+        ],
+        'theme-body-small-regular': [
+          'var(--fs-theme-body-small-regular)',
+          { lineHeight: 'var(--lh-theme-body-small-regular)' },
+        ],
+        'theme-body-small-emphasis': [
+          'var(--fs-theme-body-small-emphasis)',
+          { lineHeight: 'var(--lh-theme-body-small-emphasis)' },
+        ],
+        'theme-body-small-bold': [
+          'var(--fs-theme-body-small-bold)',
+          { lineHeight: 'var(--lh-theme-body-small-bold)' },
+        ],
+      },
+      lineHeight: {
+        'theme-title-h1': 'var(--lh-theme-title-h1)',
+        'theme-title-h2': 'var(--lh-theme-title-h2)',
+        'theme-title-h3': 'var(--lh-theme-title-h3)',
+        'theme-title-h4': 'var(--lh-theme-title-h4)',
+        'theme-title-h5': 'var(--lh-theme-title-h5)',
+        'theme-title-h6': 'var(--lh-theme-title-h6)',
+        'theme-body-large-regular': 'var(--lh-theme-body-large-regular)',
+        'theme-body-large-emphasis': 'var(--lh-theme-body-large-emphasis)',
+        'theme-body-large-bold': 'var(--lh-theme-body-large-bold)',
+        'theme-body-medium-regular': 'var(--lh-theme-body-medium-regular)',
+        'theme-body-medium-emphasis': 'var(--lh-theme-body-medium-emphasis)',
+        'theme-body-medium-bold': 'var(--lh-theme-body-medium-bold)',
+        'theme-body-small-regular': 'var(--lh-theme-body-small-regular)',
+        'theme-body-small-emphasis': 'var(--lh-theme-body-small-emphasis)',
+        'theme-body-small-bold': 'var(--lh-theme-body-small-bold)',
+      },
+      fontWeight: {
+        'theme-regular': 'var(--fw-theme-regular)',
+        'theme-medium': 'var(--fw-theme-medium)',
+        'theme-semibold': 'var(--fw-theme-semibold)',
+        'theme-bold': 'var(--fw-theme-bold)',
+      },
+      /* @agentic-theme-typography-tw-end */
+      /**
+       * Brand colors: RGB channels in CSS vars (space-separated) on `:root` in index.css.
+       * Theme configuration page + localStorage overrides update these at runtime.
+       */
       colors: {
-        'brandcolor-primary': '#F84416',
-        'brandcolor-primaryhover': '#EA4C00',
-        'brandcolor-secondary': '#0A0A0A',
-        'brandcolor-secondaryhover': '#292929',
-        'brandcolor-secondaryfill': '#EAEFFF',
-        'brandcolor-neutralhover': '#EFEFEF',
-        'brandcolor-textstrong': '#1A1A1A',
-        'brandcolor-textweak': '#575757',
-        'brandcolor-strokestrong': '#575757',
-        'brandcolor-strokeweak': '#E5E5E5',
-        'brandcolor-strokemild': '#767676',
-        'brandcolor-strokelight': '#F5F5F5',
-        'brandcolor-fill': '#F5F5F5',
-        'brandcolor-white': '#FFFFFF',
-        'brandcolor-sidebarhover': '#2E3C48',
-        'brandcolor-divider': '#404B53',
-        'brandcolor-banner-info-bg': '#D5DFFF',
-        'brandcolor-banner-warning-bg': '#FFEBE1',
-        'brandcolor-banner-warning-button': '#F26333',
-        'brandcolor-results-bg': '#F8F9FB',
-        'brandcolor-archived-bg': '#FBF8E7',
-        'brandcolor-archived-border': '#A5A5A5',
-        'brandcolor-archived-badge': '#E8E8E8',
-        'brandcolor-destructive': '#C20205',
-        'brandcolor-table-header': '#DDDDDD',
-        'brandcolor-badge-success-bg': '#E2F3E0',
-        'brandcolor-badge-success-text': '#028831',
-        'brandcolor-badge-attorney-bg': '#F2EBFF',
-        'brandcolor-badge-attorney-text': '#6238AA',
-        'brandcolor-badge-amber-bg': '#FFF7DB',
-        'brandcolor-badge-amber-text': '#A47800',
+        'brandcolor-primary':
+          'rgb(var(--color-brandcolor-primary) / <alpha-value>)',
+        'brandcolor-primaryhover':
+          'rgb(var(--color-brandcolor-primaryhover) / <alpha-value>)',
+        'brandcolor-secondary':
+          'rgb(var(--color-brandcolor-secondary) / <alpha-value>)',
+        'brandcolor-secondaryhover':
+          'rgb(var(--color-brandcolor-secondaryhover) / <alpha-value>)',
+        'brandcolor-secondaryfill':
+          'rgb(var(--color-brandcolor-secondaryfill) / <alpha-value>)',
+        'brandcolor-neutralhover':
+          'rgb(var(--color-brandcolor-neutralhover) / <alpha-value>)',
+        'brandcolor-textstrong':
+          'rgb(var(--color-brandcolor-textstrong) / <alpha-value>)',
+        'brandcolor-textweak':
+          'rgb(var(--color-brandcolor-textweak) / <alpha-value>)',
+        'brandcolor-strokestrong':
+          'rgb(var(--color-brandcolor-strokestrong) / <alpha-value>)',
+        'brandcolor-strokeweak':
+          'rgb(var(--color-brandcolor-strokeweak) / <alpha-value>)',
+        'brandcolor-strokemild':
+          'rgb(var(--color-brandcolor-strokemild) / <alpha-value>)',
+        'brandcolor-strokelight':
+          'rgb(var(--color-brandcolor-strokelight) / <alpha-value>)',
+        'brandcolor-fill':
+          'rgb(var(--color-brandcolor-fill) / <alpha-value>)',
+        'brandcolor-white':
+          'rgb(var(--color-brandcolor-white) / <alpha-value>)',
+        'brandcolor-sidebarhover':
+          'rgb(var(--color-brandcolor-sidebarhover) / <alpha-value>)',
+        'brandcolor-divider':
+          'rgb(var(--color-brandcolor-divider) / <alpha-value>)',
+        'brandcolor-banner-info-bg':
+          'rgb(var(--color-brandcolor-banner-info-bg) / <alpha-value>)',
+        'brandcolor-banner-warning-bg':
+          'rgb(var(--color-brandcolor-banner-warning-bg) / <alpha-value>)',
+        'brandcolor-banner-warning-button':
+          'rgb(var(--color-brandcolor-banner-warning-button) / <alpha-value>)',
+        'brandcolor-results-bg':
+          'rgb(var(--color-brandcolor-results-bg) / <alpha-value>)',
+        'brandcolor-archived-bg':
+          'rgb(var(--color-brandcolor-archived-bg) / <alpha-value>)',
+        'brandcolor-archived-border':
+          'rgb(var(--color-brandcolor-archived-border) / <alpha-value>)',
+        'brandcolor-archived-badge':
+          'rgb(var(--color-brandcolor-archived-badge) / <alpha-value>)',
+        'brandcolor-destructive':
+          'rgb(var(--color-brandcolor-destructive) / <alpha-value>)',
+        'brandcolor-table-header':
+          'rgb(var(--color-brandcolor-table-header) / <alpha-value>)',
+        'brandcolor-badge-success-bg':
+          'rgb(var(--color-brandcolor-badge-success-bg) / <alpha-value>)',
+        'brandcolor-badge-success-text':
+          'rgb(var(--color-brandcolor-badge-success-text) / <alpha-value>)',
+        'brandcolor-badge-attorney-bg':
+          'rgb(var(--color-brandcolor-badge-attorney-bg) / <alpha-value>)',
+        'brandcolor-badge-attorney-text':
+          'rgb(var(--color-brandcolor-badge-attorney-text) / <alpha-value>)',
+        'brandcolor-badge-amber-bg':
+          'rgb(var(--color-brandcolor-badge-amber-bg) / <alpha-value>)',
+        'brandcolor-badge-amber-text':
+          'rgb(var(--color-brandcolor-badge-amber-text) / <alpha-value>)',
       },
+      /* @agentic-theme-shadows-tw-start — values live on `:root` as `--shadow-*` */
       boxShadow: {
-        'button-press':
-          'inset 3px 3px 10px 0px rgba(26, 26, 26, 0.33)',
-        'border-inset-strokelight': 'inset 0 0 0 1.5px #F5F5F5',
-        'border-inset-secondary': 'inset 0 0 0 1.5px #0A0A0A',
+        'button-press': 'var(--shadow-button-press)',
+        'border-inset-strokelight': 'var(--shadow-border-inset-strokelight)',
+        'border-inset-secondary': 'var(--shadow-border-inset-secondary)',
         'border-inset-secondary-press':
-          'inset 0 0 0 1.5px #0A0A0A, inset 3px 3px 10px 0px rgba(26, 26, 26, 0.33)',
-        header: '0px 4px 4px 0px rgba(87, 87, 87, 0.05)',
-        'tab-option': '0 1px 5px 0 rgba(0, 0, 0, 0.2)',
-        card: '0 0 5px 0 rgba(102, 118, 131, 0.2)',
-        'sidebar-toggle': '0 1px 4px 0 rgba(0, 0, 0, 0.08)',
-        /** :user-valid confirm password: tight ring + soft outward blur (primary #F84416). */
-        'confirm-password-valid':
-          '0 0 0 2px rgba(248, 68, 22, 0.28), 0 0 14px 6px rgba(248, 68, 22, 0.18), 0 8px 28px rgba(248, 68, 22, 0.22)',
-        /** Primary-tinted button / CTA glow — oklch(0.5243 0.1143 214.28) ≈ brandcolor-primary #F84416. */
-        'button-brand-glow':
-          '0 10px 36px -6px oklch(0.5243 0.1143 214.28 / 0.5), 0 6px 24px -4px oklch(0.5243 0.1143 214.28 / 0.38), 0 3px 14px -2px oklch(0.5243 0.1143 214.28 / 0.28)',
+          'var(--shadow-border-inset-secondary-press)',
+        header: 'var(--shadow-header)',
+        'tab-option': 'var(--shadow-tab-option)',
+        card: 'var(--shadow-card)',
+        'sidebar-toggle': 'var(--shadow-sidebar-toggle)',
+        'confirm-password-valid': 'var(--shadow-confirm-password-valid)',
+        'button-brand-glow': 'var(--shadow-button-brand-glow)',
       },
+      /* @agentic-theme-shadows-tw-end */
       borderWidth: {
         1.5: '1.5px',
       },

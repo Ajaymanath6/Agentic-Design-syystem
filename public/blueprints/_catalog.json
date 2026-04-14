@@ -1,55 +1,65 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-13T05:11:42.424Z",
+  "lastUpdated": "2026-04-14T13:24:45.713Z",
   "components": [
     {
-      "id": "canvas-card-338317ce-420f-4087-9d58-a8511734e6f0",
-      "publishedAt": "2026-04-10T12:55:24.489Z",
+      "id": "canvas-confirm-password-9471e5c9-153e-4b90-9469-212703a023a4",
+      "publishedAt": "2026-04-13T12:11:52.408Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "CanvasCard338317ce420f40879d58A8511734e6f0Component",
-      "thumbnailPath": "/generated/canvas-card-338317ce-420f-4087-9d58-a8511734e6f0-thumbnail.png",
-      "blueprintPath": "/blueprints/canvas-card-338317ce-420f-4087-9d58-a8511734e6f0.json",
+      "importId": "CanvasConfirmPassword9471e5c9153e4b909469212703a023a4Component",
+      "thumbnailPath": "/generated/canvas-confirm-password-9471e5c9-153e-4b90-9469-212703a023a4-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-confirm-password-9471e5c9-153e-4b90-9469-212703a023a4.json",
       "kind": "component"
     },
     {
-      "id": "canvas-confirm-password-c8e199d7-c8d8-4ab5-abc9-58765599bd4c",
-      "publishedAt": "2026-04-10T12:55:39.342Z",
+      "id": "canvas-html-167ec07c-e45f-4afd-9fba-c27cdad8e7f5",
+      "publishedAt": "2026-04-13T12:11:58.583Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "CanvasConfirmPasswordC8e199d7C8d84ab5Abc958765599bd4cComponent",
-      "thumbnailPath": "/generated/canvas-confirm-password-c8e199d7-c8d8-4ab5-abc9-58765599bd4c-thumbnail.png",
-      "blueprintPath": "/blueprints/canvas-confirm-password-c8e199d7-c8d8-4ab5-abc9-58765599bd4c.json",
+      "importId": "CanvasHtml167ec07cE45f4afd9fbaC27cdad8e7f5Component",
+      "thumbnailPath": "/generated/canvas-html-167ec07c-e45f-4afd-9fba-c27cdad8e7f5-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-html-167ec07c-e45f-4afd-9fba-c27cdad8e7f5.json",
       "kind": "component"
     },
     {
-      "id": "canvas-neutral-0ad8f904-e592-4ba3-a45d-6577d26e0c1a",
-      "publishedAt": "2026-04-10T12:55:45.703Z",
+      "id": "canvas-html-3c098337-178a-4d34-ae58-17525be21694",
+      "publishedAt": "2026-04-14T13:24:44.627Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "CanvasNeutral0ad8f904E5924ba3A45d6577d26e0c1aComponent",
-      "thumbnailPath": "/generated/canvas-neutral-0ad8f904-e592-4ba3-a45d-6577d26e0c1a-thumbnail.png",
-      "blueprintPath": "/blueprints/canvas-neutral-0ad8f904-e592-4ba3-a45d-6577d26e0c1a.json",
+      "importId": "CanvasHtml3c098337178a4d34Ae5817525be21694Component",
+      "thumbnailPath": "/generated/canvas-html-3c098337-178a-4d34-ae58-17525be21694-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-html-3c098337-178a-4d34-ae58-17525be21694.json",
       "kind": "component"
     },
     {
-      "id": "canvas-secondary-7f92e1f4-f8f1-40b6-93e9-e71f9496f9ae",
-      "publishedAt": "2026-04-10T12:55:42.387Z",
+      "id": "canvas-neutral-490265bd-a0f4-4787-b920-e94ae35bd76d",
+      "publishedAt": "2026-04-14T05:07:43.829Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "CanvasSecondary7f92e1f4F8f140b693e9E71f9496f9aeComponent",
-      "thumbnailPath": "/generated/canvas-secondary-7f92e1f4-f8f1-40b6-93e9-e71f9496f9ae-thumbnail.png",
-      "blueprintPath": "/blueprints/canvas-secondary-7f92e1f4-f8f1-40b6-93e9-e71f9496f9ae.json",
+      "importId": "CanvasNeutral490265bdA0f44787B920E94ae35bd76dComponent",
+      "thumbnailPath": "/generated/canvas-neutral-490265bd-a0f4-4787-b920-e94ae35bd76d-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-neutral-490265bd-a0f4-4787-b920-e94ae35bd76d.json",
       "kind": "component"
     },
     {
-      "id": "canvas-text-field-39d67d6e-d962-45da-9467-422d7e937a82",
-      "publishedAt": "2026-04-10T12:55:30.997Z",
+      "id": "canvas-secondary-687ae757-0f76-44df-a91d-f4d2d9a9a713",
+      "publishedAt": "2026-04-14T05:07:40.036Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "CanvasTextField39d67d6eD96245da9467422d7e937a82Component",
-      "thumbnailPath": "/generated/canvas-text-field-39d67d6e-d962-45da-9467-422d7e937a82-thumbnail.png",
-      "blueprintPath": "/blueprints/canvas-text-field-39d67d6e-d962-45da-9467-422d7e937a82.json",
+      "importId": "CanvasSecondary687ae7570f7644dfA91dF4d2d9a9a713Component",
+      "thumbnailPath": "/generated/canvas-secondary-687ae757-0f76-44df-a91d-f4d2d9a9a713-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-secondary-687ae757-0f76-44df-a91d-f4d2d9a9a713.json",
+      "kind": "component"
+    },
+    {
+      "id": "canvas-text-field-9dba37b3-bb99-44fc-a99b-9484b1753357",
+      "publishedAt": "2026-04-13T11:54:42.490Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "CanvasTextField9dba37b3Bb9944fcA99b9484b1753357Component",
+      "thumbnailPath": "/generated/canvas-text-field-9dba37b3-bb99-44fc-a99b-9484b1753357-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-text-field-9dba37b3-bb99-44fc-a99b-9484b1753357.json",
       "kind": "component"
     },
     {
@@ -60,6 +70,16 @@
       "importId": "Layout1o4ytd8Component",
       "thumbnailPath": "/generated/layout-1o4ytd8-thumbnail.png",
       "blueprintPath": "/blueprints/layout-1o4ytd8.json",
+      "kind": "layout"
+    },
+    {
+      "id": "layout-1rq44ez",
+      "publishedAt": "2026-04-13T12:12:48.075Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "Layout1rq44ezComponent",
+      "thumbnailPath": "/generated/layout-1rq44ez-thumbnail.png",
+      "blueprintPath": "/blueprints/layout-1rq44ez.json",
       "kind": "layout"
     },
     {

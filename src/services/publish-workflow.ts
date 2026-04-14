@@ -1,4 +1,4 @@
-import { AGENT_BASE_URL, HELPER_BASE_URL } from '../config/env'
+import { AGENT_BASE_URL, HELPER_BASE_URL, THEME_SYNC_TOKEN } from '../config/env'
 import type { BlueprintDocument } from '../types/catalog'
 
 function helperUnreachableMessage(cause: string): string {
@@ -114,6 +114,43 @@ export type PruneCanvasCatalogResponse = {
 }
 
 /** Remove published canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* / canvas-text-field-* / canvas-product-sidebar-* / canvas-html-* rows not listed in keepIds. */
+export type ThemeSyncResponse = {
+  ok: boolean
+  written: string[]
+}
+
+/** Write theme artifacts into repo files (requires local publish-helper + npm run dev). */
+export async function postThemeSyncToProject(body: {
+  colors: Record<string, string>
+  /** When set, all shadow tokens must be present (validated server-side). */
+  shadows?: Record<string, string>
+  typography?: Record<string, string>
+}): Promise<ThemeSyncResponse> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (THEME_SYNC_TOKEN.trim() !== '') {
+    headers['x-theme-sync-token'] = THEME_SYNC_TOKEN.trim()
+  }
+  const res = await helperFetch('/api/theme/sync', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    let msg = text
+    try {
+      const j = JSON.parse(text) as { error?: string }
+      if (typeof j.error === 'string' && j.error) msg = j.error
+    } catch {
+      /* keep raw body */
+    }
+    throw new Error(msg || `Theme sync failed: ${res.status}`)
+  }
+  return res.json() as Promise<ThemeSyncResponse>
+}
+
 export async function postPruneCanvasCatalog(
   keepIds: string[],
 ): Promise<PruneCanvasCatalogResponse> {

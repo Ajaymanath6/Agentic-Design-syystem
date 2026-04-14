@@ -26,15 +26,18 @@ import {
 import {
   HTML_SNIPPET_BLOCK_H,
   HTML_SNIPPET_BLOCK_W,
+  HTML_SNIPPET_SHELL_HEIGHT_MAX,
+  HTML_SNIPPET_SHELL_HEIGHT_MIN,
 } from '../../lib/append-html-snippet-canvas-node'
 import { heightPxForProductSidebarPayload } from '../../lib/canvas-product-sidebar-metrics'
 import { sanitizeCanvasHtmlFragment } from '../../lib/sanitize-canvas-html'
 import {
+  applyDisplayNameToCanvasNode,
   buildBlueprintPreviewDocument,
   buildSourceHtmlForCanvasNode,
+  componentCatalogIdForCanvasNode,
   type CanvasNode,
   publishLabelForCanvasNode,
-  componentCatalogIdForCanvasNode,
 } from '../../lib/canvas-node-publish'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import {
@@ -72,7 +75,8 @@ const PRODUCT_SIDEBAR_W = 260
 
 function nodeSize(n: CanvasNode): { w: number; h: number } {
   if (n.kind === 'htmlSnippet') {
-    return { w: HTML_SNIPPET_BLOCK_W, h: HTML_SNIPPET_BLOCK_H }
+    const h = n.shellHeightPx ?? HTML_SNIPPET_BLOCK_H
+    return { w: HTML_SNIPPET_BLOCK_W, h }
   }
   if (n.kind === 'productSidebar') {
     return {
@@ -249,6 +253,75 @@ const publishedBadgeClass =
 const draftBadgeClass =
   'shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide bg-brandcolor-fill text-brandcolor-textweak ring-1 ring-brandcolor-strokeweak'
 
+/** Vertical padding on the scroll shell (`pt-1` + `pb-3`). */
+const HTML_SNIPPET_SCROLL_OUTER_PAD_Y = 16
+
+/** HTML blocks: only enable vertical scrolling when content actually exceeds the shell. */
+function CanvasHtmlSnippetScrollBody({
+  html,
+  badgeChromePx,
+  onShellHeightChange,
+}: {
+  html: string
+  /** Height above the scroll region (catalog badge row + padding) when visible. */
+  badgeChromePx: number
+  onShellHeightChange?: (px: number) => void
+}) {
+  const outerRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+  const [needsYScroll, setNeedsYScroll] = useState(false)
+
+  useLayoutEffect(() => {
+    const outer = outerRef.current
+    const inner = innerRef.current
+    if (!outer || !inner) return
+    const measure = () => {
+      setNeedsYScroll(inner.scrollHeight > outer.clientHeight + 2)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(outer)
+    ro.observe(inner)
+    return () => ro.disconnect()
+  }, [html])
+
+  useLayoutEffect(() => {
+    const inner = innerRef.current
+    if (!inner || !onShellHeightChange) return
+    const measure = () => {
+      const innerH = inner.scrollHeight
+      const total =
+        badgeChromePx + HTML_SNIPPET_SCROLL_OUTER_PAD_Y + innerH
+      const clamped = Math.max(
+        HTML_SNIPPET_SHELL_HEIGHT_MIN,
+        Math.min(HTML_SNIPPET_SHELL_HEIGHT_MAX, Math.ceil(total)),
+      )
+      onShellHeightChange(clamped)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(inner)
+    return () => ro.disconnect()
+  }, [html, badgeChromePx, onShellHeightChange])
+
+  return (
+    <div
+      ref={outerRef}
+      className={`min-h-0 flex-1 basis-0 overflow-x-hidden px-3 pb-3 pt-1 ${
+        needsYScroll ? 'overflow-y-auto' : 'overflow-y-hidden'
+      }`}
+    >
+      <div
+        ref={innerRef}
+        className="canvas-html-snippet-root min-h-0 min-w-0 text-left [&_a]:pointer-events-none [&_button]:pointer-events-none [&_input]:pointer-events-auto"
+        dangerouslySetInnerHTML={{
+          __html: sanitizeCanvasHtmlFragment(html),
+        }}
+      />
+    </div>
+  )
+}
+
 /** Canvas: grid on viewport; pan on stage — Space+drag or middle mouse. */
 export function ComponentsCanvasSurface() {
   const { refreshCatalog } = useCatalogRefresh()
@@ -257,13 +330,14 @@ export function ComponentsCanvasSurface() {
     setComponentsPromptDraft,
     componentsCanvasRefIds,
     setComponentsCanvasRefIds,
-    canvasPlanChatMessages,
     extendedDesignContext,
     setExtendedDesignContext,
     componentsPlanBusy,
     componentsPlanError,
     componentsCanvasAiMode,
     setComponentsCanvasAiMode,
+    componentsCanvasAddAsNewInstead,
+    setComponentsCanvasAddAsNewInstead,
     submitComponentsPrompt,
   } = useComponentsCanvasAi()
   const [nodes, setNodes] = useState<CanvasNode[]>(() => {
@@ -322,6 +396,23 @@ export function ComponentsCanvasSurface() {
   const spaceDownRef = useRef(false)
   const nodesRef = useRef(nodes)
   nodesRef.current = nodes
+
+  const patchHtmlSnippetShellHeight = useCallback(
+    (id: string, nextPx: number) => {
+      setNodes((prev) => {
+        let changed = false
+        const next = prev.map((node) => {
+          if (node.id !== id || node.kind !== 'htmlSnippet') return node
+          const cur = node.shellHeightPx ?? HTML_SNIPPET_BLOCK_H
+          if (Math.abs(cur - nextPx) < 4) return node
+          changed = true
+          return { ...node, shellHeightPx: nextPx }
+        })
+        return changed ? next : prev
+      })
+    },
+    [],
+  )
 
   useEffect(() => {
     const t = window.setTimeout(() => persistCanvasNodesToStorage(nodes), 400)
@@ -611,22 +702,35 @@ export function ComponentsCanvasSurface() {
   }, [])
 
   const confirmPublish = useCallback(
-    async (opts: { description: string; sealed: boolean }) => {
+    async (opts: {
+      description: string
+      sealed: boolean
+      displayName: string
+    }) => {
       if (!publishScreenshot || !publishTarget) return
       setPublishBusy(true)
       try {
-        const label = publishLabelForCanvasNode(publishTarget)
+        const label =
+          opts.displayName.trim() ||
+          publishLabelForCanvasNode(publishTarget)
+        const patched = applyDisplayNameToCanvasNode(publishTarget, label)
         // Same componentId as catalog entry id — server mergeCatalogEntry updates in place (no duplicate row).
         await postPublish({
           componentId: componentCatalogIdForCanvasNode(publishTarget),
           label,
           screenshot: publishScreenshot,
-          sourceHtml: buildSourceHtmlForCanvasNode(publishTarget),
+          sourceHtml: buildSourceHtmlForCanvasNode(patched),
           description: opts.description || undefined,
           sealed: opts.sealed,
           kind: 'component',
         })
-        persistCanvasNodesToStorage(nodesRef.current)
+        setNodes((prev) => {
+          const next = prev.map((n) =>
+            n.id === patched.id ? patched : n,
+          )
+          persistCanvasNodesToStorage(next)
+          return next
+        })
         refreshCatalog()
         closePublishModal()
         setPublishSuccessMessage(`Published “${label}” to the catalog.`)
@@ -636,12 +740,7 @@ export function ComponentsCanvasSurface() {
         setPublishBusy(false)
       }
     },
-    [
-      publishScreenshot,
-      publishTarget,
-      refreshCatalog,
-      closePublishModal,
-    ],
+    [publishScreenshot, publishTarget, refreshCatalog, closePublishModal],
   )
 
   useEffect(() => {
@@ -728,12 +827,52 @@ export function ComponentsCanvasSurface() {
   } as const
 
   const handleComponentsAiSubmit = useCallback(async () => {
-    const { appended } = await submitComponentsPrompt(nodesRef.current)
+    const { appended, replacedId } = await submitComponentsPrompt(
+      nodesRef.current,
+    )
+    if (replacedId && appended.length === 1) {
+      const mergedInPlace = appended[0]!.id === replacedId
+      if (mergedInPlace) {
+        pendingFocusNodesRef.current = appended
+        setNodes((p) =>
+          p.map((node) => (node.id === replacedId ? appended[0]! : node)),
+        )
+        return
+      }
+      const prev = nodesRef.current
+      const removed = prev.find((n) => n.id === replacedId)
+      const cx = removed?.x ?? 0
+      const cy = removed?.y ?? 0
+      const catalogId = removed
+        ? componentCatalogIdForCanvasNode(removed)
+        : null
+      const wasPublished =
+        Boolean(removed) &&
+        Boolean(catalogId) &&
+        publishedCatalogIds.has(catalogId!)
+      pendingFocusNodesRef.current = appended
+      setNodes((p) => {
+        const without = p.filter((n) => n.id !== replacedId)
+        const placed = appended.map((n, i) =>
+          i === 0 ? { ...n, x: cx, y: cy } : n,
+        )
+        return [...without, ...placed]
+      })
+      if (wasPublished && catalogId) {
+        void postDeleteComponent(catalogId)
+          .then(() => refreshCatalog())
+          .catch((err) => {
+            alert(err instanceof Error ? err.message : String(err))
+            refreshCatalog()
+          })
+      }
+      return
+    }
     if (appended.length > 0) {
       pendingFocusNodesRef.current = appended
       setNodes((prev) => [...prev, ...appended])
     }
-  }, [submitComponentsPrompt])
+  }, [submitComponentsPrompt, publishedCatalogIds, refreshCatalog])
 
   return (
     <div className="relative flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden bg-brandcolor-fill">
@@ -896,7 +1035,6 @@ export function ComponentsCanvasSurface() {
           ) : null}
           <ComponentsCanvasPromptPanel
             canvasNodes={nodes}
-            canvasPlanChatMessages={canvasPlanChatMessages}
             textareaId="components-canvas-ai-prompt"
             value={componentsPromptDraft}
             onChange={setComponentsPromptDraft}
@@ -915,6 +1053,8 @@ export function ComponentsCanvasSurface() {
             }
             aiMode={componentsCanvasAiMode}
             onAiModeChange={setComponentsCanvasAiMode}
+            addAsNewInstead={componentsCanvasAddAsNewInstead}
+            onAddAsNewInsteadChange={setComponentsCanvasAddAsNewInstead}
             className="mx-auto"
           />
         </div>
@@ -1019,15 +1159,15 @@ export function ComponentsCanvasSurface() {
                         </span>
                       </div>
                     ) : null}
-                    <div
-                      className="min-h-0 flex-1 overflow-y-auto px-3 pb-3 pt-1"
-                      onPointerDown={(e) => e.stopPropagation()}
-                    >
-                      <div
-                        className="canvas-html-snippet-root min-w-0 text-left [&_a]:pointer-events-none [&_button]:pointer-events-none [&_input]:pointer-events-auto"
-                        dangerouslySetInnerHTML={{
-                          __html: sanitizeCanvasHtmlFragment(n.html),
-                        }}
+                    <div onPointerDown={(e) => e.stopPropagation()}>
+                      <CanvasHtmlSnippetScrollBody
+                        html={n.html}
+                        badgeChromePx={
+                          capturingHideChromeId === n.id ? 0 : 52
+                        }
+                        onShellHeightChange={(px) =>
+                          patchHtmlSnippetShellHeight(n.id, px)
+                        }
                       />
                     </div>
                   </>

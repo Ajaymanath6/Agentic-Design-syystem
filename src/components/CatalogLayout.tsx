@@ -6,6 +6,7 @@ import { CatalogSidebar } from './CatalogSidebar'
 
 export function CatalogLayout() {
   const pathname = useLocation().pathname
+  const isThemeArea = pathname.startsWith('/catalog/theme')
   const isAdminCanvas =
     pathname === '/admin' ||
     pathname === '/admin/canvas' ||
@@ -16,17 +17,19 @@ export function CatalogLayout() {
       {isAdminCanvas ? (
         <LayoutWorkspaceProvider>
           <CanvasSidebar />
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-brandcolor-results-bg">
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-brandcolor-results-bg font-sans text-theme-body-medium-regular leading-theme-body-medium-regular">
             <CatalogMainHeader />
             <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
               <Outlet />
             </div>
           </main>
         </LayoutWorkspaceProvider>
+      ) : isThemeArea ? (
+        <Outlet />
       ) : (
         <>
           <CatalogSidebar />
-          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-brandcolor-results-bg">
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-brandcolor-results-bg font-sans text-theme-body-medium-regular leading-theme-body-medium-regular">
             <CatalogMainHeader />
             <div className="min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden py-8">
               <Outlet />

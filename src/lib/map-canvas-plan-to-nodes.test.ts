@@ -55,6 +55,29 @@ describe('mapCanvasPlanToNewNodes', () => {
     expect(out[0].kind).toBe('neutralButton')
   })
 
+  it('coerces long prompt-like card title for publish/catalog label', () => {
+    const longTitle =
+      'create a new card which has title sub title one and a paragraph which shows dummy case details of a case between google and apple'
+    const plan = {
+      version: 1 as const,
+      nodes: [
+        {
+          kind: 'card' as const,
+          title: longTitle,
+          subtitle: 'Short subtitle line',
+          body: 'Body content here.',
+        },
+      ],
+    }
+    const out = mapCanvasPlanToNewNodes(plan, [])
+    expect(out[0].kind).toBe('card')
+    if (out[0].kind !== 'card') return
+    expect(out[0].title.length).toBeLessThan(longTitle.length)
+    expect(out[0].title).not.toContain('google and apple')
+    expect(out[0].subtitle).toBe('Short subtitle line')
+    expect(out[0].body).toBe('Body content here.')
+  })
+
   it('coerces long prompt-like primary button label to short name', () => {
     const plan = {
       version: 1 as const,

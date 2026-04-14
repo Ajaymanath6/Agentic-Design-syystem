@@ -35,6 +35,10 @@ No markdown code fences, no backticks, no commentary before or after the HTML.
 - Reuse patterns from the theme guide when applicable (card-like surfaces: rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white).
 - Do **not** use arbitrary hex colors in `class` attributes; stick to the token names above.
 
+**Icons (HTML fragments only)**
+- The host page loads **Remix Icon webfont** CSS. For notification, close, chevron, etc., use `<i class="ri-notification-line">` (or `-fill`) with class names from https://remixicon.com — same names as @remixicon/react but with `ri-` kebab-case and `-line`/`-fill` suffix.
+- Put Tailwind sizing/color on that `<i>` (e.g. `class="ri-notification-line size-5 text-brandcolor-textstrong"`). Do **not** rely on @remixicon/react in raw HTML.
+
 **Safety (mandatory)**
 - Do **not** include <script>, <style> (except inline on elements is discouraged — prefer classes), <iframe>, <object>, <embed>, or event handler attributes (no onclick=, onload=, etc.).
 - Do **not** use javascript: URLs.
@@ -90,12 +94,52 @@ def _strip_scripts(html: str) -> str:
 
 
 def _title_from_prompt(prompt: str) -> str:
+    """
+    Short catalog-style title for htmlSnippet / publish modal.
+    Heuristics aligned with client `coerceCanvasControlLabel` (named phrase, quoted, first sentence, word cut).
+    """
     t = " ".join(prompt.strip().split())
     if not t:
         return "HTML block"
-    if len(t) > MAX_HTML_TITLE_CHARS:
-        return t[: MAX_HTML_TITLE_CHARS - 1] + "…"
-    return t
+    soft = 56
+    max_ch = MAX_HTML_TITLE_CHARS
+    if len(t) <= soft:
+        return t[:max_ch]
+
+    m = re.search(
+        r'(?:name|naem|call|label)\s+it\s+["\']?([^"\'\n,.;]{2,56})',
+        t,
+        re.IGNORECASE,
+    )
+    if m:
+        return m.group(1).strip()[:max_ch]
+
+    m2 = re.search(
+        r'(?:^|[\s,])(?:label|title|text)\s*(?:is|=|:)\s*["\']?([^"\'\n,.;]{2,56})',
+        t,
+        re.IGNORECASE,
+    )
+    if m2:
+        return m2.group(1).strip()[:max_ch]
+
+    mq = re.search(r'["\']([^"\'\n]{2,48})["\']', t)
+    if mq:
+        return mq.group(1).strip()[:max_ch]
+
+    parts = re.split(r"[.?!]\s+", t)
+    first_sentence = parts[0].strip() if parts else t
+    if (
+        len(first_sentence) >= 2
+        and len(first_sentence) < len(t)
+        and len(first_sentence) <= soft + 12
+    ):
+        return first_sentence[:max_ch]
+
+    cut = t[:soft].strip()
+    last_space = cut.rfind(" ")
+    wordish = cut[:last_space] if last_space > 20 else cut
+    out = f"{wordish}…"
+    return out[:max_ch]
 
 
 def normalize_model_html(raw: str, title: str) -> str:

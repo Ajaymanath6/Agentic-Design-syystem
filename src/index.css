@@ -3,6 +3,105 @@
 @tailwind utilities;
 
 @layer base {
+  /**
+   * Default brand RGB triples (space-separated). Theme configuration page overrides
+   * via inline style on :root + localStorage — keep defaults aligned with brand-theme-colors.ts.
+   */
+  :root {
+    /* @agentic-theme-root-colors-start */
+    --color-brandcolor-primary: 248 68 22;
+    --color-brandcolor-primaryhover: 234 76 0;
+    --color-brandcolor-secondary: 10 10 10;
+    --color-brandcolor-secondaryhover: 41 41 41;
+    --color-brandcolor-secondaryfill: 234 239 255;
+    --color-brandcolor-neutralhover: 239 239 239;
+    --color-brandcolor-textstrong: 26 26 26;
+    --color-brandcolor-textweak: 87 87 87;
+    --color-brandcolor-strokestrong: 87 87 87;
+    --color-brandcolor-strokeweak: 229 229 229;
+    --color-brandcolor-strokemild: 118 118 118;
+    --color-brandcolor-strokelight: 245 245 245;
+    --color-brandcolor-fill: 245 245 245;
+    --color-brandcolor-white: 255 255 255;
+    --color-brandcolor-sidebarhover: 46 60 72;
+    --color-brandcolor-divider: 64 75 83;
+    --color-brandcolor-banner-info-bg: 213 223 255;
+    --color-brandcolor-banner-warning-bg: 255 235 225;
+    --color-brandcolor-banner-warning-button: 242 99 51;
+    --color-brandcolor-results-bg: 248 249 251;
+    --color-brandcolor-archived-bg: 251 248 231;
+    --color-brandcolor-archived-border: 165 165 165;
+    --color-brandcolor-archived-badge: 232 232 232;
+    --color-brandcolor-destructive: 194 2 5;
+    --color-brandcolor-table-header: 221 221 221;
+    --color-brandcolor-badge-success-bg: 226 243 224;
+    --color-brandcolor-badge-success-text: 2 136 49;
+    --color-brandcolor-badge-attorney-bg: 242 235 255;
+    --color-brandcolor-badge-attorney-text: 98 56 170;
+    --color-brandcolor-badge-amber-bg: 255 247 219;
+    --color-brandcolor-badge-amber-text: 164 120 0;
+    /* @agentic-theme-root-colors-end */
+
+    /* @agentic-theme-shadows-start */
+    --shadow-button-press: inset 3px 3px 10px 0px rgba(26, 26, 26, 0.33);
+    --shadow-border-inset-strokelight: inset 0 0 0 1.5px #f5f5f5;
+    --shadow-border-inset-secondary: inset 0 0 0 1.5px #0a0a0a;
+    --shadow-border-inset-secondary-press: inset 0 0 0 1.5px #0a0a0a,
+      inset 3px 3px 10px 0px rgba(26, 26, 26, 0.33);
+    --shadow-header: 0px 4px 4px 0px rgba(87, 87, 87, 0.05);
+    --shadow-tab-option: 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+    --shadow-card: 0 0 5px 0 rgba(102, 118, 131, 0.2);
+    --shadow-sidebar-toggle: 0 1px 4px 0 rgba(0, 0, 0, 0.08);
+    --shadow-confirm-password-valid: 0 0 0 2px
+        rgb(var(--color-brandcolor-primary) / 0.28),
+      0 0 14px 6px rgb(var(--color-brandcolor-primary) / 0.18),
+      0 8px 28px rgb(var(--color-brandcolor-primary) / 0.22);
+    --shadow-button-brand-glow: 0 10px 36px -6px
+        rgb(var(--color-brandcolor-primary) / 0.5),
+      0 6px 24px -4px rgb(var(--color-brandcolor-primary) / 0.38),
+      0 3px 14px -2px rgb(var(--color-brandcolor-primary) / 0.28);
+    /* @agentic-theme-shadows-end */
+
+    /* @agentic-theme-typography-start */
+    --font-sans-stack: 'IBM Plex Sans', sans-serif;
+    --font-lora-stack: 'Lora', serif;
+    --fs-theme-title-h1: 2.25rem;
+    --lh-theme-title-h1: 1.2;
+    --fs-theme-title-h2: 1.875rem;
+    --lh-theme-title-h2: 1.25;
+    --fs-theme-title-h3: 1.5rem;
+    --lh-theme-title-h3: 1.3;
+    --fs-theme-title-h4: 1.25rem;
+    --lh-theme-title-h4: 1.35;
+    --fs-theme-title-h5: 1.125rem;
+    --lh-theme-title-h5: 1.4;
+    --fs-theme-title-h6: 1rem;
+    --lh-theme-title-h6: 1.4;
+    --fs-theme-body-large-regular: 1.125rem;
+    --lh-theme-body-large-regular: 1.4;
+    --fs-theme-body-large-emphasis: 1.125rem;
+    --lh-theme-body-large-emphasis: 1.4;
+    --fs-theme-body-large-bold: 1.125rem;
+    --lh-theme-body-large-bold: 1.4;
+    --fs-theme-body-medium-regular: 1rem;
+    --lh-theme-body-medium-regular: 1.4;
+    --fs-theme-body-medium-emphasis: 1rem;
+    --lh-theme-body-medium-emphasis: 1.4;
+    --fs-theme-body-medium-bold: 1rem;
+    --lh-theme-body-medium-bold: 1.4;
+    --fs-theme-body-small-regular: 0.875rem;
+    --lh-theme-body-small-regular: 1.4;
+    --fs-theme-body-small-emphasis: 0.875rem;
+    --lh-theme-body-small-emphasis: 1.4;
+    --fs-theme-body-small-bold: 0.875rem;
+    --lh-theme-body-small-bold: 1.4;
+    --fw-theme-regular: 400;
+    --fw-theme-medium: 500;
+    --fw-theme-semibold: 600;
+    --fw-theme-bold: 700;
+    /* @agentic-theme-typography-end */
+  }
+
   body {
     @apply m-0 min-h-screen font-sans text-brandcolor-textstrong antialiased;
   }

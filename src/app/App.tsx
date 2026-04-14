@@ -6,6 +6,10 @@ import { HomePage } from "../pages/home/HomePage";
 import { CatalogNewPage } from "../pages/CatalogNewPage";
 import { CatalogLayoutsPage } from "../pages/catalog/CatalogLayoutsPage";
 import { CatalogStubPage } from "../pages/CatalogStubPage";
+import { ThemeConfigurationLayout } from "../pages/catalog/ThemeConfigurationLayout";
+import { ThemeColorsPanel } from "../pages/catalog/theme/ThemeColorsPanel";
+import { ThemeShadowsPanel } from "../pages/catalog/theme/ThemeShadowsPanel";
+import { ThemeTypographyPanel } from "../pages/catalog/theme/ThemeTypographyPanel";
 import { ComingSoonPage } from "../pages/ComingSoonPage";
 
 export function App() {
@@ -22,6 +26,16 @@ export function App() {
         <Route path="catalog/home" element={<HomePage />} />
         <Route path="catalog/all" element={<CatalogAllPage />} />
         <Route path="catalog/layouts" element={<CatalogLayoutsPage />} />
+        <Route
+          path="catalog/design-system"
+          element={<Navigate to="/catalog/theme" replace />}
+        />
+        <Route path="catalog/theme" element={<ThemeConfigurationLayout />}>
+          <Route index element={<Navigate to="colors" replace />} />
+          <Route path="colors" element={<ThemeColorsPanel />} />
+          <Route path="typography" element={<ThemeTypographyPanel />} />
+          <Route path="shadows" element={<ThemeShadowsPanel />} />
+        </Route>
         <Route path="catalog/new" element={<CatalogNewPage />} />
         <Route
           path="catalog/categories"

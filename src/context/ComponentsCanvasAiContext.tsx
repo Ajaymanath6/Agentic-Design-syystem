@@ -9,7 +9,11 @@ import {
   type ReactNode,
 } from 'react'
 
-import { createHtmlSnippetCanvasNode } from '../lib/append-html-snippet-canvas-node'
+import {
+  createHtmlSnippetCanvasNode,
+  mergeHtmlSnippetIntoNode,
+} from '../lib/append-html-snippet-canvas-node'
+import { coerceCanvasControlLabel } from '../lib/coerce-canvas-control-label'
 import type { CanvasNode } from '../lib/canvas-node-publish'
 import { sanitizeCanvasHtmlFragment } from '../lib/sanitize-canvas-html'
 import { summarizeAppendedCanvasNodes } from '../lib/summarize-canvas-appended-nodes'
@@ -17,6 +21,7 @@ import {
   buildCanvasReferencesForRequest,
   canvasMentionDisplayName,
 } from '../lib/canvas-node-llm-context'
+import { stripCanvasRefSentinels } from '../lib/canvas-prompt-sentinel'
 import { mapCanvasPlanToNewNodes } from '../lib/map-canvas-plan-to-nodes'
 import { callComponentsCanvasGenerateHtml } from '../services/components-canvas-html'
 import { callComponentsCanvasPlan } from '../services/components-canvas-llm'
@@ -34,6 +39,9 @@ const COMPONENTS_CANVAS_AI_MODE_KEY = 'components-canvas-ai-mode'
 /** Backend requires non-empty prompt; used when the user only picked canvas refs (no typed text). */
 const REF_ONLY_PROMPT_FALLBACK =
   'Use the referenced canvas blocks as context.'
+
+const REPLACE_MODE_LLM_PREAMBLE =
+  '[Replace mode] The user is replacing the single referenced canvas component. Return exactly one revised HTML fragment suitable for the canvas. Do not output multiple unrelated root widgets.\n\n'
 
 export type ComponentsCanvasAiMode = 'plan' | 'htmlCreator'
 
@@ -60,10 +68,19 @@ export type ComponentsCanvasAiContextValue = {
   /** `plan` = JSON node plan (`/canvas/plan`). `htmlCreator` = HTML fragment (`/canvas/generate-html`). */
   componentsCanvasAiMode: ComponentsCanvasAiMode
   setComponentsCanvasAiMode: (v: ComponentsCanvasAiMode) => void
+  /**
+   * When true (HTML mode, exactly one @ ref), append a new HTML block instead of merging into the referenced snippet.
+   */
+  componentsCanvasAddAsNewInstead: boolean
+  setComponentsCanvasAddAsNewInstead: (v: boolean) => void
   /** Calls Vertex `/canvas/plan` or `/canvas/generate-html` per mode. Returns nodes to append. */
   submitComponentsPrompt: (
     existingNodes: CanvasNode[],
-  ) => Promise<{ appended: CanvasNode[]; error: string | null }>
+  ) => Promise<{
+    appended: CanvasNode[]
+    error: string | null
+    replacedId: string | null
+  }>
 }
 
 const ComponentsCanvasAiContext =
@@ -84,6 +101,8 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
   )
   const [componentsCanvasAiMode, setComponentsCanvasAiModeState] =
     useState<ComponentsCanvasAiMode>('plan')
+  const [componentsCanvasAddAsNewInstead, setComponentsCanvasAddAsNewInstead] =
+    useState(false)
   const planGenRef = useRef(0)
 
   useEffect(() => {
@@ -122,10 +141,15 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
   const submitComponentsPrompt = useCallback(
     async (
       existingNodes: CanvasNode[],
-    ): Promise<{ appended: CanvasNode[]; error: string | null }> => {
-      const t = componentsPromptDraft.trim()
+    ): Promise<{
+      appended: CanvasNode[]
+      error: string | null
+      replacedId: string | null
+    }> => {
+      const strippedDraft = stripCanvasRefSentinels(componentsPromptDraft)
+      const t = strippedDraft.trim()
       if (!t && componentsCanvasRefIds.length === 0) {
-        return { appended: [], error: null }
+        return { appended: [], error: null, replacedId: null }
       }
       const gen = ++planGenRef.current
       const priorMessages = canvasPlanChatMessages
@@ -133,24 +157,39 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
         .map((id) => existingNodes.find((n) => n.id === id))
         .filter((n): n is CanvasNode => n != null)
         .map((n) => canvasMentionDisplayName(n))
+      const replaceActive =
+        componentsCanvasAiMode === 'htmlCreator' &&
+        componentsCanvasRefIds.length === 1 &&
+        !componentsCanvasAddAsNewInstead
       const basePrompt = t || REF_ONLY_PROMPT_FALLBACK
+      const modelPrompt = replaceActive
+        ? `${REPLACE_MODE_LLM_PREAMBLE}${basePrompt}`
+        : basePrompt
       const refOrderLine =
         refLabels.length > 0
           ? `\n\nReferenced components (in order): ${refLabels.join(', ')}`
           : ''
-      const promptForApi = (basePrompt + refOrderLine).slice(0, 32000)
+      const promptForApi = (modelPrompt + refOrderLine).slice(0, 32000)
       const canvasRefs = buildCanvasReferencesForRequest(
         promptForApi,
         existingNodes,
         componentsCanvasRefIds,
       )
       const transcriptUserContent =
-        t ||
-        (refLabels.length > 0
-          ? `Referenced: ${refLabels.join(', ')}`
-          : promptForApi)
+        replaceActive && t
+          ? `Update @ reference in place: ${t}`
+          : t ||
+            (refLabels.length > 0
+              ? `Referenced: ${refLabels.join(', ')}`
+              : promptForApi)
+      const snapshot = {
+        draft: componentsPromptDraft,
+        refs: [...componentsCanvasRefIds],
+        addAsNewInstead: componentsCanvasAddAsNewInstead,
+      }
       setComponentsPromptDraft('')
       setComponentsCanvasRefIds([])
+      setComponentsCanvasAddAsNewInstead(false)
       setComponentsPlanError(null)
       setComponentsPlanBusy(true)
       try {
@@ -169,15 +208,32 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
             canvas_references: canvasRefs,
           })
           if (planGenRef.current !== gen) {
-            return { appended: [], error: null }
+            return { appended: [], error: null, replacedId: null }
           }
           const safe = sanitizeCanvasHtmlFragment(res.html)
           if (!safe.trim()) {
             throw new Error('Model HTML was empty after sanitization')
           }
-          appended = [
-            createHtmlSnippetCanvasNode(existingNodes, safe, res.title),
-          ]
+          const title = coerceCanvasControlLabel(res.title)
+          if (
+            replaceActive &&
+            snapshot.refs.length === 1 &&
+            componentsCanvasAiMode === 'htmlCreator'
+          ) {
+            const refId = snapshot.refs[0]!
+            const target = existingNodes.find((n) => n.id === refId)
+            if (target?.kind === 'htmlSnippet') {
+              appended = [mergeHtmlSnippetIntoNode(target, safe, title)]
+            } else {
+              appended = [
+                createHtmlSnippetCanvasNode(existingNodes, safe, title),
+              ]
+            }
+          } else {
+            appended = [
+              createHtmlSnippetCanvasNode(existingNodes, safe, title),
+            ]
+          }
         } else {
           const plan = await callComponentsCanvasPlan({
             prompt: promptForApi,
@@ -192,12 +248,12 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
             canvas_references: canvasRefs,
           })
           if (planGenRef.current !== gen) {
-            return { appended: [], error: null }
+            return { appended: [], error: null, replacedId: null }
           }
           appended = mapCanvasPlanToNewNodes(plan, existingNodes)
         }
         if (planGenRef.current !== gen) {
-          return { appended: [], error: null }
+          return { appended: [], error: null, replacedId: null }
         }
         const assistantContent = summarizeAppendedCanvasNodes(appended)
         setCanvasPlanChatMessages((prev) => {
@@ -210,10 +266,16 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
             ? next.slice(-MAX_CANVAS_CHAT_MESSAGES)
             : next
         })
-        return { appended, error: null }
+        const replacedId =
+          replaceActive &&
+          componentsCanvasAiMode === 'htmlCreator' &&
+          snapshot.refs.length === 1
+            ? snapshot.refs[0]!
+            : null
+        return { appended, error: null, replacedId }
       } catch (e: unknown) {
         if (planGenRef.current !== gen) {
-          return { appended: [], error: null }
+          return { appended: [], error: null, replacedId: null }
         }
         const msg = e instanceof Error ? e.message : String(e)
         setComponentsPlanError(msg)
@@ -230,7 +292,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
             ? next.slice(-MAX_CANVAS_CHAT_MESSAGES)
             : next
         })
-        return { appended: [], error: msg }
+        return { appended: [], error: msg, replacedId: null }
       } finally {
         if (planGenRef.current === gen) {
           setComponentsPlanBusy(false)
@@ -242,6 +304,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       componentsCanvasRefIds,
       componentsPromptDraft,
       componentsCanvasAiMode,
+      componentsCanvasAddAsNewInstead,
       extendedDesignContext,
     ],
   )
@@ -259,6 +322,8 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       componentsPlanError,
       componentsCanvasAiMode,
       setComponentsCanvasAiMode,
+      componentsCanvasAddAsNewInstead,
+      setComponentsCanvasAddAsNewInstead,
       submitComponentsPrompt,
     }),
     [
@@ -270,6 +335,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       componentsPlanError,
       componentsCanvasAiMode,
       setComponentsCanvasAiMode,
+      componentsCanvasAddAsNewInstead,
       submitComponentsPrompt,
       setExtendedDesignContext,
     ],

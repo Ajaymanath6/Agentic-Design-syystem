@@ -1,5 +1,8 @@
 import themeGuide from '../config/theme-guide.json'
-import { coerceCanvasControlLabel } from './coerce-canvas-control-label'
+import {
+  coerceCanvasControlLabel,
+  coerceCanvasPublishTitle,
+} from './coerce-canvas-control-label'
 import { PRODUCT_SIDEBAR_WIDTH_PX } from './canvas-product-sidebar-metrics'
 import {
   canvasCardCatalogId,
@@ -109,6 +112,8 @@ export type CanvasHtmlSnippetBlock = {
   y: number
   label: string
   html: string
+  /** Measured shell height (px) so the frame hugs content; unset uses default preview height. */
+  shellHeightPx?: number
 }
 
 export type CanvasNode =
@@ -222,6 +227,21 @@ export function buildProductSidebarPublishHtml(n: CanvasProductSidebarBlock): st
   )
 }
 
+const MAX_DISPLAY_NAME_LEN = 200
+
+/** Apply user-chosen catalog / toolbar name (publish modal). */
+export function applyDisplayNameToCanvasNode(
+  n: CanvasNode,
+  displayName: string,
+): CanvasNode {
+  const name = displayName.trim().slice(0, MAX_DISPLAY_NAME_LEN)
+  if (!name) return n
+  if (n.kind === 'card' || n.kind === 'productSidebar') {
+    return { ...n, title: name }
+  }
+  return { ...n, label: name }
+}
+
 export function componentCatalogIdForCanvasNode(n: CanvasNode): string {
   if (n.kind === 'card') return canvasCardCatalogId(n.id)
   if (n.kind === 'primaryButton') return canvasPrimaryButtonCatalogId(n.id)
@@ -249,7 +269,7 @@ export function publishLabelForCanvasNode(n: CanvasNode): string {
     n.kind === 'textInputField' ||
     n.kind === 'htmlSnippet'
   ) {
-    return coerceCanvasControlLabel(n.label)
+    return coerceCanvasPublishTitle(n.label)
   }
   const _exhaustive: never = n
   return _exhaustive

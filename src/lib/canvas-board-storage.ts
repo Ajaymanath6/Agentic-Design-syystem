@@ -150,6 +150,12 @@ export function parseStoredCanvasNode(
   if (o.kind === 'htmlSnippet') {
     if (typeof o.label !== 'string' || o.label.length < 1) return null
     if (typeof o.html !== 'string' || o.html.length < 1) return null
+    const shellHeightPx =
+      typeof o.shellHeightPx === 'number' &&
+      Number.isFinite(o.shellHeightPx) &&
+      o.shellHeightPx > 0
+        ? o.shellHeightPx
+        : undefined
     return {
       kind: 'htmlSnippet',
       id: o.id,
@@ -157,6 +163,7 @@ export function parseStoredCanvasNode(
       y: o.y,
       label: o.label,
       html: o.html,
+      ...(shellHeightPx != null ? { shellHeightPx } : {}),
     }
   }
   if (

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-167ec07c-e45f-4afd-9fba-c27cdad8e7f5",
+  "component": "div",
+  "importId": "CanvasHtml167ec07cE45f4afd9fbaC27cdad8e7f5Component",
+  "data": {
+    "imageUrl": "/generated/canvas-html-167ec07c-e45f-4afd-9fba-c27cdad8e7f5-thumbnail.png",
+    "imageAlt": "primary buuton",
+    "sealed": true,
+    "sourceHtml": "<button class=\"inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary hover:bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0\">Primary Button</button>"
+  }
+}

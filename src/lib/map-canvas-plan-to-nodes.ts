@@ -153,8 +153,13 @@ export function mapCanvasPlanToNewNodes(
     y = clampCoord(y, 40, WORLD_H - h - 40)
 
     if (spec.kind === 'card') {
-      const title = String(spec.title ?? '').slice(0, 500)
-      const subtitle = String(spec.subtitle ?? '').slice(0, 500)
+      const title = coerceCanvasControlLabel(String(spec.title ?? '')).slice(
+        0,
+        500,
+      )
+      const subtitle = coerceCanvasControlLabel(
+        String(spec.subtitle ?? ''),
+      ).slice(0, 500)
       const body = String(spec.body ?? '').slice(0, 4000)
       out.push({
         kind: 'card',

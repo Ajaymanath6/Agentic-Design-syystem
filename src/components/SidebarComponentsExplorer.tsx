@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
   RiArrowLeftLine,
@@ -8,10 +8,8 @@ import {
 } from '@remixicon/react'
 import { COMPONENT_EXPLORE_ITEMS } from '../config/component-explore-items'
 import { useCatalogBlueprintCount } from '../hooks/useCatalogBlueprintCount'
-import { useCatalogCards } from '../hooks/useCatalogCards'
-import { isCatalogLayoutEntry } from '../lib/catalog-layout-entry'
 
-type ExplorePanel = 'root' | 'components' | 'layouts'
+type ExplorePanel = 'root' | 'components'
 
 const categoryRowClass = (isActive: boolean) =>
   `flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors hover:bg-brandcolor-fill ${
@@ -19,17 +17,12 @@ const categoryRowClass = (isActive: boolean) =>
   }`
 
 /**
- * Explore → drill-in: root (Components / Layout) → lists with back.
+ * Explore: Components drills into categories; Layout links to the layouts page (no chevron).
  */
 export function SidebarComponentsExplorer() {
   const [panel, setPanel] = useState<ExplorePanel>('root')
   const [activeLabel, setActiveLabel] = useState<string | null>(null)
   const allCount = useCatalogBlueprintCount()
-  const { cards } = useCatalogCards()
-  const layoutCount = useMemo(
-    () => cards.filter((c) => isCatalogLayoutEntry(c.entry)).length,
-    [cards],
-  )
 
   return (
     <section
@@ -63,21 +56,22 @@ export function SidebarComponentsExplorer() {
                 aria-hidden
               />
             </button>
-            <button
-              type="button"
-              onClick={() => setPanel('layouts')}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[13px] font-medium text-brandcolor-textstrong transition-colors hover:bg-brandcolor-fill"
+            <NavLink
+              to="/catalog/layouts"
+              className={({ isActive }) =>
+                `flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[13px] font-medium transition-colors hover:bg-brandcolor-fill ${
+                  isActive
+                    ? 'bg-brandcolor-fill text-brandcolor-textstrong'
+                    : 'text-brandcolor-textweak hover:text-brandcolor-textstrong'
+                }`
+              }
             >
               <RiLayoutLine
                 className="size-[18px] shrink-0 text-brandcolor-strokestrong"
                 aria-hidden
               />
               <span className="min-w-0 flex-1">Layout</span>
-              <RiArrowRightSLine
-                className="size-4 shrink-0 text-brandcolor-textweak"
-                aria-hidden
-              />
-            </button>
+            </NavLink>
           </div>
           <div className="min-h-0 flex-1" aria-hidden />
         </>
@@ -162,42 +156,6 @@ export function SidebarComponentsExplorer() {
               )
             })}
           </ul>
-        </>
-      ) : null}
-
-      {panel === 'layouts' ? (
-        <>
-          <div className="flex shrink-0 items-center gap-1 px-2 pb-2 pl-3">
-            <button
-              type="button"
-              onClick={() => setPanel('root')}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-brandcolor-textstrong hover:bg-brandcolor-fill"
-              aria-label="Back to Explore"
-            >
-              <RiArrowLeftLine className="size-5" aria-hidden />
-            </button>
-            <span className="text-[13px] font-semibold text-brandcolor-textstrong">
-              Layout
-            </span>
-          </div>
-          <div className="sidebar-scroll-lean mt-1 min-h-0 flex-1 overflow-y-auto px-3 py-2">
-            <p className="text-[13px] font-mono tabular-nums text-brandcolor-textstrong">
-              {layoutCount} published
-            </p>
-            {layoutCount === 0 ? (
-              <p className="mt-2 text-[13px] leading-snug text-brandcolor-textweak">
-                Open Admin → Layout, structured preview Code, then Publish to add
-                layouts here.
-              </p>
-            ) : null}
-            <NavLink
-              to="/catalog/layouts"
-              className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-brandcolor-primary hover:underline"
-            >
-              View all layouts
-              <RiArrowRightSLine className="size-4" aria-hidden />
-            </NavLink>
-          </div>
         </>
       ) : null}
     </section>

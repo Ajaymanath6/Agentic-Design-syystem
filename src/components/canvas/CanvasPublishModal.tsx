@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { RiPencilLine } from '@remixicon/react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '../Button'
 
 type Props = {
@@ -7,7 +8,12 @@ type Props = {
   canPublish: boolean
   screenshotDataUrl?: string | null
   onClose: () => void
-  onConfirm: (opts: { description: string; sealed: boolean }) => void
+  onConfirm: (opts: {
+    description: string
+    sealed: boolean
+    /** Catalog / component display name (trimmed). */
+    displayName: string
+  }) => void
   /** Disables confirm while parent runs POST /api/publish. */
   submitBusy?: boolean
 }
@@ -23,6 +29,27 @@ export function CanvasPublishModal({
 }: Props) {
   const [description, setDescription] = useState('')
   const [sealed, setSealed] = useState(false)
+  const [displayName, setDisplayName] = useState('')
+  const [editingName, setEditingName] = useState(false)
+  const nameInputRef = useRef<HTMLInputElement>(null)
+  const wasOpenRef = useRef(false)
+
+  useEffect(() => {
+    if (open && !wasOpenRef.current) {
+      setDisplayName(blockLabel)
+      setEditingName(false)
+    }
+    wasOpenRef.current = open
+  }, [open, blockLabel])
+
+  useEffect(() => {
+    if (!editingName) return
+    const id = window.requestAnimationFrame(() => {
+      nameInputRef.current?.focus()
+      nameInputRef.current?.select()
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [editingName])
 
   useEffect(() => {
     if (!open) return
@@ -38,8 +65,14 @@ export function CanvasPublishModal({
 
   if (!open) return null
 
+  const resolvedName = displayName.trim() || blockLabel
+
   const submit = () => {
-    onConfirm({ description: description.trim(), sealed })
+    onConfirm({
+      description: description.trim(),
+      sealed,
+      displayName: resolvedName,
+    })
     setDescription('')
     setSealed(false)
   }
@@ -62,9 +95,47 @@ export function CanvasPublishModal({
       >
         <h2
           id="canvas-publish-title"
-          className="font-sans text-lg font-semibold text-brandcolor-textstrong"
+          className="flex flex-wrap items-center gap-x-1.5 gap-y-1 font-sans text-lg font-semibold text-brandcolor-textstrong"
         >
-          Publish “{blockLabel}”
+          <span className="shrink-0">Publish</span>
+          {editingName ? (
+            <input
+              ref={nameInputRef}
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              onBlur={() => setEditingName(false)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  setEditingName(false)
+                }
+                if (e.key === 'Escape') {
+                  e.preventDefault()
+                  setDisplayName(blockLabel)
+                  setEditingName(false)
+                }
+              }}
+              maxLength={200}
+              aria-label="Component name for catalog"
+              className="min-w-[6rem] max-w-[min(100%,16rem)] flex-1 rounded border border-brandcolor-secondaryfill px-2 py-0.5 text-lg font-semibold text-brandcolor-textstrong focus:border-brandcolor-secondary focus:outline-none focus:ring-0"
+            />
+          ) : (
+            <>
+              <span className="min-w-0 truncate">
+                “{displayName.trim() || blockLabel}”
+              </span>
+              <button
+                type="button"
+                className="inline-flex shrink-0 items-center justify-center rounded p-1 text-brandcolor-textweak hover:bg-brandcolor-fill hover:text-brandcolor-textstrong focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2"
+                aria-label="Edit component name"
+                disabled={submitBusy}
+                onClick={() => setEditingName(true)}
+              >
+                <RiPencilLine className="size-5" aria-hidden />
+              </button>
+            </>
+          )}
         </h2>
         <p className="mt-2 text-sm text-brandcolor-textweak">
           Review the capture, add a description if you want, then publish to the

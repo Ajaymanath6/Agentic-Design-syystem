@@ -5,7 +5,8 @@
     "browseGlyphs": "https://remixicon.com",
     "importPattern": "import { RiNameLine } from '@remixicon/react' — use Line (outline) or Fill variants per UI need.",
     "styling": "Size with Tailwind (e.g. className=\"size-4 shrink-0\"). Color inherits via currentColor — set text-brandcolor-textstrong, text-brandcolor-textweak, text-brandcolor-primary, etc.",
-    "rule": "Use Remix Icon for all icons in React/TSX across catalog, admin, and canvas. Do not mix other icon sets (Heroicons, Lucide, Material Icons) for chrome unless a one-off exception is documented. See tailwind.config.js header comment for the same rule."
+    "rule": "Use Remix Icon for all icons in React/TSX across catalog, admin, and canvas. Do not mix other icon sets (Heroicons, Lucide, Material Icons) for chrome unless a one-off exception is documented. See tailwind.config.js header comment for the same rule.",
+    "canvasHtmlFragmentWebfont": "For model-generated HTML (canvas htmlSnippet blocks), icons may use `<i class=\"ri-name-line\">` or `ri-name-fill` per https://remixicon.com — index.html loads remixicon.css so these classes render. Combine with Tailwind (e.g. inline-flex size-5 text-brandcolor-textstrong). React/TSX elsewhere still uses @remixicon/react imports."
   },
   "componentGuidelines": {
     "canvasStylingContract": "Components canvas: Tailwind utilities from tailwind.config.js only (no arbitrary hex in canvas JSX). Icons: Remix Icon (@remixicon/react) per theme-guide icons.rule. Neutral publish classes live in canvas-node-publish.ts + index.css. Confirm-password valid ring: theme.extend.boxShadow.confirm-password-valid + overflow-visible shell on that block.",
@@ -83,7 +84,21 @@
       "h2": "font-sans text-xl font-semibold text-brandcolor-textstrong c_md:text-2xl",
       "h3": "font-sans text-lg font-semibold text-brandcolor-textstrong"
     },
-    "input": "w-full rounded-md border border-brandcolor-strokestrong bg-brandcolor-white px-3 py-2 text-sm text-brandcolor-textstrong placeholder:text-brandcolor-textweak focus:border-brandcolor-textstrong focus:outline-none focus:ring-0"
+    "input": "w-full rounded-md border border-brandcolor-strokestrong bg-brandcolor-white px-3 py-2 text-sm text-brandcolor-textstrong placeholder:text-brandcolor-textweak focus:border-brandcolor-textstrong focus:outline-none focus:ring-0",
+    "themeConfigurationTypography": {
+      "description": "Catalog Theme > Typography (src/pages/catalog/theme): text-style rows and monospace fields use brand tokens from tailwind.config.js theme.extend.colors.",
+      "compactRows": "Full-width row buttons: default bg-brandcolor-fill, hover:bg-brandcolor-strokelight, cursor-pointer (ThemeTypographyFsLhCompactRow).",
+      "textFields": "Border border-brandcolor-strokeweak bg-brandcolor-white; hover:bg-brandcolor-fill; focus (active) border-brandcolor-primary — font stack inputs, font-weight inputs, and modal fs/lh wrappers (focus-within:border-brandcolor-primary on wrapper)."
+    },
+    "themeConfigurationShadows": {
+      "description": "Catalog Theme > Shadows (ThemeShadowsPanel): same compact row pattern as typography text styles; full value edited in TypographySettingModal (titleId shadow-setting-modal-title) with textarea inside strokeweak border, hover:bg-brandcolor-fill, focus-within:border-brandcolor-primary wrapper.",
+      "compactRows": "Per-token row: bg-brandcolor-fill, hover:bg-brandcolor-strokelight, shows key + truncated value (ThemeShadowsPanel)."
+    },
+    "themeConfigurationColors": {
+      "description": "Catalog Theme > Colors (ThemeColorsPanel): tokens grouped in brand-color-theme-groups.ts (text, stroke, brand, surfaces, banners, archived, status, badges). Each row: mono token + Reset; swatch + hex field with same hover/focus as typography inputs.",
+      "groupsSource": "src/pages/catalog/theme/brand-color-theme-groups.ts — must list every BRAND_COLOR_KEYS entry once.",
+      "tokenHelp": "Optional per-token naming stories: TOKEN_COLOR_HELP in src/pages/catalog/theme/token-color-help.tsx — document icon after hex opens TypographySettingModal (text-strong and text-weak first; add keys to scale)."
+    }
   },
   "spacing": {
     "description": "4-point grid: use multiples of 4px for margins, padding, and gaps. Tailwind spacing utilities map 1:1 (space-1 = 0.25rem = 4px at 16px root). Layout plans use semantic afterGap tokens (aliases below).",
