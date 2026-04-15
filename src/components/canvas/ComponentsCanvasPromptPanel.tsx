@@ -46,6 +46,9 @@ export type ComponentsCanvasPromptPanelProps = {
   textareaId?: string
   extendedDesignContext: boolean
   onToggleExtendedDesignContext: () => void
+  /** HTML mode: optional second model pass for theme spacing classes. */
+  spacingEnforcement?: boolean
+  onSpacingEnforcementChange?: (v: boolean) => void
   aiMode: ComponentsCanvasAiMode
   onAiModeChange: (mode: ComponentsCanvasAiMode) => void
   addAsNewInstead: boolean
@@ -71,6 +74,8 @@ export function ComponentsCanvasPromptPanel({
   textareaId = 'components-canvas-ai-prompt',
   extendedDesignContext,
   onToggleExtendedDesignContext,
+  spacingEnforcement = false,
+  onSpacingEnforcementChange,
   aiMode,
   onAiModeChange,
   addAsNewInstead,
@@ -575,6 +580,23 @@ export function ComponentsCanvasPromptPanel({
           >
             @tailwind.config.js
           </span>
+          {aiMode === 'htmlCreator' && onSpacingEnforcementChange ? (
+            <label className="flex cursor-pointer items-center gap-1.5 text-[11px] text-brandcolor-textweak">
+              <input
+                type="checkbox"
+                className="rounded border-brandcolor-strokeweak"
+                checked={spacingEnforcement}
+                onChange={(e) => onSpacingEnforcementChange(e.target.checked)}
+                aria-label="Spacing pass: second model aligns gap and padding classes with theme tokens"
+              />
+              <span
+                className="text-brandcolor-textstrong"
+                title="Runs a second Vertex pass after HTML generation to map prompts like micro/cozy to gap-micro, p-cozy, etc. Extra latency and API cost. Safe fallback: if the pass fails, the first HTML is kept."
+              >
+                Spacing pass (2nd model)
+              </span>
+            </label>
+          ) : null}
         </div>
         <button
           type="button"

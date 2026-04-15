@@ -216,6 +216,16 @@ export const THEME_TYPOGRAPHY_KEYS = [
   'fw-theme-bold',
 ]
 
+/** Must match `SPACING_KEYS` in src/config/theme-spacing-defaults.ts */
+export const THEME_SPACING_KEYS = [
+  'micro',
+  'tight',
+  'cozy',
+  'section',
+  'hero',
+  'inline',
+]
+
 const CSS_SHADOW_START = '    /* @agentic-theme-shadows-start */'
 const CSS_SHADOW_END = '    /* @agentic-theme-shadows-end */'
 const CSS_TYPO_START = '    /* @agentic-theme-typography-start */'
@@ -226,7 +236,14 @@ const SHADOW_TS_END = '  // @agentic-theme-shadow-defaults-end'
 const TYPO_TS_START = '  // @agentic-theme-typography-defaults-start'
 const TYPO_TS_END = '  // @agentic-theme-typography-defaults-end'
 
+const CSS_SPACING_START = '    /* @agentic-theme-spacing-start */'
+const CSS_SPACING_END = '    /* @agentic-theme-spacing-end */'
+
+const SPACING_TS_START = '  // @agentic-theme-spacing-defaults-start'
+const SPACING_TS_END = '  // @agentic-theme-spacing-defaults-end'
+
 const SHADOW_VALUE_MAX_LEN = 800
+const SPACING_VALUE_MAX_LEN = 32
 
 function validateShadowValueSrv(raw) {
   const s = String(raw ?? '').trim()
@@ -269,6 +286,12 @@ function validateTypographyValueSrv(key, raw) {
     return /^(100|200|300|400|500|600|700|800|900)$/.test(s) ? s : null
   }
   return null
+}
+
+function validateSpacingValueSrv(raw) {
+  const s = String(raw ?? '').trim()
+  if (s.length === 0 || s.length > SPACING_VALUE_MAX_LEN) return null
+  return /^\d+(\.\d+)?(rem|px)$/i.test(s) ? s : null
 }
 
 /**
@@ -319,6 +342,30 @@ export function mergeTypographyFromPayload(body) {
   return out
 }
 
+/**
+ * @param {Record<string, unknown>} body
+ * @returns {Record<string, string> | null}
+ */
+export function mergeSpacingFromPayload(body) {
+  if (body == null || typeof body !== 'object') return null
+  if (!Object.prototype.hasOwnProperty.call(body, 'spacing')) return null
+  const s = body.spacing
+  if (s == null) return null
+  if (typeof s !== 'object' || Array.isArray(s)) {
+    throw new Error('Expected spacing to be an object of token → string')
+  }
+  const out = {}
+  for (const key of THEME_SPACING_KEYS) {
+    if (s[key] == null || String(s[key]).trim() === '') {
+      throw new Error(`Missing spacing key: ${key}`)
+    }
+    const ok = validateSpacingValueSrv(s[key])
+    if (!ok) throw new Error(`Invalid spacing value for ${key}`)
+    out[key] = ok
+  }
+  return out
+}
+
 function formatTsQuotedObject(map, keys) {
   const lines = []
   for (const key of keys) {
@@ -341,6 +388,15 @@ function formatCssTypographyBlock(typo) {
   for (const key of THEME_TYPOGRAPHY_KEYS) {
     const v = String(typo[key]).trim()
     lines.push(`    --${key}: ${v};`)
+  }
+  return lines.join('\n')
+}
+
+function formatCssSpacingBlock(spacing) {
+  const lines = []
+  for (const key of THEME_SPACING_KEYS) {
+    const v = String(spacing[key]).trim()
+    lines.push(`    --space-${key}: ${v};`)
   }
   return lines.join('\n')
 }
@@ -390,6 +446,31 @@ export function writeThemeTypographyArtifacts(projectRoot, typo) {
   const cssInner = formatCssTypographyBlock(typo)
   let css = fs.readFileSync(cssPath, 'utf8')
   css = replaceMarkedRegion(css, CSS_TYPO_START, CSS_TYPO_END, cssInner)
+  fs.writeFileSync(cssPath, css, 'utf8')
+
+  return { tsPath, cssPath }
+}
+
+/**
+ * @param {string} projectRoot
+ * @param {Record<string, string>} spacing — every THEME_SPACING_KEYS
+ */
+export function writeThemeSpacingArtifacts(projectRoot, spacing) {
+  const tsPath = path.join(
+    projectRoot,
+    'src',
+    'config',
+    'theme-spacing-defaults.ts',
+  )
+  const cssPath = path.join(projectRoot, 'src', 'index.css')
+  const inner = formatTsQuotedObject(spacing, THEME_SPACING_KEYS)
+  let ts = fs.readFileSync(tsPath, 'utf8')
+  ts = replaceMarkedRegion(ts, SPACING_TS_START, SPACING_TS_END, inner)
+  fs.writeFileSync(tsPath, ts, 'utf8')
+
+  const cssInner = formatCssSpacingBlock(spacing)
+  let css = fs.readFileSync(cssPath, 'utf8')
+  css = replaceMarkedRegion(css, CSS_SPACING_START, CSS_SPACING_END, cssInner)
   fs.writeFileSync(cssPath, css, 'utf8')
 
   return { tsPath, cssPath }

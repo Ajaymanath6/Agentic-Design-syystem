@@ -22,7 +22,8 @@ const STACK_GAP = 24
 const TOP_MARGIN = 40
 
 /** Preview shell size; vertical scroll only when content exceeds this height (see CanvasHtmlSnippetScrollBody). */
-export const HTML_SNIPPET_BLOCK_W = 320
+/** Match card width so HTML previews with card + CTA rows are not squeezed. */
+export const HTML_SNIPPET_BLOCK_W = 400
 export const HTML_SNIPPET_BLOCK_H = 300
 
 /** Clamp measured `shellHeightPx` so layout and persistence stay bounded. */

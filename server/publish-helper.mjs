@@ -11,9 +11,11 @@ import { fileURLToPath } from 'url'
 import {
   mergeBrandColorsFromPayload,
   mergeShadowsFromPayload,
+  mergeSpacingFromPayload,
   mergeTypographyFromPayload,
   writeThemeBrandColors,
   writeThemeShadowArtifacts,
+  writeThemeSpacingArtifacts,
   writeThemeTypographyArtifacts,
 } from './theme-sync-write.mjs'
 
@@ -373,6 +375,11 @@ app.post('/api/theme/sync', (req, res) => {
     if (typography) {
       writeThemeTypographyArtifacts(projectRoot, typography)
       written.add('src/config/theme-typography-defaults.ts')
+    }
+    const spacing = mergeSpacingFromPayload(body)
+    if (spacing) {
+      writeThemeSpacingArtifacts(projectRoot, spacing)
+      written.add('src/config/theme-spacing-defaults.ts')
     }
     res.json({
       ok: true,

@@ -33,6 +33,7 @@ export async function callComponentsCanvasGenerateHtml(
   const payload: Record<string, unknown> = {
     prompt: body.prompt.trim(),
     extended_design_context: Boolean(body.extended_design_context),
+    spacing_enforcement: Boolean(body.spacing_enforcement),
   }
   if (body.messages != null && body.messages.length > 0) {
     payload.messages = body.messages

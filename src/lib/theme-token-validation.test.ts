@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import { SHADOW_DEFAULTS, SHADOW_KEYS } from '../config/theme-shadow-defaults'
 import {
+  SPACING_DEFAULTS,
+  SPACING_KEYS,
+} from '../config/theme-spacing-defaults'
+import {
   TYPOGRAPHY_DEFAULTS,
   TYPOGRAPHY_KEYS,
 } from '../config/theme-typography-defaults'
 import {
   mergeShadowPayload,
+  mergeSpacingPayload,
   mergeTypographyPayload,
   validateShadowValue,
+  validateSpacingValue,
   validateTypographyValue,
 } from './theme-token-validation'
 
@@ -82,5 +88,28 @@ describe('mergeTypographyPayload', () => {
     const m = mergeTypographyPayload(input, TYPOGRAPHY_KEYS)
     expect(m).not.toBeNull()
     expect(m!['fw-theme-bold']).toBe('700')
+  })
+})
+
+describe('validateSpacingValue', () => {
+  it('accepts rem and px', () => {
+    expect(validateSpacingValue('1rem')).toBe('1rem')
+    expect(validateSpacingValue('8px')).toBe('8px')
+  })
+  it('rejects em and arbitrary strings', () => {
+    expect(validateSpacingValue('1em')).toBeNull()
+    expect(validateSpacingValue('calc(1rem + 2px)')).toBeNull()
+  })
+})
+
+describe('mergeSpacingPayload', () => {
+  it('returns a full map when all keys valid', () => {
+    const input: Record<string, string> = { ...SPACING_DEFAULTS }
+    const m = mergeSpacingPayload(input, SPACING_KEYS)
+    expect(m).not.toBeNull()
+    expect(m!.cozy).toBe('1rem')
+  })
+  it('returns null when a key is missing', () => {
+    expect(mergeSpacingPayload({ cozy: '1rem' } as Record<string, unknown>, SPACING_KEYS)).toBeNull()
   })
 })

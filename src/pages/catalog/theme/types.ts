@@ -4,6 +4,7 @@ import {
   type BrandColorKey,
 } from '../../../config/brand-theme-colors'
 import type { ShadowTokenKey } from '../../../config/theme-shadow-defaults'
+import type { SpacingTokenKey } from '../../../config/theme-spacing-defaults'
 import type { TypographyTokenKey } from '../../../config/theme-typography-defaults'
 
 export type EditingTypoPair = {
@@ -20,6 +21,9 @@ export type ThemeEditorOutletContext = {
   shadowByKey: Record<ShadowTokenKey, string>
   setShadow: (key: ShadowTokenKey, value: string) => void
   resetShadowKey: (key: ShadowTokenKey) => void
+  spacingByKey: Record<SpacingTokenKey, string>
+  setSpacing: (key: SpacingTokenKey, value: string) => void
+  resetSpacingKey: (key: SpacingTokenKey) => void
   typoByKey: Record<TypographyTokenKey, string>
   setTypo: (key: TypographyTokenKey, value: string) => void
   resetTypoKey: (key: TypographyTokenKey) => void

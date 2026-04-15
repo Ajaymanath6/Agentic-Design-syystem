@@ -80,9 +80,13 @@ Then run `./finish-setup-after-apt.sh` from `LLM agent/`.
 | `GCP_PROJECT` | _(required)_ | Vertex / GCP project id |
 | `GCP_LOCATION` | `us-east4` | Vertex region |
 | `VERTEX_MODEL` | `gemini-2.0-flash-001` | Model id |
+| `VERTEX_SPACING_FIX_MODEL` | _(unset)_ | Optional model for the **second** Vertex call when `POST /canvas/generate-html` sets `spacing_enforcement: true` (HTML creator spacing audit). Defaults to `VERTEX_MODEL`. |
+| `CANVAS_HTML_SPACING_PASS_MAX_CHARS` | `14000` | Skip the spacing pass when pass-1 HTML length exceeds this (cost guard). |
 | `CORS_ORIGINS` | `http://localhost:5173,...` | Comma-separated origins if not using Vite proxy |
 | `THEME_GUIDE_PATH` | _(unset)_ | Optional absolute path to `theme-guide.json`; default is repo `src/config/theme-guide.json` relative to this service |
 | `TAILWIND_CONFIG_PATH` | _(unset)_ | Optional absolute path to `tailwind.config.js`; default is repo root `tailwind.config.js`. Used when `POST /canvas/plan` sets `extended_design_context: true`. |
+
+**Components canvas HTML (`POST /canvas/generate-html`)** accepts optional **`spacing_enforcement: true`** (default false). When enabled, the service runs a **second** `generate_content` pass after the first HTML is normalized: a small auditor prompt asks the model to return JSON `{"html":"..."}` with theme spacing utilities (`gap-micro`, `p-cozy`, `p-card-pad-default`, …) aligned to the user request. If that pass fails or returns invalid JSON, the **first** HTML is returned unchanged.
 
 ## Install and run
 
@@ -110,6 +114,7 @@ From `LLM agent/` with the project venv activated (or `.venv/bin/python`):
 ```bash
 python -m unittest tests.test_canvas_plan_contents -v
 python -m unittest tests.test_canvas_html_generate -v
+python -m unittest tests.test_canvas_html_spacing_pass -v
 ```
 
 ## Layout “Ask…” vs Flask-style tutorials

@@ -35,6 +35,7 @@ import {
   applyDisplayNameToCanvasNode,
   buildBlueprintPreviewDocument,
   buildSourceHtmlForCanvasNode,
+  CANVAS_CARD_PUBLISH_WIDTH_PX,
   componentCatalogIdForCanvasNode,
   type CanvasNode,
   publishLabelForCanvasNode,
@@ -66,7 +67,7 @@ const SCALE_MAX = 2.5
 const ZOOM_STEP = 1.12
 
 /** Content width; fitView uses same footprint (see theme-guide componentsCanvasCard). */
-const CANVAS_CARD_W = 280
+const CANVAS_CARD_W = CANVAS_CARD_PUBLISH_WIDTH_PX
 const CANVAS_CARD_H = 200
 const CANVAS_PRIMARY_W = 220
 const CANVAS_PRIMARY_H = 112
@@ -332,6 +333,8 @@ export function ComponentsCanvasSurface() {
     setComponentsCanvasRefIds,
     extendedDesignContext,
     setExtendedDesignContext,
+    spacingEnforcement,
+    setSpacingEnforcement,
     componentsPlanBusy,
     componentsPlanError,
     componentsCanvasAiMode,
@@ -1051,6 +1054,8 @@ export function ComponentsCanvasSurface() {
             onToggleExtendedDesignContext={() =>
               setExtendedDesignContext(!extendedDesignContext)
             }
+            spacingEnforcement={spacingEnforcement}
+            onSpacingEnforcementChange={setSpacingEnforcement}
             aiMode={componentsCanvasAiMode}
             onAiModeChange={setComponentsCanvasAiMode}
             addAsNewInstead={componentsCanvasAddAsNewInstead}

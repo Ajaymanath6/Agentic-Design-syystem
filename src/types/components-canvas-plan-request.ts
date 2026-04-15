@@ -17,6 +17,8 @@ export type ComponentsCanvasPlanRequest = {
   prompt: string
   messages?: CanvasPlanChatMessage[]
   extended_design_context?: boolean
+  /** HTML creator only: optional second Vertex pass to align spacing classes with theme tokens. */
+  spacing_enforcement?: boolean
   canvas_references?: CanvasReferencePayload[]
 }
 

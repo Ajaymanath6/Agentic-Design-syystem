@@ -32,7 +32,7 @@
     "componentsCanvasCard": {
       "description": "Default block on ComponentsCanvasSurface — same surface token as componentGuidelines.card; typography uses tailwind.config.js brand text colors only. Hover help: parent group/canvas-tip + .canvas-element-tooltip (+ optional .canvas-element-tooltip-detail); avoid title= on canvas chrome to prevent OS tooltips.",
       "surface": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
-      "widthPx": 280,
+      "widthPx": 400,
       "title": "font-sans text-base font-semibold text-brandcolor-textstrong",
       "subtitle": "mt-1 text-sm text-brandcolor-textweak",
       "body": "mt-2 text-sm leading-relaxed text-brandcolor-textweak"
@@ -94,6 +94,47 @@
       "description": "Catalog Theme > Shadows (ThemeShadowsPanel): same compact row pattern as typography text styles; full value edited in TypographySettingModal (titleId shadow-setting-modal-title) with textarea inside strokeweak border, hover:bg-brandcolor-fill, focus-within:border-brandcolor-primary wrapper.",
       "compactRows": "Per-token row: bg-brandcolor-fill, hover:bg-brandcolor-strokelight, shows key + truncated value (ThemeShadowsPanel)."
     },
+    "themeConfigurationSpacing": {
+      "description": "Catalog Theme > Spacing (ThemeSpacingPanel, /catalog/theme/spacing). Section order matches the page: panelIntro → cardSemanticAliases → howSpacingWorks → quickReferenceIntro → table (live) → editTokensIntro. Primitives: micro…inline; card aliases: card-pad-* / card-gap-* (see theme-card-spacing-semantics.ts). Detail for models: use panelIntro, cardSemanticAliases, howSpacingWorks, quickReferenceIntro, editTokensIntro below.",
+      "panelIntro": "Values map to --space-* on :root and Tailwind theme.extend.spacing (e.g. p-cozy, gap-tight). Only rem or px lengths. The quick reference table on the page reflects the current theme values from the editor.",
+      "cardSemanticAliases": {
+        "readOnlyNote": "Read-only: --card-padding-* and --card-gap-* on :root point at --space-* primitives. Implementation map: src/config/theme-card-spacing-semantics.ts. Use Tailwind p-card-pad-* and gap-card-gap-* when prompts describe card shell density or inner card gaps; editing a primitive token updates every alias that references it. Full prompt phrase lists: spacing.cardPaddingSemantics.promptVocabulary and spacing.cardGapSemantics.promptVocabulary.",
+        "paddingShell": [
+          "card-pad-compact → inline — e.g. p-card-pad-compact",
+          "card-pad-default → cozy — e.g. p-card-pad-default",
+          "card-pad-comfy → section — e.g. p-card-pad-comfy"
+        ],
+        "gapInsideCard": [
+          "card-gap-tight → tight — e.g. gap-card-gap-tight",
+          "card-gap-default → inline — e.g. gap-card-gap-default",
+          "card-gap-loose → cozy — e.g. gap-card-gap-loose"
+        ]
+      },
+      "howSpacingWorks": {
+        "paragraphs": [
+          "Think inside → out: padding is space between a component's border and its content; margin is space outside the border that pushes neighbors away. Gap is space between siblings in a flex or grid—like margin, but owned by the parent stack.",
+          "Names that feel closer in language (micro, tight) are meant to read as closer on screen than cozy or section. Use smaller tokens inside a single component (icon + label, title + meta), cozy for the card shell, and section or hero for breathing room between blocks on the page."
+        ],
+        "approxPxNote": "Approximate pixel hints assume a 16px root font size for rem; layout still follows real rem and user settings.",
+        "quickReferenceAnchorText": "On the Spacing page, the quick reference block (id spacing-quick-ref) shows live decode per token."
+      },
+      "quickReferenceIntro": "Columns: Token, Value, ~Px (documentary @ 16px root for rem), Tailwind examples, When to use. Row click opens edit (TypographySettingModal, spacing-setting-modal-title); trailing info icon opens per-token help (spacing-help-modal-title) without edit.",
+      "editTokensIntro": "Click a row to change the length. Use the info icon for prompt phrases and layout guidance without entering edit mode.",
+      "insideOutSummary": "Inside a component: micro/tight for dense inner rhythm (icon+label, title+meta). Card or panel shell: cozy padding. Between major blocks on the page: section or hero. Horizontal rows (chips, buttons): inline.",
+      "approxPxAssumption": "UI and theme-guide ~px hints assume a 16px root for rem→px conversion only; real layout follows rem and user font settings.",
+      "promptVocabulary": [
+        "micro gap / hairline — maps to micro",
+        "tight stack / dense inner — tight",
+        "cozy padding / comfortable card inner — cozy",
+        "section break / between groups — section",
+        "hero spacing / large vertical break — hero",
+        "inline gap / horizontal row — inline"
+      ],
+      "figmaScaleBridge": "Rough mapping for handoff language (not new tokens): micro ≈ XXS/4px inner; tight ≈ XS stacks inside a frame; cozy ≈ S card padding; section ≈ M–L between frames; hero ≈ XL page rhythm; inline ≈ horizontal auto-layout gap between row siblings.",
+      "tokens": "micro (hairline), tight (dense), cozy (default card padding / stack), section (larger break), hero (largest vertical rhythm), inline (horizontal row / chip gaps).",
+      "examplePrompt": "Create a card with white background, stroke-weak border, rounded corners and p-cozy. Title text-strong; stack actions with gap-tight.",
+      "compactRows": "Full-width row opens edit (TypographySettingModal, spacing-setting-modal-title); trailing info icon opens per-token help without edit. Same monospace length field and padding preview as before; valid values show a Decode: ~px line below the textarea."
+    },
     "themeConfigurationColors": {
       "description": "Catalog Theme > Colors (ThemeColorsPanel): tokens grouped in brand-color-theme-groups.ts (text, stroke, brand, surfaces, banners, archived, status, badges). Each row: mono token + Reset; swatch + hex field with same hover/focus as typography inputs.",
       "groupsSource": "src/pages/catalog/theme/brand-color-theme-groups.ts — must list every BRAND_COLOR_KEYS entry once.",
@@ -101,7 +142,67 @@
     }
   },
   "spacing": {
-    "description": "4-point grid: use multiples of 4px for margins, padding, and gaps. Tailwind spacing utilities map 1:1 (space-1 = 0.25rem = 4px at 16px root). Layout plans use semantic afterGap tokens (aliases below).",
+    "description": "4-point grid: use multiples of 4px for margins, padding, and gaps. Tailwind spacing utilities map 1:1 (space-1 = 0.25rem = 4px at 16px root). Layout plans use semantic afterGap tokens (aliases below). Prefer semantic theme spacing tokens (spacing.tokenReference) in prompts and JSX. For card shells, prefer spacing.cardPaddingSemantics / cardGapSemantics utilities when the user describes density in natural language.",
+    "tokenReference": {
+      "micro": {
+        "tailwind": "p-micro, m-micro, gap-micro",
+        "approxPxAt16RootDefaults": "4px from shipped 0.25rem",
+        "useWhen": "Icon-to-label hairline, densest inner rhythm"
+      },
+      "tight": {
+        "tailwind": "p-tight, gap-tight, space-y-tight",
+        "approxPxAt16RootDefaults": "8px from shipped 0.5rem",
+        "useWhen": "Related lines inside a component (title + meta)"
+      },
+      "cozy": {
+        "tailwind": "p-cozy, px-cozy, gap-cozy",
+        "approxPxAt16RootDefaults": "16px from shipped 1rem",
+        "useWhen": "Default card / panel inner padding and stacks"
+      },
+      "section": {
+        "tailwind": "mt-section, gap-section, py-section",
+        "approxPxAt16RootDefaults": "24px from shipped 1.5rem",
+        "useWhen": "Between major groups inside a page or form"
+      },
+      "hero": {
+        "tailwind": "mt-hero, gap-hero, mb-hero",
+        "approxPxAt16RootDefaults": "32px from shipped 2rem",
+        "useWhen": "Strong break before first content or between sections"
+      },
+      "inline": {
+        "tailwind": "gap-inline, px-inline, space-x-inline",
+        "approxPxAt16RootDefaults": "12px from shipped 0.75rem",
+        "useWhen": "Horizontal rows: chips, buttons, label + control"
+      }
+    },
+    "cardPaddingSemantics": {
+      "description": "Card shell padding aliases on :root (--card-padding-*) reference var(--space-*) only; see src/config/theme-card-spacing-semantics.ts. Editing primitive tokens in Theme > Spacing updates resolved card padding with no duplicate lengths.",
+      "tailwind": "p-card-pad-compact, p-card-pad-default, p-card-pad-comfy (also px-card-pad-*, py-card-pad-*).",
+      "primitiveMap": {
+        "compact": "inline — dense card, dashboard widget, tight inner shell",
+        "default": "cozy — standard product / content card",
+        "comfy": "section — spacious, promo, or onboarding-style card"
+      },
+      "promptVocabulary": [
+        "compact card padding / dense card / small info card → p-card-pad-compact",
+        "default card padding / normal card / standard card → p-card-pad-default",
+        "comfy card padding / spacious card / highlight card → p-card-pad-comfy"
+      ]
+    },
+    "cardGapSemantics": {
+      "description": "Vertical or flex gaps inside a card (--card-gap-* alias to --space-*). Same single-source rule as card padding.",
+      "tailwind": "gap-card-gap-tight, gap-card-gap-default, gap-card-gap-loose (e.g. flex flex-col gap-card-gap-default).",
+      "primitiveMap": {
+        "tight": "tight — title, value, dense stack",
+        "default": "inline — related rows, actions row",
+        "loose": "cozy — roomier stack inside a large card"
+      },
+      "promptVocabulary": [
+        "tight gaps inside the card / dense stack → gap-card-gap-tight",
+        "default inner card gaps → gap-card-gap-default",
+        "loose inner card gaps / roomy stack → gap-card-gap-loose"
+      ]
+    },
     "spaceScaleRem": {
       "space-1": "0.25rem",
       "space-2": "0.5rem",
@@ -132,6 +233,14 @@
       "section": "mb-6 or gap-6 — 24px (space-6); between major sections or before a new chrome heading after catalog.",
       "hero": "mb-8 or gap-8 — 32px (space-8); strong break after a hero title before first component."
     },
+    "themeSpacingTailwind": {
+      "micro": "p-micro, m-micro, gap-micro — 4px scale step; icon to label.",
+      "tight": "p-tight, gap-tight, mt-tight — 8px dense stacks.",
+      "cozy": "p-cozy, px-cozy, gap-cozy — 16px default card inner padding and related vertical gaps.",
+      "section": "mt-section, gap-section, py-section — 24px between major blocks.",
+      "hero": "mt-hero, gap-hero, mb-hero — 32px hero rhythm.",
+      "inline": "gap-inline, px-inline — 12px horizontal rhythm in rows."
+    },
     "semantics": [
       "Title and subtitle inside one chrome block: tight rhythm (space-y-1 ≈ space-1 between lines).",
       "afterGap on a block sets space BEFORE the next block (margin below this block). Last block has no bottom margin.",
@@ -150,6 +259,7 @@
       "Buttons use rounded-md (6px) per theme; cards use rounded-lg with border-brandcolor-strokeweak and shadow-card.",
       "Layout plan: if the user wants two fields side by side or on one row, output ONE type row with two columns (one catalog leaf per column)—never two top-level catalog blocks. Use type split for sidebar + main. afterGap / defaultAfterGap: tight, default, section, hero. Client infers afterGap: row/split next to catalog/chrome uses default (space-4) like stacked fields; section between row↔split or catalog→chrome unless overridden.",
       "Do not use arbitrary mt-48, mb-20, or one-off pixel classes for stack gaps; refer to spacing.spaceScaleRem and layoutTokenMap.",
+      "Prefer theme spacing tokens from spacing.themeSpacingTailwind for padding/margin/gap: micro, tight, cozy, section, hero, inline (e.g. p-cozy, gap-tight). For card shells described in natural language (compact vs default vs comfy card padding), prefer spacing.cardPaddingSemantics / cardGapSemantics utilities (p-card-pad-default, gap-card-gap-tight, etc.); primitives remain valid when the user or spec names them explicitly.",
       "Catalog blueprint roots: no h-full justify-center on layout previews; minimal outer padding so gaps match spacing.semantics."
     ]
   }

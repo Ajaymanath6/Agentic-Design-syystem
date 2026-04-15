@@ -21,7 +21,9 @@ Tailwind theme (use these token names in reasoning; output JSON only, no class s
   brandcolor-strokeweak #E5E5E5, brandcolor-strokestrong #575757, brandcolor-fill #F5F5F5,
   brandcolor-white #FFFFFF, brandcolor-secondary #0A0A0A, etc. (see tailwind.config.js theme.extend.colors).
 - Canvas published blocks use theme-guide card/button strings and .confirm-password-canvas-input / .text-field-canvas-input in index.css.
-- Spacing: Tailwind scale; card uses rounded-lg border border-brandcolor-strokeweak patterns from theme-guide.componentGuidelines.card.
+- Spacing (theme tokens on theme.extend.spacing / :root --space-*): primitives micro, tight, cozy, section, hero, inline
+  (e.g. gap-micro, p-cozy, space-x-tight, mt-section). Card semantic aliases: card-pad-compact|default|comfy, card-gap-tight|default|loose
+  (e.g. p-card-pad-default, gap-card-gap-tight). Do not use default Tailwind numeric spacing (gap-2, space-x-2, p-4, m-3) for branded layout when a theme token applies; prefer the semantic keys above. Card surfaces: rounded-lg border border-brandcolor-strokeweak per theme-guide.componentGuidelines.card.
 """
 
 CANVAS_PLAN_SYSTEM = """You are a planner for the **components canvas** in an internal design-system admin app.
@@ -118,6 +120,10 @@ class CanvasPlanPromptBody(BaseModel):
     canvas_references: list[CanvasReferenceBlock] | None = Field(
         default=None,
         max_length=MAX_CANVAS_REFERENCE_BLOCKS,
+    )
+    spacing_enforcement: bool = Field(
+        default=False,
+        description="Optional second Vertex pass: align class spacing utilities with theme tokens vs default gap-N/p-N.",
     )
 
 

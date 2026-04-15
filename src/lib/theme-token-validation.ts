@@ -1,7 +1,11 @@
 import type { ShadowTokenKey } from '../config/theme-shadow-defaults'
+import type { SpacingTokenKey } from '../config/theme-spacing-defaults'
 import type { TypographyTokenKey } from '../config/theme-typography-defaults'
 
 export const SHADOW_VALUE_MAX_LEN = 800
+
+/** Spacing tokens: rem or px only (same rule as typography font sizes). */
+export const SPACING_VALUE_MAX_LEN = 32
 
 const FS_RE = /^\d+(\.\d+)?(rem|px)$/i
 const LH_RE = /^\d+(\.\d+)?$/
@@ -53,6 +57,12 @@ export function validateTypographyValue(
   return null
 }
 
+export function validateSpacingValue(raw: string): string | null {
+  const s = raw.trim()
+  if (s.length === 0 || s.length > SPACING_VALUE_MAX_LEN) return null
+  return FS_RE.test(s) ? s : null
+}
+
 export function mergeShadowPayload(
   input: Record<string, unknown>,
   keys: readonly ShadowTokenKey[],
@@ -77,6 +87,21 @@ export function mergeTypographyPayload(
     const v = input[k]
     if (typeof v !== 'string') return null
     const ok = validateTypographyValue(k, v)
+    if (!ok) return null
+    out[k] = ok
+  }
+  return out
+}
+
+export function mergeSpacingPayload(
+  input: Record<string, unknown>,
+  keys: readonly SpacingTokenKey[],
+): Partial<Record<SpacingTokenKey, string>> | null {
+  const out: Partial<Record<SpacingTokenKey, string>> = {}
+  for (const k of keys) {
+    const v = input[k]
+    if (typeof v !== 'string') return null
+    const ok = validateSpacingValue(v)
     if (!ok) return null
     out[k] = ok
   }

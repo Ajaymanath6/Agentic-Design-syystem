@@ -125,6 +125,8 @@ export async function postThemeSyncToProject(body: {
   /** When set, all shadow tokens must be present (validated server-side). */
   shadows?: Record<string, string>
   typography?: Record<string, string>
+  /** When set, all spacing tokens must be present (validated server-side). */
+  spacing?: Record<string, string>
 }): Promise<ThemeSyncResponse> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

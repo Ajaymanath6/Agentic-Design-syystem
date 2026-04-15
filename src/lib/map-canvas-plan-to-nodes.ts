@@ -1,4 +1,7 @@
-import type { CanvasNode } from './canvas-node-publish'
+import {
+  CANVAS_CARD_PUBLISH_WIDTH_PX,
+  type CanvasNode,
+} from './canvas-node-publish'
 import {
   heightPxForProductSidebarPayload,
   PRODUCT_SIDEBAR_WIDTH_PX,
@@ -13,7 +16,7 @@ import { coerceCanvasControlLabel } from './coerce-canvas-control-label'
 
 const WORLD_W = 3200
 const WORLD_H = 2400
-const CANVAS_CARD_W = 280
+const CANVAS_CARD_W = CANVAS_CARD_PUBLISH_WIDTH_PX
 const CANVAS_PRIMARY_W = 220
 const STACK_GAP = 24
 

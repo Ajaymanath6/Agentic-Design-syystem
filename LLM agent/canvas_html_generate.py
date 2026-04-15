@@ -32,6 +32,10 @@ No markdown code fences, no backticks, no commentary before or after the HTML.
 - Use **Tailwind CSS utility classes** that match this project's design tokens: prefer `brandcolor-*` colors
   (e.g. text-brandcolor-textstrong, text-brandcolor-textweak, bg-brandcolor-white, bg-brandcolor-fill,
   border-brandcolor-strokeweak, bg-brandcolor-primary, rounded-lg, shadow-card) and spacing from the theme.
+- **Spacing tokens (mandatory for layout rhythm):** use theme.extend.spacing keys only — micro, tight, cozy, section, hero, inline
+  as in gap-micro, p-cozy, px-section, space-x-micro, space-y-tight. For card shells described as compact/default/comfy padding,
+  prefer p-card-pad-compact, p-card-pad-default, p-card-pad-comfy; inner card stacks: gap-card-gap-tight, gap-card-gap-default, gap-card-gap-loose.
+  Wrong: gap-2, space-x-2, p-4, m-6 (default Tailwind scale) when the user asked for hairline/dense/cozy/section-style rhythm — those do not track :root --space-*.
 - Reuse patterns from the theme guide when applicable (card-like surfaces: rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white).
 - Do **not** use arbitrary hex colors in `class` attributes; stick to the token names above.
 

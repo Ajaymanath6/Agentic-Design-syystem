@@ -23,8 +23,13 @@ from google.genai.types import HttpOptions
 from pydantic import BaseModel, Field, ValidationError
 
 from canvas_html_generate import (
+    MAX_HTML_OUTPUT_CHARS,
     build_canvas_html_contents,
     parse_html_generate_response,
+)
+from canvas_html_spacing_pass import (
+    build_spacing_fix_contents,
+    parse_spacing_fix_json,
 )
 from canvas_plan import (
     CanvasPlanPromptBody,
@@ -310,6 +315,17 @@ def canvas_plan(body: CanvasPlanPromptBody) -> dict[str, Any]:
     return _canvas_plan_impl(body)
 
 
+def _genai_response_text(response: Any) -> str | None:
+    text = getattr(response, "text", None)
+    if text is None and getattr(response, "candidates", None):
+        try:
+            c0 = response.candidates[0]
+            text = c0.content.parts[0].text  # type: ignore[attr-defined]
+        except (IndexError, AttributeError, TypeError):
+            text = None
+    return text
+
+
 def _canvas_generate_html_impl(body: CanvasPlanPromptBody) -> dict[str, Any]:
     model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
     contents = build_canvas_html_contents(body)
@@ -323,23 +339,49 @@ def _canvas_generate_html_impl(body: CanvasPlanPromptBody) -> dict[str, Any]:
     except Exception as e:
         logger.exception("canvas_generate_html generate_content failed")
         raise HTTPException(status_code=502, detail=str(e)) from e
-    text = getattr(response, "text", None)
-    if text is None and getattr(response, "candidates", None):
-        try:
-            c0 = response.candidates[0]
-            text = c0.content.parts[0].text  # type: ignore[attr-defined]
-        except (IndexError, AttributeError, TypeError):
-            text = None
+    text = _genai_response_text(response)
     if not text:
         raise HTTPException(status_code=502, detail="Empty model response")
     try:
-        return parse_html_generate_response(text, body.prompt)
+        out = parse_html_generate_response(text, body.prompt)
     except ValueError as e:
         logger.warning("canvas_generate_html parse failed: %s", e)
         raise HTTPException(
             status_code=422,
             detail=f"Invalid or unsafe HTML from model: {e}",
         ) from e
+    html = str(out["html"])
+    title = str(out["title"])
+    if body.spacing_enforcement:
+        max_in = int(
+            (os.environ.get("CANVAS_HTML_SPACING_PASS_MAX_CHARS") or "14000").strip()
+            or "14000"
+        )
+        if len(html) > max_in:
+            logger.warning(
+                "spacing enforcement skipped: html length %s > %s",
+                len(html),
+                max_in,
+            )
+        else:
+            try:
+                fix_model = os.environ.get("VERTEX_SPACING_FIX_MODEL", "").strip() or model
+                fix_contents = build_spacing_fix_contents(body.prompt, html)
+                fix_resp = client.models.generate_content(
+                    model=fix_model, contents=fix_contents
+                )
+                fix_text = _genai_response_text(fix_resp)
+                if fix_text:
+                    fixed = parse_spacing_fix_json(fix_text, MAX_HTML_OUTPUT_CHARS)
+                    if fixed:
+                        html = fixed
+                    else:
+                        logger.warning(
+                            "spacing enforcement pass: invalid JSON or html; keeping pass 1"
+                        )
+            except Exception as e:
+                logger.warning("spacing enforcement pass failed: %s", e)
+    return {"html": html, "title": title}
 
 
 @app.post("/canvas/generate-html")

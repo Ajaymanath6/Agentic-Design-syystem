@@ -100,6 +100,23 @@
     --fw-theme-semibold: 600;
     --fw-theme-bold: 700;
     /* @agentic-theme-typography-end */
+
+    /* @agentic-theme-spacing-start */
+    --space-micro: 0.25rem;
+    --space-tight: 0.5rem;
+    --space-cozy: 1rem;
+    --space-section: 1.5rem;
+    --space-hero: 2rem;
+    --space-inline: 0.75rem;
+    /* @agentic-theme-spacing-end */
+
+    /* Card semantic spacing — aliases to --space-* (see theme-card-spacing-semantics.ts) */
+    --card-padding-compact: var(--space-inline);
+    --card-padding-default: var(--space-cozy);
+    --card-padding-comfy: var(--space-section);
+    --card-gap-tight: var(--space-tight);
+    --card-gap-default: var(--space-inline);
+    --card-gap-loose: var(--space-cozy);
   }
 
   body {
@@ -120,7 +137,7 @@
     -webkit-appearance: none;
     appearance: none;
     background-image: none;
-    @apply inline-flex items-center justify-center rounded-md border-0 px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary active:shadow-button-press focus:outline-none focus:ring-0;
+    @apply inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md border-0 px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary active:shadow-button-press focus:outline-none focus:ring-0;
   }
   button.canvas-primary-button:hover,
   .canvas-primary-button:hover,
@@ -144,7 +161,7 @@
     -webkit-appearance: none;
     appearance: none;
     background-image: none;
-    @apply inline-flex items-center justify-center rounded-md border-0 px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-secondary active:shadow-button-press focus:outline-none focus:ring-0;
+    @apply inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md border-0 px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-secondary active:shadow-button-press focus:outline-none focus:ring-0;
   }
   button.canvas-secondary-button:hover,
   .canvas-secondary-button:hover,
@@ -167,7 +184,7 @@
     -webkit-appearance: none;
     appearance: none;
     background-image: none;
-    @apply inline-flex items-center justify-center rounded-md border border-1.5 border-brandcolor-strokeweak bg-brandcolor-white px-4 py-2 text-sm font-medium text-brandcolor-textstrong active:shadow-border-inset-strokelight focus:outline-none focus:ring-0;
+    @apply inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-1.5 border-brandcolor-strokeweak bg-brandcolor-white px-4 py-2 text-sm font-medium text-brandcolor-textstrong active:shadow-border-inset-strokelight focus:outline-none focus:ring-0;
   }
   button.canvas-neutral-button:hover,
   .canvas-neutral-button:hover,

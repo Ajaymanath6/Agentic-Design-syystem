@@ -1,5 +1,6 @@
 import {
   RiFontSize,
+  RiLayoutGridLine,
   RiPaletteLine,
   RiShadowLine,
 } from '@remixicon/react'
@@ -20,7 +21,7 @@ function subLinkClass(isActive: boolean) {
 
 /**
  * Sidebar for theme routes: brand, “Theme configuration” heading, section links
- * (Colors / Typography / Shadows), then Catalog vs Canvas (`ViewModeToggle`).
+ * (Colors / Typography / Shadows / Spacing), then Catalog vs Canvas (`ViewModeToggle`).
  */
 export function ThemeConfigSidebar() {
   const { pathname } = useLocation()
@@ -80,6 +81,19 @@ export function ThemeConfigSidebar() {
                 aria-hidden
               />
               Shadows
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/catalog/theme/spacing"
+              className={({ isActive }) => subLinkClass(isActive)}
+              aria-current={pathname === '/catalog/theme/spacing' ? 'page' : undefined}
+            >
+              <RiLayoutGridLine
+                className="size-[18px] shrink-0 text-brandcolor-strokestrong"
+                aria-hidden
+              />
+              Spacing
             </NavLink>
           </li>
         </ul>

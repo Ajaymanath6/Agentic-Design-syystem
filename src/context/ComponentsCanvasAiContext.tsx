@@ -36,6 +36,8 @@ const EXTENDED_DESIGN_CONTEXT_STORAGE_KEY =
 
 const COMPONENTS_CANVAS_AI_MODE_KEY = 'components-canvas-ai-mode'
 
+const SPACING_ENFORCEMENT_STORAGE_KEY = 'components-canvas-spacing-enforcement'
+
 /** Backend requires non-empty prompt; used when the user only picked canvas refs (no typed text). */
 const REF_ONLY_PROMPT_FALLBACK =
   'Use the referenced canvas blocks as context.'
@@ -63,6 +65,9 @@ export type ComponentsCanvasAiContextValue = {
   canvasPlanChatMessages: CanvasPlanChatMessage[]
   extendedDesignContext: boolean
   setExtendedDesignContext: (v: boolean) => void
+  /** HTML creator: second Vertex pass for theme spacing class alignment (extra latency/cost). */
+  spacingEnforcement: boolean
+  setSpacingEnforcement: (v: boolean) => void
   componentsPlanBusy: boolean
   componentsPlanError: string | null
   /** `plan` = JSON node plan (`/canvas/plan`). `htmlCreator` = HTML fragment (`/canvas/generate-html`). */
@@ -95,6 +100,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
     CanvasPlanChatMessage[]
   >([])
   const [extendedDesignContext, setExtendedDesignContextState] = useState(false)
+  const [spacingEnforcement, setSpacingEnforcementState] = useState(false)
   const [componentsPlanBusy, setComponentsPlanBusy] = useState(false)
   const [componentsPlanError, setComponentsPlanError] = useState<string | null>(
     null,
@@ -115,6 +121,10 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       if (m === 'htmlCreator' || m === 'plan') {
         setComponentsCanvasAiModeState(m)
       }
+      const se = sessionStorage.getItem(SPACING_ENFORCEMENT_STORAGE_KEY)
+      if (se === '1' || se === 'true') {
+        setSpacingEnforcementState(true)
+      }
     } catch {
       /* ignore */
     }
@@ -133,6 +143,15 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
     setExtendedDesignContextState(v)
     try {
       sessionStorage.setItem(EXTENDED_DESIGN_CONTEXT_STORAGE_KEY, v ? '1' : '0')
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
+  const setSpacingEnforcement = useCallback((v: boolean) => {
+    setSpacingEnforcementState(v)
+    try {
+      sessionStorage.setItem(SPACING_ENFORCEMENT_STORAGE_KEY, v ? '1' : '0')
     } catch {
       /* ignore */
     }
@@ -205,6 +224,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
                   }))
                 : undefined,
             extended_design_context: extendedDesignContext,
+            spacing_enforcement: spacingEnforcement,
             canvas_references: canvasRefs,
           })
           if (planGenRef.current !== gen) {
@@ -306,6 +326,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       componentsCanvasAiMode,
       componentsCanvasAddAsNewInstead,
       extendedDesignContext,
+      spacingEnforcement,
     ],
   )
 
@@ -318,6 +339,8 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       canvasPlanChatMessages,
       extendedDesignContext,
       setExtendedDesignContext,
+      spacingEnforcement,
+      setSpacingEnforcement,
       componentsPlanBusy,
       componentsPlanError,
       componentsCanvasAiMode,
@@ -331,6 +354,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       componentsPromptDraft,
       canvasPlanChatMessages,
       extendedDesignContext,
+      spacingEnforcement,
       componentsPlanBusy,
       componentsPlanError,
       componentsCanvasAiMode,
@@ -338,6 +362,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       componentsCanvasAddAsNewInstead,
       submitComponentsPrompt,
       setExtendedDesignContext,
+      setSpacingEnforcement,
     ],
   )
 

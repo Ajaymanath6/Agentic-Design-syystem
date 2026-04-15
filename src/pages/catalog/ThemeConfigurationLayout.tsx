@@ -21,6 +21,11 @@ import {
   type ShadowTokenKey,
 } from '../../config/theme-shadow-defaults'
 import {
+  SPACING_DEFAULTS,
+  SPACING_KEYS,
+  type SpacingTokenKey,
+} from '../../config/theme-spacing-defaults'
+import {
   TYPOGRAPHY_DEFAULTS,
   TYPOGRAPHY_KEYS,
   type TypographyTokenKey,
@@ -33,15 +38,23 @@ import {
 } from '../../lib/theme-color-overrides'
 import {
   applyShadowValuesToDocument,
+  applySpacingValuesToDocument,
   applyTypographyValuesToDocument,
   clearThemeShadowOverrides,
+  clearThemeSpacingOverrides,
   clearThemeTypographyOverrides,
   loadThemeShadowOverrides,
+  loadThemeSpacingOverrides,
   loadThemeTypographyOverrides,
   saveThemeShadowOverridesDiffFromDefaults,
+  saveThemeSpacingOverridesDiffFromDefaults,
   saveThemeTypographyOverridesDiffFromDefaults,
 } from '../../lib/theme-token-overrides'
-import { validateShadowValue, validateTypographyValue } from '../../lib/theme-token-validation'
+import {
+  validateShadowValue,
+  validateSpacingValue,
+  validateTypographyValue,
+} from '../../lib/theme-token-validation'
 import { postThemeSyncToProject } from '../../services/publish-workflow'
 import type { EditingTypoPair, ThemeEditorOutletContext } from './theme/types'
 import { ThemeTypographyFsLhEditor } from './theme/ThemeTypographyWidgets'
@@ -68,6 +81,15 @@ function buildInitialTypographyMap(): Record<TypographyTokenKey, string> {
   const next: Record<TypographyTokenKey, string> = { ...TYPOGRAPHY_DEFAULTS }
   const over = loadThemeTypographyOverrides()
   for (const k of TYPOGRAPHY_KEYS) {
+    if (over[k]) next[k] = over[k]!
+  }
+  return next
+}
+
+function buildInitialSpacingMap(): Record<SpacingTokenKey, string> {
+  const next: Record<SpacingTokenKey, string> = { ...SPACING_DEFAULTS }
+  const over = loadThemeSpacingOverrides()
+  for (const k of SPACING_KEYS) {
     if (over[k]) next[k] = over[k]!
   }
   return next
@@ -109,6 +131,17 @@ function mergeValidTypographyMap(
   return merged
 }
 
+function mergeValidSpacingMap(
+  source: Record<SpacingTokenKey, string>,
+): Record<SpacingTokenKey, string> {
+  const merged: Record<SpacingTokenKey, string> = { ...SPACING_DEFAULTS }
+  for (const k of SPACING_KEYS) {
+    const ok = validateSpacingValue(source[k] ?? SPACING_DEFAULTS[k])
+    if (ok) merged[k] = ok
+  }
+  return merged
+}
+
 function downloadJson(filename: string, data: unknown) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: 'application/json',
@@ -123,7 +156,7 @@ function downloadJson(filename: string, data: unknown) {
 
 /**
  * Theme editor shell: left `ThemeConfigSidebar`, right main with header, toolbar, and
- * nested routes (`colors` | `typography` | `shadows`).
+ * nested routes (`colors` | `typography` | `shadows` | `spacing`).
  */
 export function ThemeConfigurationLayout() {
   const [hexByKey, setHexByKey] = useState<Record<BrandColorKey, string>>(
@@ -134,6 +167,9 @@ export function ThemeConfigurationLayout() {
   )
   const [typoByKey, setTypoByKey] = useState<Record<TypographyTokenKey, string>>(
     buildInitialTypographyMap,
+  )
+  const [spacingByKey, setSpacingByKey] = useState<Record<SpacingTokenKey, string>>(
+    buildInitialSpacingMap,
   )
   const [editingTypoPair, setEditingTypoPair] = useState<EditingTypoPair | null>(
     null,
@@ -240,19 +276,39 @@ export function ThemeConfigurationLayout() {
     [bumpDirty],
   )
 
+  const setSpacing = useCallback(
+    (key: SpacingTokenKey, value: string) => {
+      setSpacingByKey((prev) => ({ ...prev, [key]: value }))
+      bumpDirty()
+    },
+    [bumpDirty],
+  )
+
+  const resetSpacingKey = useCallback(
+    (key: SpacingTokenKey) => {
+      setSpacingByKey((prev) => ({ ...prev, [key]: SPACING_DEFAULTS[key] }))
+      bumpDirty()
+    },
+    [bumpDirty],
+  )
+
   const resetAll = useCallback(() => {
     clearThemeColorOverrides()
     clearThemeShadowOverrides()
     clearThemeTypographyOverrides()
+    clearThemeSpacingOverrides()
     const colors: Record<BrandColorKey, string> = { ...BRAND_COLOR_DEFAULTS }
     const shadows: Record<ShadowTokenKey, string> = { ...SHADOW_DEFAULTS }
     const typo: Record<TypographyTokenKey, string> = { ...TYPOGRAPHY_DEFAULTS }
+    const spacing: Record<SpacingTokenKey, string> = { ...SPACING_DEFAULTS }
     setHexByKey(colors)
     setShadowByKey(shadows)
     setTypoByKey(typo)
+    setSpacingByKey(spacing)
     applyBrandColorsFromHexMap(colors)
     applyShadowValuesToDocument({})
     applyTypographyValuesToDocument({})
+    applySpacingValuesToDocument({})
     setSaveHint('Reset to defaults (all browser overrides cleared).')
     setDiskHint(null)
     setDiskError(null)
@@ -262,19 +318,23 @@ export function ThemeConfigurationLayout() {
     const mergedColors = mergeValidHexMap(hexByKey)
     const mergedShadows = mergeValidShadowMap(shadowByKey)
     const mergedTypo = mergeValidTypographyMap(typoByKey)
+    const mergedSpacing = mergeValidSpacingMap(spacingByKey)
     setHexByKey(mergedColors)
     setShadowByKey(mergedShadows)
     setTypoByKey(mergedTypo)
+    setSpacingByKey(mergedSpacing)
     saveThemeColorOverridesDiffFromDefaults(mergedColors)
     saveThemeShadowOverridesDiffFromDefaults(mergedShadows)
     saveThemeTypographyOverridesDiffFromDefaults(mergedTypo)
+    saveThemeSpacingOverridesDiffFromDefaults(mergedSpacing)
     applyBrandColorsFromHexMap(mergedColors)
     applyShadowValuesToDocument(mergedShadows)
     applyTypographyValuesToDocument(mergedTypo)
+    applySpacingValuesToDocument(mergedSpacing)
     setSaveHint(
-      'Saved for this browser (colors, shadows, typography). Use Save to project files to write repo markers.',
+      'Saved for this browser (colors, shadows, typography, spacing). Use Save to project files to write repo markers.',
     )
-  }, [hexByKey, shadowByKey, typoByKey])
+  }, [hexByKey, shadowByKey, typoByKey, spacingByKey])
 
   const saveToProject = useCallback(async () => {
     setDiskBusy(true)
@@ -284,16 +344,25 @@ export function ThemeConfigurationLayout() {
       const mergedColors = mergeValidHexMap(hexByKey)
       const mergedShadows = mergeValidShadowMap(shadowByKey)
       const mergedTypo = mergeValidTypographyMap(typoByKey)
+      const mergedSpacing = mergeValidSpacingMap(spacingByKey)
       setHexByKey(mergedColors)
       setShadowByKey(mergedShadows)
       setTypoByKey(mergedTypo)
+      setSpacingByKey(mergedSpacing)
       const colors: Record<string, string> = {}
       for (const k of BRAND_COLOR_KEYS) colors[k] = mergedColors[k]
       const shadows: Record<string, string> = {}
       for (const k of SHADOW_KEYS) shadows[k] = mergedShadows[k]
       const typography: Record<string, string> = {}
       for (const k of TYPOGRAPHY_KEYS) typography[k] = mergedTypo[k]
-      const res = await postThemeSyncToProject({ colors, shadows, typography })
+      const spacing: Record<string, string> = {}
+      for (const k of SPACING_KEYS) spacing[k] = mergedSpacing[k]
+      const res = await postThemeSyncToProject({
+        colors,
+        shadows,
+        typography,
+        spacing,
+      })
       setDiskHint(
         `Wrote ${res.written.join(', ')}. Reload if hot module update did not pick up changes.`,
       )
@@ -302,7 +371,7 @@ export function ThemeConfigurationLayout() {
     } finally {
       setDiskBusy(false)
     }
-  }, [hexByKey, shadowByKey, typoByKey])
+  }, [hexByKey, shadowByKey, typoByKey, spacingByKey])
 
   const exportJson = useCallback(() => {
     const colors: Record<string, string> = {}
@@ -311,8 +380,10 @@ export function ThemeConfigurationLayout() {
     for (const k of SHADOW_KEYS) shadows[k] = shadowByKey[k]
     const typography: Record<string, string> = {}
     for (const k of TYPOGRAPHY_KEYS) typography[k] = typoByKey[k]
-    downloadJson('theme-config.json', { colors, shadows, typography })
-  }, [hexByKey, shadowByKey, typoByKey])
+    const spacing: Record<string, string> = {}
+    for (const k of SPACING_KEYS) spacing[k] = spacingByKey[k]
+    downloadJson('theme-config.json', { colors, shadows, typography, spacing })
+  }, [hexByKey, shadowByKey, typoByKey, spacingByKey])
 
   const typoFwKeys = useMemo(
     () => TYPOGRAPHY_KEYS.filter((k) => k.startsWith('fw-theme-')),
@@ -327,6 +398,9 @@ export function ThemeConfigurationLayout() {
       shadowByKey,
       setShadow,
       resetShadowKey,
+      spacingByKey,
+      setSpacing,
+      resetSpacingKey,
       typoByKey,
       setTypo,
       resetTypoKey,
@@ -345,6 +419,9 @@ export function ThemeConfigurationLayout() {
       shadowByKey,
       setShadow,
       resetShadowKey,
+      spacingByKey,
+      setSpacing,
+      resetSpacingKey,
       typoByKey,
       setTypo,
       resetTypoKey,

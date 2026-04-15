@@ -8,9 +8,11 @@
  * Components canvas **productSidebar** (plan v2): icons only from the fixed enum maps in TS — same Remix package, no ad-hoc glyph names from the LLM.
  * Canvas **htmlSnippet** (raw HTML): use `<i class="ri-name-line">` webfont classes; `index.html` loads remixicon.css (see theme-guide icons.canvasHtmlFragmentWebfont).
  *
- * **Theme configuration (Typography + Shadows + Colors):** compact rows use `bg-brandcolor-fill` and
+ * **Theme configuration (Typography + Shadows + Spacing + Colors):** compact rows use `bg-brandcolor-fill` and
  * `hover:bg-brandcolor-strokelight`. Text fields / modal textareas / color hex inputs: `border-brandcolor-strokeweak`,
- * `hover:bg-brandcolor-fill`, `focus:border-brandcolor-primary` (or `focus-within:border-brandcolor-primary` on wrappers). See theme-guide.json → componentGuidelines.themeConfigurationTypography, themeConfigurationShadows, themeConfigurationColors.
+ * `hover:bg-brandcolor-fill`, `focus:border-brandcolor-primary` (or `focus-within:border-brandcolor-primary` on wrappers). See theme-guide.json → componentGuidelines.themeConfigurationTypography, themeConfigurationShadows, themeConfigurationSpacing, themeConfigurationColors.
+ * **Spacing:** primitives `micro`…`inline` map to `--space-*`; card aliases `card-pad-*` / `card-gap-*` map to `--card-padding-*` / `--card-gap-*` (aliases to `--space-*` on `:root`). Source: `src/config/theme-card-spacing-semantics.ts`.
+ * **Theme > Spacing page order (mirror in theme-guide):** intro → card semantic aliases → how spacing works → quick reference → edit rows. Prose for models: theme-guide.json → componentGuidelines.themeConfigurationSpacing (panelIntro, cardSemanticAliases, howSpacingWorks, quickReferenceIntro, editTokensIntro).
  */
 export default {
   content: [
@@ -199,6 +201,22 @@ export default {
         'button-brand-glow': 'var(--shadow-button-brand-glow)',
       },
       /* @agentic-theme-shadows-tw-end */
+      /* @agentic-theme-spacing-tw-start — primitives `--space-*`; card aliases `--card-padding-*` / `--card-gap-*` */
+      spacing: {
+        micro: 'var(--space-micro)', // :root --space-micro
+        tight: 'var(--space-tight)', // :root --space-tight
+        cozy: 'var(--space-cozy)', // :root --space-cozy
+        section: 'var(--space-section)', // :root --space-section
+        hero: 'var(--space-hero)', // :root --space-hero
+        inline: 'var(--space-inline)', // :root --space-inline
+        'card-pad-compact': 'var(--card-padding-compact)', // alias → --space-inline
+        'card-pad-default': 'var(--card-padding-default)', // alias → --space-cozy
+        'card-pad-comfy': 'var(--card-padding-comfy)', // alias → --space-section
+        'card-gap-tight': 'var(--card-gap-tight)', // alias → --space-tight
+        'card-gap-default': 'var(--card-gap-default)', // alias → --space-inline
+        'card-gap-loose': 'var(--card-gap-loose)', // alias → --space-cozy
+      },
+      /* @agentic-theme-spacing-tw-end */
       borderWidth: {
         1.5: '1.5px',
       },

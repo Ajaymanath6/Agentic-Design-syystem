@@ -34,8 +34,8 @@ const secondaryPublishClasses =
 const NEUTRAL_CANVAS_BUTTON_PUBLISH_CLASSES =
   'inline-flex items-center justify-center rounded-md border border-1.5 border-brandcolor-strokeweak bg-brandcolor-white px-4 py-2 text-sm font-medium text-brandcolor-textstrong hover:bg-brandcolor-strokelight active:shadow-border-inset-strokelight focus:outline-none focus:ring-0 appearance-none'
 
-/** Published card width in `sourceHtml` (matches Components canvas card). */
-export const CANVAS_CARD_PUBLISH_WIDTH_PX = 280
+/** Published card width in `sourceHtml` (matches Components canvas card). Wide enough for a row of two CTAs without label wrap. */
+export const CANVAS_CARD_PUBLISH_WIDTH_PX = 400
 
 export type CanvasCardBlock = {
   kind: 'card'
