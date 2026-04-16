@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom'
+import { CanvasChromeProvider } from '../context/CanvasChromeContext'
 import { LayoutWorkspaceProvider } from '../context/LayoutWorkspaceContext'
 import { CanvasSidebar } from './CanvasSidebar'
 import { CatalogMainHeader } from './CatalogMainHeader'
@@ -13,7 +14,8 @@ export function CatalogLayout() {
     pathname.startsWith('/admin/canvas/')
 
   return (
-    <div className="flex h-dvh min-h-0 overflow-hidden bg-brandcolor-results-bg">
+    <CanvasChromeProvider>
+      <div className="flex h-dvh min-h-0 overflow-hidden bg-brandcolor-results-bg">
       {isAdminCanvas ? (
         <LayoutWorkspaceProvider>
           <CanvasSidebar />
@@ -37,6 +39,7 @@ export function CatalogLayout() {
           </main>
         </>
       )}
-    </div>
+      </div>
+    </CanvasChromeProvider>
   )
 }

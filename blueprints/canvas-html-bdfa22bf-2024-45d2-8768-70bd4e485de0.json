@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-bdfa22bf-2024-45d2-8768-70bd4e485de0",
+  "component": "div",
+  "importId": "CanvasHtmlBdfa22bf202445d2876870bd4e485de0Component",
+  "data": {
+    "imageUrl": "/generated/canvas-html-bdfa22bf-2024-45d2-8768-70bd4e485de0-thumbnail.png",
+    "imageAlt": "card",
+    "sealed": true,
+    "sourceHtml": "<div class=\"rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card p-card-pad-default\">\n  <div class=\"flex items-start space-x-micro\">\n    <i class=\"ri-star-line size-5 text-brandcolor-textstrong shrink-0\"></i>\n    <div>\n      <h3 class=\"font-sans text-base font-semibold text-brandcolor-textstrong\">Title</h3>\n      <p class=\"mt-micro text-sm text-brandcolor-textweak\">Subtitle</p>\n    </div>\n  </div>\n</div>"
+  }
+}

@@ -1,7 +1,27 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-15T07:24:17.056Z",
+  "lastUpdated": "2026-04-16T12:36:28.981Z",
   "components": [
+    {
+      "id": "canvas-html-bdfa22bf-2024-45d2-8768-70bd4e485de0",
+      "publishedAt": "2026-04-16T12:14:45.708Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "CanvasHtmlBdfa22bf202445d2876870bd4e485de0Component",
+      "thumbnailPath": "/generated/canvas-html-bdfa22bf-2024-45d2-8768-70bd4e485de0-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-html-bdfa22bf-2024-45d2-8768-70bd4e485de0.json",
+      "kind": "component"
+    },
+    {
+      "id": "canvas-secondary-24ea8d89-bc7d-4f45-b052-b6f6b31d999a",
+      "publishedAt": "2026-04-16T12:06:57.074Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "CanvasSecondary24ea8d89Bc7d4f45B052B6f6b31d999aComponent",
+      "thumbnailPath": "/generated/canvas-secondary-24ea8d89-bc7d-4f45-b052-b6f6b31d999a-thumbnail.png",
+      "blueprintPath": "/blueprints/canvas-secondary-24ea8d89-bc7d-4f45-b052-b6f6b31d999a.json",
+      "kind": "component"
+    },
     {
       "id": "layout-1o4ytd8",
       "publishedAt": "2026-04-08T13:25:46.634Z",

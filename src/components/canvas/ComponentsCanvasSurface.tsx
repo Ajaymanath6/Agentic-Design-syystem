@@ -14,6 +14,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 
+import { useCanvasChrome } from '../../context/CanvasChromeContext'
 import { useComponentsCanvasAi } from '../../context/ComponentsCanvasAiContext'
 import { useCatalogRefresh } from '../../context/CatalogRefreshContext'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
@@ -23,6 +24,11 @@ import {
   loadCanvasNodesFromStorage,
   persistCanvasNodesToStorage,
 } from '../../lib/canvas-board-storage'
+import {
+  loadCanvasFramesFromStorage,
+  persistCanvasFramesToStorage,
+  type CanvasFrame,
+} from '../../lib/canvas-frames-storage'
 import {
   HTML_SNIPPET_BLOCK_H,
   HTML_SNIPPET_BLOCK_W,
@@ -48,6 +54,10 @@ import {
 } from '../../services/publish-workflow'
 import { CanvasProductSidebarPreview } from './CanvasProductSidebarPreview'
 import { CanvasPublishModal } from './CanvasPublishModal'
+import {
+  CanvasFloatingTools,
+  type CanvasFloatingTool,
+} from './CanvasFloatingTools'
 import { ComponentsCanvasPromptPanel } from './ComponentsCanvasPromptPanel'
 import { CanvasWorldBlock } from './CanvasWorldBlock'
 
@@ -62,6 +72,8 @@ const VIEWPORT_GRID_STYLE: CSSProperties = {
 
 const WORLD_W = 3200
 const WORLD_H = 2400
+/** Minimum width/height for a committed frame (world px). */
+const MIN_FRAME_PX = 4
 const SCALE_MIN = 0.2
 const SCALE_MAX = 2.5
 const ZOOM_STEP = 1.12
@@ -96,6 +108,32 @@ function nodeSize(n: CanvasNode): { w: number; h: number } {
     return { w: CANVAS_CARD_W, h: CANVAS_CONFIRM_PW_H }
   }
   return { w: CANVAS_CARD_W, h: CANVAS_CARD_H }
+}
+
+function clientToWorld(
+  clientX: number,
+  clientY: number,
+  viewport: HTMLDivElement,
+  tx: number,
+  ty: number,
+  scale: number,
+): { x: number; y: number } {
+  const r = viewport.getBoundingClientRect()
+  return {
+    x: (clientX - r.left - tx) / scale,
+    y: (clientY - r.top - ty) / scale,
+  }
+}
+
+function normalizeWorldRect(
+  a: { x: number; y: number },
+  b: { x: number; y: number },
+): { x: number; y: number; w: number; h: number } {
+  const x1 = Math.min(a.x, b.x)
+  const y1 = Math.min(a.y, b.y)
+  const x2 = Math.max(a.x, b.x)
+  const y2 = Math.max(a.y, b.y)
+  return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 }
 }
 
 /** Pan/zoom the viewport so these world nodes are framed (after AI append). */
@@ -325,6 +363,7 @@ function CanvasHtmlSnippetScrollBody({
 
 /** Canvas: grid on viewport; pan on stage — Space+drag or middle mouse. */
 export function ComponentsCanvasSurface() {
+  const { setBlockCount } = useCanvasChrome()
   const { refreshCatalog } = useCatalogRefresh()
   const {
     componentsPromptDraft,
@@ -362,6 +401,21 @@ export function ComponentsCanvasSurface() {
       ),
     )
   })
+  const [canvasFrames, setCanvasFrames] = useState<CanvasFrame[]>(() =>
+    loadCanvasFramesFromStorage(),
+  )
+  const [canvasTool, setCanvasTool] = useState<CanvasFloatingTool>('select')
+  const [frameDragPreview, setFrameDragPreview] = useState<{
+    x: number
+    y: number
+    w: number
+    h: number
+  } | null>(null)
+  const frameDragRef = useRef<{
+    pointerId: number
+    start: { x: number; y: number }
+    current: { x: number; y: number }
+  } | null>(null)
   const { cards } = useCatalogCards()
   const publishedCatalogIds = useMemo(() => {
     const next = new Set<string>()
@@ -372,6 +426,12 @@ export function ComponentsCanvasSurface() {
     }
     return next
   }, [cards])
+
+  useEffect(() => {
+    setBlockCount(nodes.length)
+    return () => setBlockCount(0)
+  }, [nodes.length, setBlockCount])
+
   const [tx, setTx] = useState(0)
   const [ty, setTy] = useState(0)
   const [scale, setScale] = useState(0.55)
@@ -421,6 +481,14 @@ export function ComponentsCanvasSurface() {
     const t = window.setTimeout(() => persistCanvasNodesToStorage(nodes), 400)
     return () => window.clearTimeout(t)
   }, [nodes])
+
+  useEffect(() => {
+    const t = window.setTimeout(
+      () => persistCanvasFramesToStorage(canvasFrames),
+      400,
+    )
+    return () => window.clearTimeout(t)
+  }, [canvasFrames])
 
   /**
    * Remove `canvas-*` catalog rows that do not match any block still on this board.
@@ -626,6 +694,80 @@ export function ComponentsCanvasSurface() {
     }
     panRef.current = null
   }
+
+  const endFrameDrag = useCallback((e: ReactPointerEvent) => {
+    const fd = frameDragRef.current
+    if (!fd || e.pointerId !== fd.pointerId) return
+    try {
+      viewportRef.current?.releasePointerCapture(e.pointerId)
+    } catch {
+      /* ignore */
+    }
+    const r = normalizeWorldRect(fd.start, fd.current)
+    frameDragRef.current = null
+    setFrameDragPreview(null)
+    if (r.w >= MIN_FRAME_PX && r.h >= MIN_FRAME_PX) {
+      setCanvasFrames((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), ...r },
+      ])
+    }
+  }, [])
+
+  const onFramePointerMove = useCallback((e: ReactPointerEvent) => {
+    const fd = frameDragRef.current
+    if (!fd || e.pointerId !== fd.pointerId) return
+    const vp = viewportRef.current
+    if (!vp) return
+    const st = stageRef.current
+    const cur = clientToWorld(
+      e.clientX,
+      e.clientY,
+      vp,
+      st.tx,
+      st.ty,
+      st.scale,
+    )
+    fd.current = cur
+    setFrameDragPreview(normalizeWorldRect(fd.start, cur))
+  }, [])
+
+  const onFrameHitPointerDown = useCallback((e: ReactPointerEvent) => {
+    if (e.button !== 0) return
+    if (spaceDownRef.current) return
+    if (canvasTool !== 'frame') return
+    e.preventDefault()
+    e.stopPropagation()
+    const vp = viewportRef.current
+    if (!vp) return
+    const st = stageRef.current
+    const w = clientToWorld(
+      e.clientX,
+      e.clientY,
+      vp,
+      st.tx,
+      st.ty,
+      st.scale,
+    )
+    frameDragRef.current = {
+      pointerId: e.pointerId,
+      start: w,
+      current: w,
+    }
+    setFrameDragPreview({ x: w.x, y: w.y, w: 0, h: 0 })
+    try {
+      vp.setPointerCapture(e.pointerId)
+    } catch {
+      /* ignore */
+    }
+  }, [canvasTool])
+
+  const focusPromptComposer = useCallback(() => {
+    setCanvasTool('select')
+    window.setTimeout(() => {
+      document.getElementById('components-canvas-ai-prompt')?.focus()
+    }, 0)
+  }, [])
 
   const onNodeBodyPointerDown = (e: ReactPointerEvent, id: string) => {
     if (e.button !== 0) return
@@ -879,17 +1021,6 @@ export function ComponentsCanvasSurface() {
 
   return (
     <div className="relative flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden bg-brandcolor-fill">
-      <div
-        className="flex shrink-0 items-center justify-center border-b border-brandcolor-strokeweak bg-brandcolor-white px-3 py-1"
-        role="status"
-        aria-live="polite"
-        aria-label={`${nodes.length} UI block${nodes.length === 1 ? '' : 's'} on canvas`}
-      >
-        <span className="text-[11px] font-medium tabular-nums text-brandcolor-textweak">
-          <span className="text-brandcolor-textstrong">{nodes.length}</span>
-          {nodes.length === 1 ? ' block' : ' blocks'} on canvas
-        </span>
-      </div>
       {publishSuccessMessage ? (
         <div
           role="status"
@@ -1074,20 +1205,68 @@ export function ComponentsCanvasSurface() {
         aria-label="Canvas — drag blocks to move; Space or middle mouse to pan"
         data-canvas-viewport
         onPointerMove={(e) => {
+          if (frameDragRef.current) onFramePointerMove(e)
           if (panRef.current) onPanPointerMove(e)
         }}
         onPointerUp={(e) => {
+          if (frameDragRef.current) endFrameDrag(e)
           if (panRef.current) endPan(e)
         }}
         onPointerCancel={(e) => {
+          if (frameDragRef.current) endFrameDrag(e)
           if (panRef.current) endPan(e)
         }}
       >
+        <div className="pointer-events-auto absolute left-4 top-4 z-40">
+          <CanvasFloatingTools
+            activeTool={canvasTool}
+            onToolChange={setCanvasTool}
+            onPromptFocus={focusPromptComposer}
+          />
+        </div>
         <div
           className="absolute inset-0"
           style={transformStyle}
           onPointerDown={onPanPointerDown}
         >
+          <div
+            className="pointer-events-none absolute left-0 top-0 z-[1]"
+            style={{ width: WORLD_W, height: WORLD_H }}
+          >
+            {canvasFrames.map((f) => (
+              <div
+                key={f.id}
+                className="absolute rounded-sm border border-dashed border-brandcolor-primary/70 bg-transparent"
+                style={{
+                  left: f.x,
+                  top: f.y,
+                  width: f.w,
+                  height: f.h,
+                }}
+              />
+            ))}
+            {frameDragPreview != null &&
+            frameDragPreview.w > 0 &&
+            frameDragPreview.h > 0 ? (
+              <div
+                className="absolute rounded-sm border border-brandcolor-primary bg-brandcolor-primary/10"
+                style={{
+                  left: frameDragPreview.x,
+                  top: frameDragPreview.y,
+                  width: frameDragPreview.w,
+                  height: frameDragPreview.h,
+                }}
+              />
+            ) : null}
+          </div>
+          {canvasTool === 'frame' ? (
+            <div
+              className="absolute left-0 top-0 z-[3] cursor-crosshair"
+              style={{ width: WORLD_W, height: WORLD_H }}
+              onPointerDown={onFrameHitPointerDown}
+              aria-hidden
+            />
+          ) : null}
           {nodes.map((n) => {
             const published = publishedCatalogIds.has(
               componentCatalogIdForCanvasNode(n),

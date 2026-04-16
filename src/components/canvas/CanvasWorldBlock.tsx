@@ -82,7 +82,7 @@ export function CanvasWorldBlock({
   return (
     <div
       ref={rootRef}
-      className={`group absolute z-[2] min-w-0 ${
+      className={`group absolute z-10 min-w-0 ${
         clipShell ? 'overflow-hidden' : 'overflow-visible'
       } rounded-lg bg-brandcolor-white shadow-card ${blockShell}`}
       style={{ left: x, top: y, width }}
