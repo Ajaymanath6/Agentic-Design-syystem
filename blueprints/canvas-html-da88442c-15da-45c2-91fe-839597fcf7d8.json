@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-da88442c-15da-45c2-91fe-839597fcf7d8",
+  "component": "div",
+  "importId": "CanvasHtmlDa88442c15da45c291fe839597fcf7d8Component",
+  "data": {
+    "imageUrl": "/generated/canvas-html-da88442c-15da-45c2-91fe-839597fcf7d8-thumbnail.svg",
+    "imageAlt": "from",
+    "sealed": true,
+    "sourceHtml": "<section class=\"rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card p-card-pad-default\">\n  <h2 class=\"font-sans text-base font-semibold text-brandcolor-textstrong\">Form Title</h2>\n  <p class=\"mt-1 text-sm text-brandcolor-textweak\">Form Subtitle</p>\n  <form class=\"mt-cozy space-y-cozy\">\n    <div class=\"w-full\" style=\"width:400px;box-sizing:border-box\"><label for=\"text-field-id\" class=\"mb-1 block text-xs font-medium text-brandcolor-textstrong\">Text input field</label><input id=\"text-field-id\" type=\"text\" name=\"textInputField\" autocomplete=\"off\" class=\"text-field-canvas-input w-full\" placeholder=\"Type here…\" required=\"\"></div>\n    <div class=\"w-full\" style=\"width:400px;box-sizing:border-box\"><label for=\"confirm-pw-id\" class=\"mb-1 block text-xs font-medium text-brandcolor-textstrong\">Confirm password</label><input id=\"confirm-pw-id\" type=\"password\" name=\"confirmPassword\" autocomplete=\"new-password\" class=\"confirm-password-canvas-input w-full\" placeholder=\"••••••••\" required=\"\" minlength=\"8\"></div>\n  </form>\n</section>"
+  }
+}

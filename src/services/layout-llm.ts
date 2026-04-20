@@ -1,4 +1,5 @@
 import { LAYOUT_LLM_BASE_URL } from '../config/env'
+import type { LayoutHtmlGenerateRequest } from '../types/layout-html-request'
 import type { LayoutPlanV1 } from '../types/layout-plan'
 import { isLayoutPlanV1 } from '../types/layout-plan'
 
@@ -82,4 +83,51 @@ export async function callLayoutPlan(
     throw new Error('Invalid layout plan response')
   }
   return data.plan
+}
+
+export type LayoutGenerateHtmlResult = {
+  html: string
+  title: string
+}
+
+/**
+ * Generative HTML for layout workspace (sanitized again in the client before render).
+ */
+export async function callLayoutGenerateHtml(
+  body: LayoutHtmlGenerateRequest,
+): Promise<LayoutGenerateHtmlResult> {
+  const res = await fetch(`${LAYOUT_LLM_BASE_URL}/layout/generate-html`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      prompt: body.prompt,
+      catalogAllowlist: body.catalogAllowlist,
+      catalogReferenceBlocks: body.catalogReferenceBlocks?.length
+        ? body.catalogReferenceBlocks
+        : undefined,
+      extended_design_context: Boolean(body.extended_design_context),
+      spacing_enforcement: Boolean(body.spacing_enforcement),
+    }),
+  })
+  const data = (await res.json().catch(() => ({}))) as {
+    html?: string
+    title?: string
+    detail?: string | Array<{ msg?: string }>
+    error?: string
+  }
+  if (!res.ok) {
+    const extra = parseDetail(data)
+    throw new Error(
+      extra ? `Request failed (${res.status}): ${extra}` : `Request failed (${res.status})`,
+    )
+  }
+  const html = data.html
+  const title = data.title
+  if (typeof html !== 'string' || !html.trim()) {
+    throw new Error('Invalid layout HTML response')
+  }
+  if (typeof title !== 'string' || !title.trim()) {
+    throw new Error('Invalid layout HTML title')
+  }
+  return { html, title }
 }

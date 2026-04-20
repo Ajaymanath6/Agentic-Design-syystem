@@ -5,7 +5,7 @@ import { useLayoutWorkspace } from '../context/LayoutWorkspaceContext'
 import { SidebarBrandHeader } from './SidebarBrandHeader'
 import { SidebarDesignSystemNavLink } from './SidebarDesignSystemNavLink'
 import { ViewModeToggle } from './ViewModeToggle'
-import { WorkspacePromptComposer } from './workspace/WorkspacePromptComposer'
+import { LayoutPromptPanel } from './workspace/LayoutPromptPanel'
 
 const segBase =
   'flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-2 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brandcolor-strokeweak focus-visible:ring-offset-1 focus-visible:ring-offset-brandcolor-fill'
@@ -19,13 +19,7 @@ function CanvasSidebarInner() {
   const [searchParams, setSearchParams] = useSearchParams()
   const isLayout = searchParams.get('view') === 'layout'
 
-  const {
-    layoutPromptDraft,
-    setLayoutPromptDraft,
-    layoutPromptEntries,
-    layoutPlanBusy,
-    submitLayoutPrompt,
-  } = useLayoutWorkspace()
+  const { layoutPromptEntries } = useLayoutWorkspace()
 
   const setWorkspace = (next: 'components' | 'layout') => {
     setSearchParams(
@@ -87,15 +81,7 @@ function CanvasSidebarInner() {
 
       {isLayout ? (
         <div className="shrink-0 border-t border-brandcolor-strokeweak p-3">
-          <WorkspacePromptComposer
-            variant="sidebar"
-            textareaId="layout-workspace-prompt"
-            value={layoutPromptDraft}
-            onChange={setLayoutPromptDraft}
-            onSubmit={() => submitLayoutPrompt()}
-            busy={layoutPlanBusy}
-            placeholder="Ask…"
-          />
+          <LayoutPromptPanel />
         </div>
       ) : null}
 

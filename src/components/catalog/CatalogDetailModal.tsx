@@ -18,7 +18,9 @@ import {
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import { postDeleteComponent } from '../../services/publish-workflow'
 import { catalogCardDisplayName } from '../../lib/catalog-display-name'
+import { catalogCardSourceHtml } from '../../lib/catalog-source-html'
 import { CatalogDetailToolbarButton } from './CatalogDetailToolbarButton'
+import { CatalogSourceHtmlPreview } from './CatalogSourceHtmlPreview'
 
 type DetailPanel = 'image' | 'code' | 'blueprint'
 
@@ -83,10 +85,7 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
 
   const showLayoutDelete = isCatalogLayoutEntry(card.entry)
 
-  const sourceHtml =
-    card.blueprint?.data && typeof card.blueprint.data.sourceHtml === 'string'
-      ? card.blueprint.data.sourceHtml
-      : ''
+  const sourceHtml = catalogCardSourceHtml(card)
   const blueprintText = card.blueprint
     ? JSON.stringify(card.blueprint, null, 2)
     : card.loadError ?? 'Blueprint not loaded.'
@@ -180,15 +179,23 @@ export function CatalogDetailModal({ open, card, onClose }: Props) {
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-hidden">
           {panel === 'image' && (
             <div className="flex min-h-0 flex-1 flex-col px-5 py-4">
-              <div className="flex min-h-0 flex-1 items-center justify-center">
-                {thumbSrc ? (
+              <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto">
+                {sourceHtml.trim() ? (
+                  <div className="max-h-full max-w-full overflow-auto rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white p-6">
+                    <CatalogSourceHtmlPreview
+                      html={sourceHtml}
+                      label={title}
+                      className="max-w-full"
+                    />
+                  </div>
+                ) : thumbSrc ? (
                   <img
                     src={thumbSrc}
                     alt={catalogCardDisplayName(card)}
                     className="max-h-full max-w-full rounded-lg border border-brandcolor-strokeweak object-contain"
                   />
                 ) : (
-                  <p className="text-sm text-brandcolor-textweak">No thumbnail</p>
+                  <p className="text-sm text-brandcolor-textweak">No preview</p>
                 )}
               </div>
             </div>

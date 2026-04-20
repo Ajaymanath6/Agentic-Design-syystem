@@ -30,6 +30,8 @@ export type LayoutCatalogBlock = {
   layout: 'flow' | 'grid'
   grid?: { cols: number; rows: number }
   afterGap?: LayoutAfterGap
+  /** When set, preview/export wrap each cell with wireframe add/remove controls. */
+  cellToolbar?: 'addRemove'
 }
 
 /** Only chrome + catalog inside rows/splits (no nested containers). */

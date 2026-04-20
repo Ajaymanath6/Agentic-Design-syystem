@@ -108,4 +108,46 @@ describe('buildStructuredPreviewHtml', () => {
     expect(out).toContain('<span>a</span>')
     expect(out).toContain('<span>b</span>')
   })
+
+  it('wraps catalog cells with add/remove toolbar when cellToolbar is addRemove', () => {
+    const cards: CatalogCardModel[] = [
+      {
+        entry: {
+          id: 'demo-x',
+          importId: 'DemoX',
+          thumbnailPath: '',
+          blueprintPath: '',
+          publishedAt: '',
+          hasBlueprint: true,
+          apiEndpoint: null,
+        },
+        blueprint: {
+          schemaVersion: '1.0',
+          id: 'demo-x',
+          component: 'demo-x',
+          importId: 'DemoX',
+          data: {
+            sourceHtml: '<div class="p-1">Card</div>',
+          },
+        },
+      },
+    ]
+    const plan: LayoutPlanV1 = {
+      version: 1,
+      blocks: [
+        {
+          type: 'catalog',
+          ref: 'demo-x',
+          repeat: 1,
+          layout: 'flow',
+          cellToolbar: 'addRemove',
+        },
+      ],
+    }
+    const out = buildStructuredPreviewHtml(plan, cards)
+    expect(out).toContain('data-layout-cell-toolbar="add-remove"')
+    expect(out).toContain('aria-label="Add"')
+    expect(out).toContain('aria-label="Remove"')
+    expect(out).toContain('<div class="p-1">Card</div>')
+  })
 })

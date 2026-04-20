@@ -5,17 +5,19 @@ import type { ReactNode } from 'react'
  */
 export function CatalogDetailToolbarButton({
   label,
-  active,
+  active = false,
   onClick,
   ariaPressed,
   title,
+  disabled,
   children,
 }: {
   label: string
-  active: boolean
+  active?: boolean
   onClick: () => void
   ariaPressed?: boolean
   title?: string
+  disabled?: boolean
   children: ReactNode
 }) {
   return (
@@ -24,8 +26,9 @@ export function CatalogDetailToolbarButton({
       title={title ?? label}
       aria-label={label}
       aria-pressed={ariaPressed}
+      disabled={disabled}
       onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 ${
+      className={`inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
         active
           ? 'bg-brandcolor-fill text-brandcolor-textstrong'
           : 'text-brandcolor-textweak hover:bg-brandcolor-fill hover:text-brandcolor-textstrong'

@@ -221,7 +221,7 @@ export function persistCanvasNodesToStorage(nodes: CanvasNode[]) {
  * Catalog ids for blocks on the saved canvas board.
  * - `null`: no snapshot (key missing or invalid) — do not hide catalog rows from storage.
  * - `[]`: empty board array was saved (callers must not treat this as “prune everything”).
- * - non-empty: pass to `postPruneCanvasCatalog` only when intentional (e.g. canvas surface debounced prune).
+ * - `postPruneCanvasCatalog` is not called automatically from the canvas surface (see publish workflow / catalog UI for cleanup).
  */
 export function getCanvasCatalogKeepIdsFromLocalStorage(): string[] | null {
   try {

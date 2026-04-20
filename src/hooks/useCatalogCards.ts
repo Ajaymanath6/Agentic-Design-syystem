@@ -10,7 +10,7 @@ import type { CatalogCardModel } from '../types/catalog'
  * Loads every catalog row that has a blueprint. We do **not** hide `canvas-*` rows when the
  * current components-canvas board omits them — that cross-filter caused Published badges to flip
  * when board state and `_catalog.json` disagreed for a moment. Orphans are removed by
- * `postPruneCanvasCatalog` when blocks are deleted from the canvas.
+ * Block removal uses `postDeleteComponent` from the canvas UI; catalog pruning is not tied to every board sync.
  */
 export function useCatalogCards() {
   const { catalogVersion } = useCatalogRefresh()

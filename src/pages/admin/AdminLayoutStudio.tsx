@@ -1,4 +1,10 @@
-import { RiCodeSSlashLine, RiLoader4Line } from '@remixicon/react'
+import {
+  RiAddLine,
+  RiCodeSSlashLine,
+  RiDeleteBinLine,
+  RiLoader4Line,
+  RiUploadCloudLine,
+} from '@remixicon/react'
 import {
   Fragment,
   type ReactNode,
@@ -24,6 +30,7 @@ import {
   splitSidebarWidthClass,
 } from '../../lib/layout-row-split-classes'
 import {
+  layoutGenerativeHtmlPublishComponentId,
   layoutPlanBlocksPublishComponentId,
   layoutPublishLabelFromPrompt,
 } from '../../lib/layout-publish-id'
@@ -53,11 +60,13 @@ function CatalogPreviewCells({
   layoutMode,
   gridCols,
   gridRows,
+  cellToolbar,
 }: {
   instances: { key: string; card: CatalogCardModel }[]
   layoutMode: 'flow' | 'grid'
   gridCols?: number
   gridRows?: number
+  cellToolbar?: 'addRemove'
 }) {
   const isGrid =
     layoutMode === 'grid' &&
@@ -92,13 +101,42 @@ function CatalogPreviewCells({
           card.blueprint?.data?.imageUrl ||
           ''
 
+        const body = html ? (
+          <div
+            className="layout-preview-html [&_*]:max-w-full"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        ) : null
+
         return (
           <div key={key} className="min-w-0 w-full max-w-full overflow-hidden">
-            {html ? (
+            {html && cellToolbar === 'addRemove' ? (
               <div
-                className="layout-preview-html [&_*]:max-w-full"
-                dangerouslySetInnerHTML={{ __html: html }}
-              />
+                className={`relative min-w-0 overflow-hidden ${THEME_CARD_SURFACE}`}
+              >
+                <div
+                  className="absolute right-2 top-2 z-10 flex gap-1"
+                  data-layout-cell-toolbar="add-remove"
+                >
+                  <button
+                    type="button"
+                    aria-label="Add"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong shadow-sm hover:bg-brandcolor-fill"
+                  >
+                    <RiAddLine className="size-4" aria-hidden />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Remove"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong shadow-sm hover:bg-brandcolor-fill"
+                  >
+                    <RiDeleteBinLine className="size-4" aria-hidden />
+                  </button>
+                </div>
+                <div className="px-2 pb-3 pt-11">{body}</div>
+              </div>
+            ) : html ? (
+              body
             ) : thumb ? (
               <img
                 src={thumb}
@@ -178,6 +216,7 @@ function renderCatalogBlock(
         layoutMode={layoutMode}
         gridCols={gridCols}
         gridRows={gridRows}
+        cellToolbar={block.cellToolbar}
       />
     </div>
   )
@@ -351,12 +390,22 @@ function renderPlanBlock(
  * (theme-guide chrome + catalog sourceHtml) when POST /layout/plan succeeds.
  */
 export function AdminLayoutStudio() {
-  const { layoutPromptEntries, layoutPlan, layoutPlanBusy, layoutPlanError } =
-    useLayoutWorkspace()
+  const {
+    layoutPromptEntries,
+    layoutPlan,
+    layoutPlanBusy,
+    layoutPlanError,
+    layoutWorkspaceMode,
+    layoutGeneratedHtml,
+    layoutGeneratedTitle,
+    layoutHtmlBusy,
+    layoutHtmlError,
+  } = useLayoutWorkspace()
   const { refreshCatalog } = useCatalogRefresh()
   const { cards, loading, error } = useCatalogCards()
   const [structuredCodeOpen, setStructuredCodeOpen] = useState(false)
   const structuredPreviewFormRef = useRef<HTMLFormElement>(null)
+  const layoutHtmlGenerativePreviewRef = useRef<HTMLDivElement>(null)
   const [layoutPublishOpen, setLayoutPublishOpen] = useState(false)
   const [layoutPublishScreenshot, setLayoutPublishScreenshot] = useState<
     string | null
@@ -382,7 +431,13 @@ export function AdminLayoutStudio() {
     }))
   }, [intent.template, intent.count])
 
+  const showGenerativeHtml =
+    layoutWorkspaceMode === 'html' &&
+    typeof layoutGeneratedHtml === 'string' &&
+    layoutGeneratedHtml.trim().length > 0
+
   const showStructured =
+    !showGenerativeHtml &&
     layoutPlan != null &&
     layoutPlan.version === 1 &&
     Array.isArray(layoutPlan.blocks) &&
@@ -409,16 +464,59 @@ export function AdminLayoutStudio() {
     }
   }, [structuredPreviewCode, layoutPlan])
 
+  const handlePublishFromGenerativeHtml = useCallback(async () => {
+    const root = layoutHtmlGenerativePreviewRef.current
+    if (!root || !layoutGeneratedHtml?.trim()) return
+    setLayoutPublishBusy(true)
+    try {
+      const dataUrl = await captureElementFullPng(root)
+      setLayoutPublishScreenshot(dataUrl)
+      setLayoutPublishOpen(true)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err))
+    } finally {
+      setLayoutPublishBusy(false)
+    }
+  }, [layoutGeneratedHtml])
+
   const closeLayoutPublishModal = useCallback(() => {
     setLayoutPublishOpen(false)
     setLayoutPublishScreenshot(null)
   }, [])
 
+  const publishBlockLabel = useMemo(() => {
+    const t = layoutGeneratedTitle?.trim()
+    if (layoutWorkspaceMode === 'html' && t) return t
+    return layoutPublishLabelFromPrompt(lastPrompt)
+  }, [layoutGeneratedTitle, layoutWorkspaceMode, lastPrompt])
+
   const confirmLayoutPublish = useCallback(
     async (opts: { description: string; sealed: boolean }) => {
-      if (!layoutPublishScreenshot || !layoutPlan) return
+      if (!layoutPublishScreenshot) return
       setLayoutPublishBusy(true)
       try {
+        if (
+          layoutWorkspaceMode === 'html' &&
+          layoutGeneratedHtml &&
+          layoutGeneratedHtml.trim()
+        ) {
+          const sourceHtml = wrapStructuredPreviewHtmlForPublish(
+            layoutGeneratedHtml,
+          )
+          await postPublish({
+            componentId: layoutGenerativeHtmlPublishComponentId(sourceHtml),
+            label: publishBlockLabel,
+            screenshot: layoutPublishScreenshot,
+            sourceHtml,
+            description: opts.description || undefined,
+            sealed: opts.sealed,
+            kind: 'layout',
+          })
+          refreshCatalog()
+          closeLayoutPublishModal()
+          return
+        }
+        if (!layoutPlan) return
         const sourceHtml = wrapStructuredPreviewHtmlForPublish(
           structuredPreviewCode,
         )
@@ -441,9 +539,12 @@ export function AdminLayoutStudio() {
     },
     [
       layoutPublishScreenshot,
+      layoutWorkspaceMode,
+      layoutGeneratedHtml,
       layoutPlan,
       structuredPreviewCode,
       lastPrompt,
+      publishBlockLabel,
       refreshCatalog,
       closeLayoutPublishModal,
     ],
@@ -457,7 +558,7 @@ export function AdminLayoutStudio() {
       >
         {layoutPromptEntries.length > 0 ? (
           <div className="space-y-4">
-            {layoutPlanBusy ? (
+            {layoutPlanBusy || layoutHtmlBusy ? (
               <div
                 className="flex items-center gap-4 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-fill px-4 py-5"
                 role="status"
@@ -473,13 +574,15 @@ export function AdminLayoutStudio() {
                     Generating your UI…
                   </p>
                   <p className="mt-0.5 text-xs text-brandcolor-textweak">
-                    Composing layout from your catalog and theme guide.
+                    {layoutHtmlBusy && !layoutPlanBusy
+                      ? 'Building a safe HTML fragment from your prompt and catalog context.'
+                      : 'Composing layout from your catalog and theme guide.'}
                   </p>
                 </div>
               </div>
             ) : null}
 
-            {layoutPlanError ? (
+            {layoutWorkspaceMode === 'plan' && layoutPlanError ? (
               <p
                 className="rounded-lg border border-brandcolor-destructive/40 bg-brandcolor-banner-warning-bg px-3 py-2 text-sm text-brandcolor-destructive"
                 role="alert"
@@ -489,11 +592,48 @@ export function AdminLayoutStudio() {
               </p>
             ) : null}
 
+            {layoutWorkspaceMode === 'html' && layoutHtmlError ? (
+              <p
+                className="rounded-lg border border-brandcolor-destructive/40 bg-brandcolor-banner-warning-bg px-3 py-2 text-sm text-brandcolor-destructive"
+                role="alert"
+              >
+                {layoutHtmlError}
+              </p>
+            ) : null}
+
             {loading ? (
               <p className="text-sm text-brandcolor-textweak">Loading catalog…</p>
             ) : null}
             {error ? (
               <p className="text-sm text-brandcolor-destructive">{error}</p>
+            ) : null}
+
+            {showGenerativeHtml && layoutGeneratedHtml ? (
+              <div className="w-full min-w-0 max-w-3xl">
+                <div className="mb-3 flex min-w-0 flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-brandcolor-textweak">
+                    Generative HTML preview
+                  </p>
+                  <CatalogDetailToolbarButton
+                    label="Publish"
+                    title="Capture preview and publish to catalog"
+                    onClick={() => void handlePublishFromGenerativeHtml()}
+                    disabled={layoutPublishBusy || !layoutGeneratedHtml.trim()}
+                  >
+                    <RiUploadCloudLine />
+                  </CatalogDetailToolbarButton>
+                </div>
+                <div
+                  ref={layoutHtmlGenerativePreviewRef}
+                  className={`flex w-full flex-col p-6 ${THEME_CARD_SURFACE}`}
+                  aria-label="Generative layout HTML preview"
+                >
+                  <div
+                    className="layout-preview-html [&_*]:max-w-full"
+                    dangerouslySetInnerHTML={{ __html: layoutGeneratedHtml }}
+                  />
+                </div>
+              </div>
             ) : null}
 
             {showStructured && layoutPlan ? (
@@ -519,15 +659,6 @@ export function AdminLayoutStudio() {
                   onPublish={handlePublishFromCodeModal}
                   publishDisabled={!structuredPreviewCode.trim()}
                   publishBusy={layoutPublishBusy}
-                />
-                <CanvasPublishModal
-                  open={layoutPublishOpen}
-                  blockLabel={layoutPublishLabelFromPrompt(lastPrompt)}
-                  canPublish={Boolean(layoutPublishScreenshot)}
-                  screenshotDataUrl={layoutPublishScreenshot}
-                  onClose={closeLayoutPublishModal}
-                  onConfirm={confirmLayoutPublish}
-                  submitBusy={layoutPublishBusy}
                 />
                 <form
                   ref={structuredPreviewFormRef}
@@ -556,9 +687,19 @@ export function AdminLayoutStudio() {
               </div>
             ) : null}
 
+            <CanvasPublishModal
+              open={layoutPublishOpen}
+              blockLabel={publishBlockLabel}
+              screenshotDataUrl={layoutPublishScreenshot}
+              onClose={closeLayoutPublishModal}
+              onConfirm={confirmLayoutPublish}
+              submitBusy={layoutPublishBusy}
+            />
+
             {!loading &&
             !error &&
             !showStructured &&
+            !showGenerativeHtml &&
             intent.unmatchedReason ? (
               <p className="text-sm text-brandcolor-textweak" role="status">
                 {intent.unmatchedReason}
@@ -568,6 +709,7 @@ export function AdminLayoutStudio() {
             {!loading &&
             !error &&
             !showStructured &&
+            !showGenerativeHtml &&
             intent.template &&
             instances.length > 0 ? (
               <div className="w-full min-w-0 max-w-3xl">

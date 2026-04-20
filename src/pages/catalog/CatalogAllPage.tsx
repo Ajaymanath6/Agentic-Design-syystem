@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
+import { CatalogSourceHtmlPreview } from '../../components/catalog/CatalogSourceHtmlPreview'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
 import { catalogCardDisplayName } from '../../lib/catalog-display-name'
+import { catalogCardSourceHtml } from '../../lib/catalog-source-html'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import type { CatalogCardModel } from '../../types/catalog'
 
@@ -46,8 +48,8 @@ export function CatalogAllPage() {
 
       {!loading && !error && componentCards.length === 0 ? (
         <p className="mt-6 text-sm text-brandcolor-textweak">
-          No published components yet. Open the canvas, capture a thumbnail, and
-          publish a block to see it here.
+          No published components yet. Open the canvas and publish a block to see
+          it here.
         </p>
       ) : null}
 
@@ -58,6 +60,7 @@ export function CatalogAllPage() {
           aria-label="All catalog components"
         >
           {componentCards.map((card) => {
+            const sourceHtml = catalogCardSourceHtml(card)
             const thumb =
               card.entry.thumbnailPath || card.blueprint?.data?.imageUrl || ''
             const name = catalogCardDisplayName(card)
@@ -71,7 +74,13 @@ export function CatalogAllPage() {
                   className="group/tile flex w-full min-w-0 flex-col rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white px-4 pb-4 pt-4 text-left shadow-card transition-[padding,box-shadow] duration-200 ease-out hover:shadow-md group-hover/tile:pt-2 group-focus-within/tile:pt-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2"
                 >
                   <div className="relative aspect-[278/209] w-full overflow-hidden rounded-md bg-brandcolor-fill">
-                    {thumb ? (
+                    {sourceHtml ? (
+                      <CatalogSourceHtmlPreview
+                        html={sourceHtml}
+                        label={name}
+                        className="h-full w-full origin-top scale-[0.85] p-2 sm:scale-90"
+                      />
+                    ) : thumb ? (
                       <img
                         src={thumb}
                         alt=""
@@ -79,7 +88,7 @@ export function CatalogAllPage() {
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center text-xs text-brandcolor-textweak">
-                        No image
+                        No preview
                       </div>
                     )}
                   </div>

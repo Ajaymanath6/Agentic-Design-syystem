@@ -13,4 +13,6 @@ If you add secrets, use environment variables only — never commit them to git.
 
 - `POST /canvas/plan` (components canvas AI bar) uses the same Vertex proxy as `/layout/plan`; the browser only sends prompt text — no AWS/GCP secrets in the client. Plan versions 1 and 2 (including `productSidebar`) are still JSON over the same endpoint — no new credential surfaces.
 
+- `POST /layout/generate-html` is the same trust model as `/canvas/generate-html`: prompts, allowlist strings, and optional published-component HTML snippets only — no credentials in the browser.
+
 - Local `LLM agent/.env.llm` may set `LLM_AGENT_AWS_CREDENTIALS_FILE` to a path under `~/Downloads/` (daily-updated AWS INI). That file must never be committed; keep it out of the repo and rotate keys if exposed.

@@ -104,7 +104,7 @@ export function CanvasWorldBlock({
         <button
           type="button"
           className={toolbarBtn}
-          aria-label={`Capture ${toolbarLabel} — opens publish flow`}
+          aria-label={`Publish ${toolbarLabel} — opens publish dialog`}
           disabled={captureBusy}
           onClick={(e) => {
             e.stopPropagation()
@@ -119,7 +119,7 @@ export function CanvasWorldBlock({
           ) : (
             <RiCameraLine className="size-3.5 shrink-0" aria-hidden />
           )}
-          Capture
+          Publish
         </button>
         <button
           type="button"

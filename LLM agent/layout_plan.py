@@ -59,6 +59,10 @@ heading.h1, heading.h2, heading.h3, profileCard.name, profileCard.title, profile
 or for a grid:
 { "type": "catalog", "ref": "<ref>", "repeat": 6, "layout": "grid", "grid": { "cols": 3, "rows": 2 } }
 
+Optional on catalog blocks only — per-cell wireframe controls (not in sourceHtml; the UI draws them):
+  "cellToolbar": "addRemove"
+Set this when the user asks for add/remove, plus/trash, cart-style row actions, or interactive icons on each card/cell. Omit or null otherwise.
+
 Optional on any block (chrome or catalog): "afterGap": "tight" | "default" | "section" | "hero"
 — vertical space before the NEXT block (Tailwind mb-*). Maps to theme spaceScaleRem: default≈space-4 (16px), section≈space-6 (24px), hero≈space-8 (32px), tight≈space-2 (8px).
 Optional on root: "defaultAfterGap" — when set, every block without its own afterGap uses this.
@@ -135,6 +139,10 @@ class CatalogBlockModel(BaseModel):
     layout: Literal["flow", "grid"] = "flow"
     grid: GridModel | None = None
     afterGap: str | None = Field(default=None, max_length=32)
+    cellToolbar: Literal["addRemove"] | None = Field(
+        default=None,
+        description='Optional. Set to "addRemove" when the user wants add (+) and remove (trash) controls on each catalog cell.',
+    )
 
     @model_validator(mode="after")
     def grid_flow_consistency(self) -> CatalogBlockModel:
@@ -340,6 +348,9 @@ def _sanitize_catalog(
         repeat = cells
     else:
         repeat = min(12, max(1, b.repeat))
+    ct = b.cellToolbar
+    if ct is not None and ct != "addRemove":
+        ct = None
     return CatalogBlockModel(
         type="catalog",
         ref=canon,
@@ -347,6 +358,7 @@ def _sanitize_catalog(
         layout=layout,
         grid=grid,
         afterGap=_coerce_after_gap(b.afterGap),
+        cellToolbar=ct,
     )
 
 
@@ -449,3 +461,28 @@ class PlanRequestBody(BaseModel):
 
     prompt: str = Field(..., min_length=1, max_length=32000)
     catalogAllowlist: list[str] = Field(default_factory=list, max_length=2000)
+
+
+class LayoutCatalogReferenceBlock(BaseModel):
+    """Optional published-component HTML snippets from the client (layout @-mentions)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(..., min_length=1, max_length=256)
+    label: str = Field(default="", max_length=500)
+    htmlSnippet: str = Field(default="", max_length=16000)
+
+
+class LayoutHtmlRequestBody(BaseModel):
+    """Request for POST /layout/generate-html (mirrors canvas HTML flags + layout allowlist)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    prompt: str = Field(..., min_length=1, max_length=32000)
+    catalogAllowlist: list[str] = Field(default_factory=list, max_length=2000)
+    catalogReferenceBlocks: list[LayoutCatalogReferenceBlock] = Field(
+        default_factory=list,
+        max_length=24,
+    )
+    extended_design_context: bool = Field(default=False)
+    spacing_enforcement: bool = Field(default=False)

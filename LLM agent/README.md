@@ -134,12 +134,13 @@ You do **not** need a second Flask server. Use **`npm run dev:with-llm`** once P
 
 1. **Service up:** `curl -sS http://127.0.0.1:4302/health` → `{"status":"ok"}` (after `npm run dev:vertex-llm` or `npm run dev:with-llm`).
 2. **Generate:** `curl` `POST /layout/generate` or `POST /generate` with `{"prompt":"Hi"}` → JSON with `"text"`.
-3. **UI:** **Admin → Layout** → **Ask…** → send → quick catalog match first (single component + repeat/grid), then **Structured preview** (stacked blocks, optional **row** / **split** from the planner) when `/layout/plan` succeeds; inline warning if the planner fails (heuristic preview remains).
+3. **UI:** **Admin → Layout** → **Ask…** → choose **Plan (JSON)** or **Generate HTML**. **Plan:** quick catalog match first, then **Structured preview** when `/layout/plan` succeeds. **HTML:** `POST /layout/generate-html` returns a sanitized fragment (same server/client safety as canvas HTML). **Tailwind JIT caveat** applies to both HTML paths in dev (see `/canvas/generate-html` below).
 
 ## API
 
 - `GET /health` — liveness
 - `POST /layout/plan` — JSON `{ "prompt": string, "catalogAllowlist": string[] }` → `{ "plan": LayoutPlanV1 }` (validated JSON). **Block types:** `chrome`, `catalog`, **`row`** (2–4 columns; each column is a list of chrome/catalog leaves only), **`split`** (`variant: sidebarMain`, `sidebar` + `main` leaf lists, optional `sidebarPlacement` start|end, `sidebarWidth` narrow|default|wide). Catalog refs must match allowlist; invalid nested refs dropped. Rows with fewer than two non-empty columns flatten to a vertical leaf list. Optional **`defaultAfterGap`** and per-block **`afterGap`**: `tight` | `default` | `section` | `hero` (see `src/config/theme-guide.json` → `spacing`). Client infers spacing between top-level blocks (row/split adjacent to catalog/chrome uses `default`; `section` between row↔split or catalog→chrome unless overridden). **Canvas handoff (future):** the same plan JSON can be saved and used to seed Admin canvas blocks or an import flow — not automated in the UI yet.
+- `POST /layout/generate-html` — JSON `{ "prompt": string, "catalogAllowlist": string[], "catalogReferenceBlocks"?: { "id": string, "label": string, "htmlSnippet": string }[], "extended_design_context"?: boolean, "spacing_enforcement"?: boolean }` → `{ "html": string, "title": string }`. **Layout workspace generative mode:** layout-oriented system prompt + theme guide + allowlist; optional **catalog reference blocks** carry published `sourceHtml` snippets from the client for @-mentioned components. Same normalization pipeline as `/canvas/generate-html` (fence strip, script removal, length cap; optional spacing second pass).
 - `POST /layout/generate` — JSON `{ "prompt": string, "systemContext"?: string }` → `{ "text": string }` (free-text; tutorials / optional)
 - `POST /generate` — same request/response as `/layout/generate` (alias for docs/tutorials)
 - `POST /canvas/plan` — JSON `{ "prompt": string, "messages"?: { "role": "user"|"assistant", "content": string }[], "extended_design_context"?: boolean }` → `{ "plan": CanvasPlanV1 }` (components canvas). **Backward compatible:** `prompt` only matches the previous behavior. **Multi-turn:** optional `messages` is prior transcript (server formats as “Conversation”); `prompt` is always the latest user turn. **`extended_design_context: true`** attaches the full `tailwind.config.js` (truncated if huge) and a larger `theme-guide.json` slice; default `false` keeps the short in-prompt Tailwind summary only (higher token use when true).
@@ -157,6 +158,12 @@ curl -sS -X POST http://127.0.0.1:4302/layout/plan \
 curl -sS -X POST http://127.0.0.1:4302/layout/generate \
   -H 'Content-Type: application/json' \
   -d '{"prompt":"Suggest a 3-column layout using only promo-card."}'
+```
+
+```bash
+curl -sS -X POST http://127.0.0.1:4302/layout/generate-html \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"Marketing hero with headline and primary CTA","catalogAllowlist":["case-card"],"extended_design_context":false}'
 ```
 
 Alias (Flask-style path):

@@ -33,7 +33,7 @@ export function CanvasProductSidebarPreview({
             aria-label={
               published
                 ? 'Published to catalog — republishing updates the same entry'
-                : 'Not in catalog yet — publish from Capture'
+                : 'Not in catalog yet — use Publish on the block'
             }
           >
             {published ? 'Published' : 'Not published'}

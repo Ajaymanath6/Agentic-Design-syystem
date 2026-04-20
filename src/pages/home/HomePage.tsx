@@ -2,8 +2,10 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RiArrowRightSLine } from '@remixicon/react'
 import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
+import { CatalogSourceHtmlPreview } from '../../components/catalog/CatalogSourceHtmlPreview'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
 import { catalogCardDisplayName } from '../../lib/catalog-display-name'
+import { catalogCardSourceHtml } from '../../lib/catalog-source-html'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import type { CatalogCardModel } from '../../types/catalog'
 
@@ -79,8 +81,8 @@ export function HomePage() {
 
       {!loading && !error && componentCards.length === 0 ? (
         <p className="mt-4 text-sm text-brandcolor-textweak">
-          No published components yet. Open the canvas, capture a thumbnail, and
-          publish a block to see it here.
+          No published components yet. Open the canvas and publish a block to see
+          it here.
         </p>
       ) : null}
 
@@ -91,6 +93,7 @@ export function HomePage() {
             className="catalog-home-scroll-strip flex max-w-full divide-x divide-brandcolor-strokeweak overflow-x-auto overflow-y-hidden border border-brandcolor-strokeweak border-t-0"
           >
             {componentCards.map((card) => {
+              const sourceHtml = catalogCardSourceHtml(card)
               const thumb =
                 card.entry.thumbnailPath || card.blueprint?.data?.imageUrl || ''
               const componentName = catalogCardDisplayName(card)
@@ -105,8 +108,14 @@ export function HomePage() {
                       onClick={() => openCard(card)}
                       className="flex w-full items-center justify-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                     >
-                      <div className="h-[209px] w-[278px] shrink-0 overflow-hidden rounded-lg bg-transparent">
-                        {thumb ? (
+                      <div className="h-[209px] w-[278px] shrink-0 overflow-hidden rounded-lg bg-brandcolor-fill">
+                        {sourceHtml ? (
+                          <CatalogSourceHtmlPreview
+                            html={sourceHtml}
+                            label={componentName}
+                            className="h-full w-full origin-top scale-[0.88] p-2"
+                          />
+                        ) : thumb ? (
                           <img
                             src={thumb}
                             alt=""
@@ -114,7 +123,7 @@ export function HomePage() {
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center text-xs text-brandcolor-textweak">
-                            No image
+                            No preview
                           </div>
                         )}
                       </div>

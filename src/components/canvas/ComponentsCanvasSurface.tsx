@@ -18,17 +18,11 @@ import { useCanvasChrome } from '../../context/CanvasChromeContext'
 import { useComponentsCanvasAi } from '../../context/ComponentsCanvasAiContext'
 import { useCatalogRefresh } from '../../context/CatalogRefreshContext'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
-import { captureElementFullPng } from '../../lib/capture-screenshot'
 // Catalog `sourceHtml` from canvas-node-publish (primary/secondary use theme-guide strings; neutral + confirm-password aligned with index.css).
 import {
   loadCanvasNodesFromStorage,
   persistCanvasNodesToStorage,
 } from '../../lib/canvas-board-storage'
-import {
-  loadCanvasFramesFromStorage,
-  persistCanvasFramesToStorage,
-  type CanvasFrame,
-} from '../../lib/canvas-frames-storage'
 import {
   HTML_SNIPPET_BLOCK_H,
   HTML_SNIPPET_BLOCK_W,
@@ -47,17 +41,9 @@ import {
   publishLabelForCanvasNode,
 } from '../../lib/canvas-node-publish'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
-import {
-  postDeleteComponent,
-  postPruneCanvasCatalog,
-  postPublish,
-} from '../../services/publish-workflow'
+import { postDeleteComponent, postPublish } from '../../services/publish-workflow'
 import { CanvasProductSidebarPreview } from './CanvasProductSidebarPreview'
 import { CanvasPublishModal } from './CanvasPublishModal'
-import {
-  CanvasFloatingTools,
-  type CanvasFloatingTool,
-} from './CanvasFloatingTools'
 import { ComponentsCanvasPromptPanel } from './ComponentsCanvasPromptPanel'
 import { CanvasWorldBlock } from './CanvasWorldBlock'
 
@@ -72,8 +58,6 @@ const VIEWPORT_GRID_STYLE: CSSProperties = {
 
 const WORLD_W = 3200
 const WORLD_H = 2400
-/** Minimum width/height for a committed frame (world px). */
-const MIN_FRAME_PX = 4
 const SCALE_MIN = 0.2
 const SCALE_MAX = 2.5
 const ZOOM_STEP = 1.12
@@ -108,32 +92,6 @@ function nodeSize(n: CanvasNode): { w: number; h: number } {
     return { w: CANVAS_CARD_W, h: CANVAS_CONFIRM_PW_H }
   }
   return { w: CANVAS_CARD_W, h: CANVAS_CARD_H }
-}
-
-function clientToWorld(
-  clientX: number,
-  clientY: number,
-  viewport: HTMLDivElement,
-  tx: number,
-  ty: number,
-  scale: number,
-): { x: number; y: number } {
-  const r = viewport.getBoundingClientRect()
-  return {
-    x: (clientX - r.left - tx) / scale,
-    y: (clientY - r.top - ty) / scale,
-  }
-}
-
-function normalizeWorldRect(
-  a: { x: number; y: number },
-  b: { x: number; y: number },
-): { x: number; y: number; w: number; h: number } {
-  const x1 = Math.min(a.x, b.x)
-  const y1 = Math.min(a.y, b.y)
-  const x2 = Math.max(a.x, b.x)
-  const y2 = Math.max(a.y, b.y)
-  return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 }
 }
 
 /** Pan/zoom the viewport so these world nodes are framed (after AI append). */
@@ -401,21 +359,6 @@ export function ComponentsCanvasSurface() {
       ),
     )
   })
-  const [canvasFrames, setCanvasFrames] = useState<CanvasFrame[]>(() =>
-    loadCanvasFramesFromStorage(),
-  )
-  const [canvasTool, setCanvasTool] = useState<CanvasFloatingTool>('select')
-  const [frameDragPreview, setFrameDragPreview] = useState<{
-    x: number
-    y: number
-    w: number
-    h: number
-  } | null>(null)
-  const frameDragRef = useRef<{
-    pointerId: number
-    start: { x: number; y: number }
-    current: { x: number; y: number }
-  } | null>(null)
   const { cards } = useCatalogCards()
   const publishedCatalogIds = useMemo(() => {
     const next = new Set<string>()
@@ -441,19 +384,15 @@ export function ComponentsCanvasSurface() {
   const [publishTarget, setPublishTarget] = useState<CanvasNode | null>(null)
   const publishTargetRef = useRef<CanvasNode | null>(null)
   publishTargetRef.current = publishTarget
-  const [publishScreenshot, setPublishScreenshot] = useState<string | null>(null)
   const [publishBusy, setPublishBusy] = useState(false)
   /** Ephemeral confirmation after publish; in-memory only — full refresh clears it (expected). */
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<
     string | null
   >(null)
-  const [captureBusyId, setCaptureBusyId] = useState<string | null>(null)
   /** World node id while block drag is active — light neutral selection ring on any block. */
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null)
-  /** While set, toolbar + catalog badge are hidden so capture/modal show only card content. */
-  const [capturingHideChromeId, setCapturingHideChromeId] = useState<
-    string | null
-  >(null)
+  /** Reserved for flows that hide block chrome during export; publish preview uses sourceHtml instead. */
+  const capturingHideChromeId: string | null = null
   const viewportRef = useRef<HTMLDivElement>(null)
   const cardRootRefs = useRef<Map<string, HTMLElement>>(new Map())
   const spaceDownRef = useRef(false)
@@ -482,32 +421,13 @@ export function ComponentsCanvasSurface() {
     return () => window.clearTimeout(t)
   }, [nodes])
 
-  useEffect(() => {
-    const t = window.setTimeout(
-      () => persistCanvasFramesToStorage(canvasFrames),
-      400,
-    )
-    return () => window.clearTimeout(t)
-  }, [canvasFrames])
-
   /**
-   * Remove `canvas-*` catalog rows that do not match any block still on this board.
-   * Prevents duplicate-looking entries (e.g. two “secondary” items) after deletes or new node UUIDs.
+   * Catalog cleanup: we do **not** auto-run `postPruneCanvasCatalog` on every board change.
+   * Full-board prune used to drop published `canvas-*` rows whenever localStorage reset and
+   * node UUIDs changed (badges flipped to “Not published”). Removing a block still calls
+   * `postDeleteComponent` in `handleDelete`; orphans in `_catalog.json` can be removed from
+   * the catalog UI if needed.
    */
-  useEffect(() => {
-    const keepIds = nodes.map((n) => componentCatalogIdForCanvasNode(n))
-    if (keepIds.length === 0) return
-    const t = window.setTimeout(() => {
-      void postPruneCanvasCatalog(keepIds)
-        .then((res) => {
-          if (res.pruned > 0) refreshCatalog()
-        })
-        .catch(() => {
-          /* publish helper offline — skip */
-        })
-    }, 900)
-    return () => window.clearTimeout(t)
-  }, [nodes, refreshCatalog])
 
   const stageRef = useRef({ tx, ty, scale })
   stageRef.current = { tx, ty, scale }
@@ -695,80 +615,6 @@ export function ComponentsCanvasSurface() {
     panRef.current = null
   }
 
-  const endFrameDrag = useCallback((e: ReactPointerEvent) => {
-    const fd = frameDragRef.current
-    if (!fd || e.pointerId !== fd.pointerId) return
-    try {
-      viewportRef.current?.releasePointerCapture(e.pointerId)
-    } catch {
-      /* ignore */
-    }
-    const r = normalizeWorldRect(fd.start, fd.current)
-    frameDragRef.current = null
-    setFrameDragPreview(null)
-    if (r.w >= MIN_FRAME_PX && r.h >= MIN_FRAME_PX) {
-      setCanvasFrames((prev) => [
-        ...prev,
-        { id: crypto.randomUUID(), ...r },
-      ])
-    }
-  }, [])
-
-  const onFramePointerMove = useCallback((e: ReactPointerEvent) => {
-    const fd = frameDragRef.current
-    if (!fd || e.pointerId !== fd.pointerId) return
-    const vp = viewportRef.current
-    if (!vp) return
-    const st = stageRef.current
-    const cur = clientToWorld(
-      e.clientX,
-      e.clientY,
-      vp,
-      st.tx,
-      st.ty,
-      st.scale,
-    )
-    fd.current = cur
-    setFrameDragPreview(normalizeWorldRect(fd.start, cur))
-  }, [])
-
-  const onFrameHitPointerDown = useCallback((e: ReactPointerEvent) => {
-    if (e.button !== 0) return
-    if (spaceDownRef.current) return
-    if (canvasTool !== 'frame') return
-    e.preventDefault()
-    e.stopPropagation()
-    const vp = viewportRef.current
-    if (!vp) return
-    const st = stageRef.current
-    const w = clientToWorld(
-      e.clientX,
-      e.clientY,
-      vp,
-      st.tx,
-      st.ty,
-      st.scale,
-    )
-    frameDragRef.current = {
-      pointerId: e.pointerId,
-      start: w,
-      current: w,
-    }
-    setFrameDragPreview({ x: w.x, y: w.y, w: 0, h: 0 })
-    try {
-      vp.setPointerCapture(e.pointerId)
-    } catch {
-      /* ignore */
-    }
-  }, [canvasTool])
-
-  const focusPromptComposer = useCallback(() => {
-    setCanvasTool('select')
-    window.setTimeout(() => {
-      document.getElementById('components-canvas-ai-prompt')?.focus()
-    }, 0)
-  }, [])
-
   const onNodeBodyPointerDown = (e: ReactPointerEvent, id: string) => {
     if (e.button !== 0) return
     if (spaceDownRef.current) return
@@ -817,33 +663,17 @@ export function ComponentsCanvasSurface() {
 
   const closePublishModal = useCallback(() => {
     setPublishOpen(false)
-    setPublishScreenshot(null)
     setPublishTarget(null)
   }, [])
 
-  const handleCapture = useCallback(async (n: CanvasNode) => {
-    const el = cardRootRefs.current.get(n.id)
-    if (!el) {
-      alert('Block is not ready for capture.')
+  const handleCapture = useCallback((n: CanvasNode) => {
+    if (!cardRootRefs.current.get(n.id)) {
+      alert('Block is not ready yet.')
       return
     }
     setPublishSuccessMessage(null)
-    setCapturingHideChromeId(n.id)
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-    })
-    setCaptureBusyId(n.id)
-    try {
-      const dataUrl = await captureElementFullPng(el)
-      setPublishTarget(n)
-      setPublishScreenshot(dataUrl)
-      setPublishOpen(true)
-    } catch (err) {
-      alert(err instanceof Error ? err.message : String(err))
-    } finally {
-      setCapturingHideChromeId(null)
-      setCaptureBusyId(null)
-    }
+    setPublishTarget(n)
+    setPublishOpen(true)
   }, [])
 
   const confirmPublish = useCallback(
@@ -852,7 +682,7 @@ export function ComponentsCanvasSurface() {
       sealed: boolean
       displayName: string
     }) => {
-      if (!publishScreenshot || !publishTarget) return
+      if (!publishTarget) return
       setPublishBusy(true)
       try {
         const label =
@@ -860,10 +690,10 @@ export function ComponentsCanvasSurface() {
           publishLabelForCanvasNode(publishTarget)
         const patched = applyDisplayNameToCanvasNode(publishTarget, label)
         // Same componentId as catalog entry id — server mergeCatalogEntry updates in place (no duplicate row).
+        // No screenshot: helper writes a placeholder SVG thumbnail; catalog UI uses sourceHtml for previews.
         await postPublish({
           componentId: componentCatalogIdForCanvasNode(publishTarget),
           label,
-          screenshot: publishScreenshot,
           sourceHtml: buildSourceHtmlForCanvasNode(patched),
           description: opts.description || undefined,
           sealed: opts.sealed,
@@ -885,7 +715,7 @@ export function ComponentsCanvasSurface() {
         setPublishBusy(false)
       }
     },
-    [publishScreenshot, publishTarget, refreshCatalog, closePublishModal],
+    [publishTarget, refreshCatalog, closePublishModal],
   )
 
   useEffect(() => {
@@ -907,7 +737,6 @@ export function ComponentsCanvasSurface() {
       setCodeFor((cur) => (cur?.id === id ? null : cur))
       if (publishTargetRef.current?.id === id) {
         setPublishOpen(false)
-        setPublishScreenshot(null)
         setPublishTarget(null)
       }
       void postDeleteComponent(catalogId)
@@ -1059,8 +888,8 @@ export function ComponentsCanvasSurface() {
             </h2>
             <p className="mt-1 text-xs text-brandcolor-textweak">
               Source HTML matches what publish sends as{' '}
-              <code className="rounded bg-brandcolor-fill px-1">sourceHtml</code>. JSON matches the
-              saved blueprint shape (thumbnail path is a placeholder until you capture).
+              <code className="rounded bg-brandcolor-fill px-1">sourceHtml</code>. The catalog
+              previews this HTML; the helper may store a placeholder thumbnail file.
             </p>
             <h3 className="mt-4 font-sans text-xs font-semibold uppercase tracking-wide text-brandcolor-textweak">
               Source HTML
@@ -1090,8 +919,7 @@ export function ComponentsCanvasSurface() {
         blockLabel={
           publishTarget ? publishLabelForCanvasNode(publishTarget) : ''
         }
-        canPublish={Boolean(publishScreenshot)}
-        screenshotDataUrl={publishScreenshot}
+        previewNode={publishTarget}
         onClose={closePublishModal}
         onConfirm={confirmPublish}
         submitBusy={publishBusy}
@@ -1205,68 +1033,20 @@ export function ComponentsCanvasSurface() {
         aria-label="Canvas — drag blocks to move; Space or middle mouse to pan"
         data-canvas-viewport
         onPointerMove={(e) => {
-          if (frameDragRef.current) onFramePointerMove(e)
           if (panRef.current) onPanPointerMove(e)
         }}
         onPointerUp={(e) => {
-          if (frameDragRef.current) endFrameDrag(e)
           if (panRef.current) endPan(e)
         }}
         onPointerCancel={(e) => {
-          if (frameDragRef.current) endFrameDrag(e)
           if (panRef.current) endPan(e)
         }}
       >
-        <div className="pointer-events-auto absolute left-4 top-4 z-40">
-          <CanvasFloatingTools
-            activeTool={canvasTool}
-            onToolChange={setCanvasTool}
-            onPromptFocus={focusPromptComposer}
-          />
-        </div>
         <div
           className="absolute inset-0"
           style={transformStyle}
           onPointerDown={onPanPointerDown}
         >
-          <div
-            className="pointer-events-none absolute left-0 top-0 z-[1]"
-            style={{ width: WORLD_W, height: WORLD_H }}
-          >
-            {canvasFrames.map((f) => (
-              <div
-                key={f.id}
-                className="absolute rounded-sm border border-dashed border-brandcolor-primary/70 bg-transparent"
-                style={{
-                  left: f.x,
-                  top: f.y,
-                  width: f.w,
-                  height: f.h,
-                }}
-              />
-            ))}
-            {frameDragPreview != null &&
-            frameDragPreview.w > 0 &&
-            frameDragPreview.h > 0 ? (
-              <div
-                className="absolute rounded-sm border border-brandcolor-primary bg-brandcolor-primary/10"
-                style={{
-                  left: frameDragPreview.x,
-                  top: frameDragPreview.y,
-                  width: frameDragPreview.w,
-                  height: frameDragPreview.h,
-                }}
-              />
-            ) : null}
-          </div>
-          {canvasTool === 'frame' ? (
-            <div
-              className="absolute left-0 top-0 z-[3] cursor-crosshair"
-              style={{ width: WORLD_W, height: WORLD_H }}
-              onPointerDown={onFrameHitPointerDown}
-              aria-hidden
-            />
-          ) : null}
           {nodes.map((n) => {
             const published = publishedCatalogIds.has(
               componentCatalogIdForCanvasNode(n),
@@ -1312,9 +1092,9 @@ export function ComponentsCanvasSurface() {
                 }}
                 capturingHideChrome={capturingHideChromeId === n.id}
                 toolbarLabel={toolbarLabel}
-                captureBusy={captureBusyId === n.id}
+                captureBusy={false}
                 onCapture={() => {
-                  void handleCapture(n)
+                  handleCapture(n)
                 }}
                 onCode={() => setCodeFor(n)}
                 onDelete={() => handleDelete(n.id)}
@@ -1336,7 +1116,7 @@ export function ComponentsCanvasSurface() {
                           aria-label={
                             published
                               ? 'Published to catalog — republishing updates the same entry'
-                              : 'Not in catalog yet — publish from Capture'
+                              : 'Not in catalog yet — use Publish on the block'
                           }
                         >
                           {published ? 'Published' : 'Not published'}
@@ -1377,7 +1157,7 @@ export function ComponentsCanvasSurface() {
                           aria-label={
                             published
                               ? 'Published to catalog — republishing updates the same entry'
-                              : 'Not in catalog yet — publish from Capture'
+                              : 'Not in catalog yet — use Publish on the block'
                           }
                         >
                           {published ? 'Published' : 'Not published'}
@@ -1411,7 +1191,7 @@ export function ComponentsCanvasSurface() {
                           aria-label={
                             published
                               ? 'Published to catalog — republishing updates the same entry'
-                              : 'Not in catalog yet — publish from Capture'
+                              : 'Not in catalog yet — use Publish on the block'
                           }
                         >
                           {published ? 'Published' : 'Not published'}
@@ -1453,7 +1233,7 @@ export function ComponentsCanvasSurface() {
                           aria-label={
                             published
                               ? 'Published to catalog — republishing updates the same entry'
-                              : 'Not in catalog yet — publish from Capture'
+                              : 'Not in catalog yet — use Publish on the block'
                           }
                         >
                           {published ? 'Published' : 'Not published'}
@@ -1497,7 +1277,7 @@ export function ComponentsCanvasSurface() {
                           aria-label={
                             published
                               ? 'Published to catalog — republishing this block updates the same catalog entry'
-                              : 'Not in catalog yet — publish from Capture to add or update'
+                              : 'Not in catalog yet — use Publish on the block to add or update'
                           }
                         >
                           {published ? 'Published' : 'Not published'}

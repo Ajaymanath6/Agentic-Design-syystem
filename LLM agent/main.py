@@ -27,6 +27,7 @@ from canvas_html_generate import (
     build_canvas_html_contents,
     parse_html_generate_response,
 )
+from layout_html_generate import build_layout_html_contents
 from canvas_html_spacing_pass import (
     build_spacing_fix_contents,
     parse_spacing_fix_json,
@@ -38,6 +39,7 @@ from canvas_plan import (
 )
 from layout_plan import (
     LAYOUT_PLAN_SYSTEM,
+    LayoutHtmlRequestBody,
     PlanRequestBody,
     load_theme_guide_snippet,
     parse_and_validate_plan,
@@ -388,3 +390,67 @@ def _canvas_generate_html_impl(body: CanvasPlanPromptBody) -> dict[str, Any]:
 def canvas_generate_html(body: CanvasPlanPromptBody) -> dict[str, Any]:
     """Raw HTML fragment for components canvas creator mode (parallel to /canvas/plan)."""
     return _canvas_generate_html_impl(body)
+
+
+def _layout_generate_html_impl(body: LayoutHtmlRequestBody) -> dict[str, Any]:
+    model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
+    contents = build_layout_html_contents(body)
+    try:
+        client = get_genai_client()
+    except Exception as e:
+        logger.exception("Client init failed")
+        raise HTTPException(status_code=503, detail=str(e)) from e
+    try:
+        response = client.models.generate_content(model=model, contents=contents)
+    except Exception as e:
+        logger.exception("layout_generate_html generate_content failed")
+        raise HTTPException(status_code=502, detail=str(e)) from e
+    text = _genai_response_text(response)
+    if not text:
+        raise HTTPException(status_code=502, detail="Empty model response")
+    try:
+        out = parse_html_generate_response(text, body.prompt)
+    except ValueError as e:
+        logger.warning("layout_generate_html parse failed: %s", e)
+        raise HTTPException(
+            status_code=422,
+            detail=f"Invalid or unsafe HTML from model: {e}",
+        ) from e
+    html = str(out["html"])
+    title = str(out["title"])
+    if body.spacing_enforcement:
+        max_in = int(
+            (os.environ.get("CANVAS_HTML_SPACING_PASS_MAX_CHARS") or "14000").strip()
+            or "14000"
+        )
+        if len(html) > max_in:
+            logger.warning(
+                "spacing enforcement skipped: html length %s > %s",
+                len(html),
+                max_in,
+            )
+        else:
+            try:
+                fix_model = os.environ.get("VERTEX_SPACING_FIX_MODEL", "").strip() or model
+                fix_contents = build_spacing_fix_contents(body.prompt, html)
+                fix_resp = client.models.generate_content(
+                    model=fix_model, contents=fix_contents
+                )
+                fix_text = _genai_response_text(fix_resp)
+                if fix_text:
+                    fixed = parse_spacing_fix_json(fix_text, MAX_HTML_OUTPUT_CHARS)
+                    if fixed:
+                        html = fixed
+                    else:
+                        logger.warning(
+                            "spacing enforcement pass: invalid JSON or html; keeping pass 1"
+                        )
+            except Exception as e:
+                logger.warning("spacing enforcement pass failed: %s", e)
+    return {"html": html, "title": title}
+
+
+@app.post("/layout/generate-html")
+def layout_generate_html(body: LayoutHtmlRequestBody) -> dict[str, Any]:
+    """Sanitized HTML fragment for layout workspace (parallel to /canvas/generate-html)."""
+    return _layout_generate_html_impl(body)

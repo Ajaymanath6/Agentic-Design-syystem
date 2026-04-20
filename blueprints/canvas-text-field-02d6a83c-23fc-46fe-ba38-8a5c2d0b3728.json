@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-text-field-02d6a83c-23fc-46fe-ba38-8a5c2d0b3728",
+  "component": "div",
+  "importId": "CanvasTextField02d6a83c23fc46feBa388a5c2d0b3728Component",
+  "data": {
+    "imageUrl": "/generated/canvas-text-field-02d6a83c-23fc-46fe-ba38-8a5c2d0b3728-thumbnail.svg",
+    "imageAlt": "Text input field",
+    "sealed": true,
+    "sourceHtml": "<div class=\"w-full\" style=\"width:400px;box-sizing:border-box\"><label for=\"text-field-02d6a83c-23fc-46fe-ba38-8a5c2d0b3728\" class=\"mb-1 block text-xs font-medium text-brandcolor-textstrong\">Text input field</label><input id=\"text-field-02d6a83c-23fc-46fe-ba38-8a5c2d0b3728\" type=\"text\" name=\"textInputField\" autocomplete=\"off\" class=\"text-field-canvas-input w-full\" placeholder=\"Type here…\" required /></div>"
+  }
+}

@@ -12,6 +12,7 @@ import {
 } from './theme-guide-resolve'
 import type { CatalogCardModel } from '../types/catalog'
 import type {
+  LayoutCatalogBlock,
   LayoutLeafBlock,
   LayoutPlanBlock,
   LayoutPlanV1,
@@ -27,6 +28,22 @@ function escapeHtmlText(s: string): string {
 
 function escapeClassAttr(s: string): string {
   return escapeHtmlText(s.replace(/\s+/g, ' ').trim())
+}
+
+/** Matches AdminLayoutStudio wireframe toolbar; keep in sync with layout preview. */
+function wrapCatalogCellSourceHtml(
+  innerHtml: string,
+  cellToolbar: LayoutCatalogBlock['cellToolbar'],
+): string {
+  if (cellToolbar !== 'addRemove') return innerHtml
+  const shell =
+    'relative min-w-0 overflow-hidden rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card'
+  const bar =
+    `<div class="absolute right-2 top-2 z-10 flex gap-1" data-layout-cell-toolbar="add-remove">` +
+    `<button type="button" aria-label="Add" class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-brandcolor-strokeweak bg-brandcolor-white text-sm font-semibold text-brandcolor-textstrong shadow-sm">+</button>` +
+    `<button type="button" aria-label="Remove" class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-brandcolor-strokeweak bg-brandcolor-white text-sm font-semibold text-brandcolor-textstrong shadow-sm">−</button>` +
+    `</div>`
+  return `<div class="${escapeClassAttr(shell)}">${bar}<div class="layout-catalog-cell-source px-2 pb-3 pt-11 [&_*]:max-w-full">${innerHtml}</div></div>`
 }
 
 function buildCatalogLeafHtml(
@@ -45,7 +62,7 @@ function buildCatalogLeafHtml(
   }
   const chunks: string[] = []
   for (let j = 0; j < count; j++) {
-    chunks.push(html)
+    chunks.push(wrapCatalogCellSourceHtml(html, block.cellToolbar))
   }
   return chunks.join('\n\n')
 }
