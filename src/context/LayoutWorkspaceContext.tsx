@@ -10,6 +10,7 @@ import {
 } from 'react'
 import { useCatalogCards } from '../hooks/useCatalogCards'
 import { catalogCardDisplayName } from '../lib/catalog-display-name'
+import { catalogCardSourceHtml } from '../lib/catalog-source-html'
 import { isCatalogLayoutEntry } from '../lib/catalog-layout-entry'
 import { buildCatalogAllowlist } from '../lib/layout-plan-catalog'
 import { sanitizeCanvasHtmlFragment } from '../lib/sanitize-canvas-html'
@@ -65,7 +66,7 @@ function buildCatalogReferenceBlocks(
   for (const id of ids) {
     const card = cards.find((c) => c.entry.id === id)
     if (!card) continue
-    const raw = card.entry.sourceHtml?.trim() ?? ''
+    const raw = catalogCardSourceHtml(card).trim()
     const htmlSnippet = raw.slice(0, MAX_LAYOUT_CATALOG_REFERENCE_HTML_SNIPPET_CHARS)
     out.push({
       id: card.entry.id,
