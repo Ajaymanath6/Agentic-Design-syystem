@@ -1,27 +1,27 @@
 import { GoldenSpiralMark } from './GoldenSpiralMark'
 
-/** Left-aligned spiral — large, flush to viewport, aligned with copy block. */
+/** Left edge — no padding; bleeds off viewport (15% smaller than prior size). */
 export function PlatformSectionSpiral() {
   return (
     <GoldenSpiralMark
       align="left"
-      width="min(110vw, 56rem)"
-      height="min(130vh, 52rem)"
-      bleedLeft="22vw"
+      width="min(94vw, 48rem)"
+      height="min(110vh, 44rem)"
+      bleedLeft="26vw"
       opacity={0.34}
     />
   )
 }
 
-/** Mobile: spiral above copy. */
+/** Mobile: spiral above centered copy. */
 export function PlatformSectionSpiralMobile() {
   return (
-    <div className="relative mb-6 h-[20rem] w-full overflow-hidden sm:hidden">
+    <div className="relative mb-6 h-[19rem] w-full overflow-hidden sm:hidden">
       <GoldenSpiralMark
         align="left"
-        width="min(130vw, 28rem)"
-        height="22rem"
-        bleedLeft="18vw"
+        width="min(110vw, 24rem)"
+        height="19rem"
+        bleedLeft="20vw"
         opacity={0.3}
       />
     </div>
