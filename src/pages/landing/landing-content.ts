@@ -174,8 +174,9 @@ export const DIFFERENTIATOR_CARD_BACKGROUNDS = [
 ] as const
 
 export const PLATFORM_INTRO = {
-  eyebrow: 'The platform',
+  eyebrow: 'How it works',
   title: 'Prompt, publish, and inject UI where your team already codes.',
+  titleAccentWords: ['Prompt', 'publish', 'inject'] as const,
   flowchartSrc: '/platform-flowchart.png',
   /** Matches landing page background so the flowchart blends in. */
   sectionBg: LANDING_PAGE_BG,

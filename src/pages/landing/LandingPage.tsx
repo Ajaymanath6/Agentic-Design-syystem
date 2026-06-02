@@ -25,6 +25,7 @@ import {
   FOOTER_COLUMNS,
   HERO,
   HERO_SCENE_SRC,
+  LANDING_ACCENT,
   LANDING_EDGE_PAD_PX,
   LANDING_INK,
   LANDING_FEATURE_CARD_BG,
@@ -181,6 +182,30 @@ function HeroSection() {
   )
 }
 
+function PlatformIntroHeadline() {
+  const pattern = new RegExp(
+    `(${PLATFORM_INTRO.titleAccentWords.join('|')})`,
+    'g',
+  )
+  const parts = PLATFORM_INTRO.title.split(pattern)
+
+  return (
+    <>
+      {parts.map((part, index) =>
+        (PLATFORM_INTRO.titleAccentWords as readonly string[]).includes(
+          part,
+        ) ? (
+          <span key={`${part}-${index}`} style={{ color: LANDING_ACCENT }}>
+            {part}
+          </span>
+        ) : (
+          <span key={`${part}-${index}`}>{part}</span>
+        ),
+      )}
+    </>
+  )
+}
+
 function PlatformSection() {
   return (
     <section
@@ -200,7 +225,7 @@ function PlatformSection() {
               className="font-landing-heading mx-auto mt-4 max-w-xl text-[2.5rem] font-medium leading-[1.15] tracking-tight"
               style={{ color: LANDING_INK }}
             >
-              {PLATFORM_INTRO.title}
+              <PlatformIntroHeadline />
             </h2>
           </div>
         </div>
