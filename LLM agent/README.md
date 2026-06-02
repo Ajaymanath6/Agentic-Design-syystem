@@ -30,7 +30,7 @@ If you rotate keys in a fixed path (e.g. under Downloads), set **`LLM_AGENT_AWS_
 Example (paths with spaces must be quoted):
 
 ```bash
-export LLM_AGENT_AWS_CREDENTIALS_FILE="/home/mis/Downloads/aws_credentials (12).txt"
+export LLM_AGENT_AWS_CREDENTIALS_FILE="/home/mis/Downloads/aws_credentials (3).txt"
 export AWS_PROFILE=default   # or your profile name matching the INI section
 export GCP_PROJECT=your-project-id
 export AWS_REGION=us-east-1
@@ -145,6 +145,20 @@ You do **not** need a second Flask server. Use **`npm run dev:with-llm`** once P
 - `POST /generate` — same request/response as `/layout/generate` (alias for docs/tutorials)
 - `POST /canvas/plan` — JSON `{ "prompt": string, "messages"?: { "role": "user"|"assistant", "content": string }[], "extended_design_context"?: boolean }` → `{ "plan": CanvasPlanV1 }` (components canvas). **Backward compatible:** `prompt` only matches the previous behavior. **Multi-turn:** optional `messages` is prior transcript (server formats as “Conversation”); `prompt` is always the latest user turn. **`extended_design_context: true`** attaches the full `tailwind.config.js` (truncated if huge) and a larger `theme-guide.json` slice; default `false` keeps the short in-prompt Tailwind summary only (higher token use when true).
 - `POST /canvas/generate-html` — same request JSON shape as `/canvas/plan` → `{ "html": string, "title": string }`. **HTML creator mode:** Vertex returns a single safe HTML fragment (server strips markdown fences, removes `<script>`, enforces a **16k** character cap). The browser **sanitizes again** with DOMPurify before render/storage. **Tailwind JIT caveat:** classes that appear **only** inside runtime HTML strings are often **not** picked up by Tailwind’s build-time scan, so the live canvas preview may look partially unstyled unless you use tokens already present in scanned source files, maintain a **safelist**, or constrain the model to known utilities. After **publish**, stored blueprint JSON lives under paths covered by `tailwind.config.js` `content`, so a production **`npm run build`** can include new class names from those files.
+
+### Nested padding and single inset
+
+- In the browser, padding on a **parent** and padding on a **child** both apply—visual inset **adds up**. Generative prompts target **single inset**: put theme padding on **one** outer wrapper per card/panel/workspace (`p-*`, `px-*`/`py-*`, or `p-card-pad-*`); avoid stacking `p-*` on inner headings or labels unless the user asks for padding on that inner line.
+- **First-pass HTML** (default `spacing_enforcement: false`) follows the system prompts only. Optional **`spacing_enforcement: true`** runs a second Vertex pass that aligns spacing `class` values with theme tokens and can **dedupe** redundant inner padding when an ancestor already carries inset (if the pass fails, first-pass HTML is kept).
+
+### Precise spacing prompts (canvas / layout HTML)
+
+- **Name tokens and regions:** The system prompt instructs the model to map words like *tight*, *micro*, *cozy* to theme spacing utilities (`space-y-tight`, `gap-micro`, `p-card-pad-default`, …) and, when you ask for a **single edge** (e.g. remove bottom padding on the header), to change only the relevant `pb-*` / `space-y-*` / `gap-*` classes instead of stripping all padding.
+- **Extended context:** Turn on **`extended_design_context`** in the client so the request includes a larger `theme-guide.json` slice and Tailwind token reference (see `/canvas/plan` above).
+- **Spacing pass:** Optional **`spacing_enforcement`** runs a second Vertex pass that adjusts spacing-related `class` values toward theme tokens and (when appropriate) removes redundant inner `p-*` so nested inset does not stack; if it fails, the first-pass HTML is kept.
+- **Dev CSS:** `tailwind.config.js` includes a **safelist** for theme spacing keys so preview HTML from the model is more likely to be styled in dev without relying only on file scans.
+- **Block padding:** Wrap grouped items (e.g. five nav links) in **one** container and set **`p-micro`** (or **`px-micro`** / **`py-micro`**) on that wrapper. Do not rely on **`pt-*` / `pl-*`** alone when the intent is **all-around** or **axis-uniform** padding for the whole group.
+- **`inline` token:** **`p-inline`** / **`px-inline`** use the `inline` spacing step for padding on all sides or on an axis; **`pl-inline`** is **left padding only** with that step—different meaning.
 
 ## curl
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from canvas_plan import TAILWIND_BRAND_CONTRACT
+from generative_spacing_intent import GENERATIVE_SPACING_INTENT_SECTION
 from layout_plan import LayoutHtmlRequestBody, load_theme_guide_snippet, load_tailwind_config_snippet
 
 LAYOUT_HTML_CREATOR_SYSTEM = """You are an expert front-end developer for an internal **design-system admin** app (layout workspace).
@@ -13,14 +14,16 @@ No markdown code fences, no backticks, no commentary before or after the HTML.
 **Styling**
 - Use **Tailwind CSS utility classes** that match this project's design tokens: prefer `brandcolor-*` colors
   (e.g. text-brandcolor-textstrong, text-brandcolor-textweak, bg-brandcolor-white, bg-brandcolor-fill,
-  border-brandcolor-strokeweak, bg-brandcolor-primary, rounded-lg, shadow-card) and spacing from the theme.
-- **Spacing tokens (mandatory for layout rhythm):** use theme.extend.spacing keys only — micro, tight, cozy, section, hero, inline
+  border-brandcolor-strokeweak, bg-brandcolor-primary, rounded-lg, shadow-card) and spacing from the theme when spacing is needed.
+- **Spacing tokens (when you use padding/margin/gap):** use theme.extend.spacing keys only — micro, tight, cozy, section, hero, inline
   as in gap-micro, p-cozy, px-section, space-x-micro, space-y-tight. For card shells described as compact/default/comfy padding,
   prefer p-card-pad-compact, p-card-pad-default, p-card-pad-comfy; inner card stacks: gap-card-gap-tight, gap-card-gap-default, gap-card-gap-loose.
   Wrong: gap-2, space-x-2, p-4, m-6 (default Tailwind scale) when the user asked for hairline/dense/cozy/section-style rhythm — those do not track :root --space-*.
+  Do **not** sprinkle `p-*` / `gap-*` on every region—only where the prompt implies inset, stacks, or card chrome (see Spacing intent below).
+- **Single inset:** For a card, panel, or workspace block, put padding on **one** outer wrapper only; do **not** stack `p-*` / `px-*` / `py-*` on inner titles or labels unless the prompt asks for padding on that inner line.
 - Reuse patterns from the theme guide when applicable (card-like surfaces: rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white).
 - Do **not** use arbitrary hex colors in `class` attributes; stick to the token names above.
-
+""" + GENERATIVE_SPACING_INTENT_SECTION + """
 **Layout scope (broader than a single canvas card)**
 - You may output a **page section**, **marketing block**, **admin shell region**, or **multi-region layout** (e.g. hero + grid, sidebar strip + content).
 - Prefer **semantic structure** (section, header, main, nav, article) when it helps readability.

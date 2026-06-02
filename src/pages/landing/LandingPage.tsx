@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import './landing-fonts.css'
 import { RiArrowRightLine } from '@remixicon/react'
@@ -32,7 +31,6 @@ import {
   LANDING_PAGE_BG,
   LANDING_PRODUCT_CARD_SRC,
   LANDING_PRODUCT_CARD_OVERLAP_Y_PERCENT,
-  LANDING_PRODUCT_CARD_WIDTH_PERCENT,
   LANDING_STROKE,
   LANDING_TEXT_MUTED,
   LANDING_CTA_CARD_BG,
@@ -41,33 +39,12 @@ import {
   PLATFORM_INTRO,
 } from './landing-content'
 
-const landingLaneWidthStyle = {
-  width: `${LANDING_PRODUCT_CARD_WIDTH_PERCENT}%`,
-} as const
-
 const landingCtaBase =
   'font-landing-body inline-flex items-center justify-center rounded-[4px] text-sm font-normal transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-0'
 
 const landingCtaAccent = `${landingCtaBase} border border-[#0bc9bb] bg-[#11EFDF] text-[#1a1a1a] shadow-[0_6px_20px_rgba(17,239,223,0.42),inset_0_1px_0_rgba(255,255,255,0.45)] hover:shadow-[0_8px_24px_rgba(17,239,223,0.52),inset_0_1px_0_rgba(255,255,255,0.55)] active:shadow-[0_3px_8px_rgba(17,239,223,0.32),inset_0_2px_6px_rgba(0,0,0,0.08)]`
 
 const landingCtaNeutral = `${landingCtaBase} border border-[#dcdcdc] bg-white text-[#3d3d3d] shadow-[0_4px_14px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.95)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,1)] active:shadow-[0_2px_6px_rgba(0,0,0,0.08),inset_0_2px_4px_rgba(0,0,0,0.05)]`
-
-function LandingContentLane({
-  children,
-  className = '',
-}: {
-  children: ReactNode
-  className?: string
-}) {
-  return (
-    <div
-      className={`mx-auto min-w-0 shrink-0 ${className}`.trim()}
-      style={landingLaneWidthStyle}
-    >
-      {children}
-    </div>
-  )
-}
 
 function LandingNav() {
   return (
@@ -191,14 +168,14 @@ function HeroSection() {
       </div>
 
       <div
-        className="absolute bottom-0 left-0 right-0 z-20 flex justify-center"
+        className="absolute bottom-0 left-0 right-0 z-20 px-4 sm:px-6"
         style={{
           transform: `translateY(${LANDING_PRODUCT_CARD_OVERLAP_Y_PERCENT}%)`,
         }}
       >
-        <LandingContentLane>
+        <div className="mx-auto w-full max-w-6xl">
           <HeroProductCard />
-        </LandingContentLane>
+        </div>
       </div>
     </section>
   )

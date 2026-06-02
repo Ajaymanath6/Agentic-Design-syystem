@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-04-20T11:29:56.735Z",
+  "lastUpdated": "2026-04-21T09:43:30.501Z",
   "components": [
     {
       "id": "canvas-card-575a7048-23c2-4293-b4b7-03a8035cc8a5",
@@ -23,23 +23,13 @@
       "kind": "component"
     },
     {
-      "id": "canvas-html-da88442c-15da-45c2-91fe-839597fcf7d8",
-      "publishedAt": "2026-04-20T10:56:28.404Z",
+      "id": "canvas-html-5b3c255b-5fce-4dff-b30a-371b88dd14b3",
+      "publishedAt": "2026-04-21T09:28:04.787Z",
       "hasBlueprint": true,
       "apiEndpoint": null,
-      "importId": "CanvasHtmlDa88442c15da45c291fe839597fcf7d8Component",
-      "thumbnailPath": "/generated/canvas-html-da88442c-15da-45c2-91fe-839597fcf7d8-thumbnail.svg",
-      "blueprintPath": "/blueprints/canvas-html-da88442c-15da-45c2-91fe-839597fcf7d8.json",
-      "kind": "component"
-    },
-    {
-      "id": "canvas-html-f3309373-ce8c-4835-a43d-958c8ea3f9bd",
-      "publishedAt": "2026-04-20T10:59:40.330Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "CanvasHtmlF3309373Ce8c4835A43d958c8ea3f9bdComponent",
-      "thumbnailPath": "/generated/canvas-html-f3309373-ce8c-4835-a43d-958c8ea3f9bd-thumbnail.svg",
-      "blueprintPath": "/blueprints/canvas-html-f3309373-ce8c-4835-a43d-958c8ea3f9bd.json",
+      "importId": "CanvasHtml5b3c255b5fce4dffB30a371b88dd14b3Component",
+      "thumbnailPath": "/generated/canvas-html-5b3c255b-5fce-4dff-b30a-371b88dd14b3-thumbnail.svg",
+      "blueprintPath": "/blueprints/canvas-html-5b3c255b-5fce-4dff-b30a-371b88dd14b3.json",
       "kind": "component"
     },
     {
@@ -60,26 +50,6 @@
       "importId": "Layout1o4ytd8Component",
       "thumbnailPath": "/generated/layout-1o4ytd8-thumbnail.png",
       "blueprintPath": "/blueprints/layout-1o4ytd8.json",
-      "kind": "layout"
-    },
-    {
-      "id": "layout-1rq44ez",
-      "publishedAt": "2026-04-13T12:12:48.075Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "Layout1rq44ezComponent",
-      "thumbnailPath": "/generated/layout-1rq44ez-thumbnail.png",
-      "blueprintPath": "/blueprints/layout-1rq44ez.json",
-      "kind": "layout"
-    },
-    {
-      "id": "layout-html-1pprp4j",
-      "publishedAt": "2026-04-20T11:29:56.735Z",
-      "hasBlueprint": true,
-      "apiEndpoint": null,
-      "importId": "LayoutHtml1pprp4jComponent",
-      "thumbnailPath": "/generated/layout-html-1pprp4j-thumbnail.png",
-      "blueprintPath": "/blueprints/layout-html-1pprp4j.json",
       "kind": "layout"
     },
     {

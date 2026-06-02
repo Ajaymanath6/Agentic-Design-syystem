@@ -325,7 +325,7 @@ export function LayoutPromptPanel() {
             />
             <span
               className="text-brandcolor-textstrong"
-              title="Second model pass to align spacing utilities with theme tokens. Extra latency."
+              title="Second model pass: align spacing utilities with theme tokens and dedupe nested padding when an outer shell already has inset. Extra latency."
             >
               Spacing pass (2nd model)
             </span>

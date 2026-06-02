@@ -587,11 +587,11 @@ export function ComponentsCanvasPromptPanel({
                 className="rounded border-brandcolor-strokeweak"
                 checked={spacingEnforcement}
                 onChange={(e) => onSpacingEnforcementChange(e.target.checked)}
-                aria-label="Spacing pass: second model aligns gap and padding classes with theme tokens"
+                aria-label="Spacing pass: second model aligns gap and padding classes with theme tokens and can dedupe nested padding"
               />
               <span
                 className="text-brandcolor-textstrong"
-                title="Runs a second Vertex pass after HTML generation to map prompts like micro/cozy to gap-micro, p-cozy, etc. Extra latency and API cost. Safe fallback: if the pass fails, the first HTML is kept."
+                title="Runs a second Vertex pass after HTML generation to map prompts like micro/cozy to gap-micro, p-cozy, etc., and to strip redundant inner p-* when an outer shell already has padding (single inset). Extra latency and API cost. Safe fallback: if the pass fails, the first HTML is kept. Block padding: p-micro on one wrapper. Example: header pb-0 only; nav list space-y-tight."
               >
                 Spacing pass (2nd model)
               </span>

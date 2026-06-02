@@ -43,7 +43,7 @@ const REF_ONLY_PROMPT_FALLBACK =
   'Use the referenced canvas blocks as context.'
 
 const REPLACE_MODE_LLM_PREAMBLE =
-  '[Replace mode] The user is replacing the single referenced canvas component. Return exactly one revised HTML fragment suitable for the canvas. Do not output multiple unrelated root widgets.\n\n'
+  '[Replace mode] The user is replacing the single referenced canvas component. The referenced block HTML in the request is the authoritative current fragment—preserve DOM structure and apply minimal class changes for the user request. Do not add new padding/margin/gap utilities (e.g. p-tight, gap-*) unless the user explicitly asks for spacing, padding, margins, gaps, or density. Padding on parents and children stacks visually: if you add or change padding on an outer wrapper, remove redundant inner p-* on titles/labels so inset does not double. Return exactly one revised HTML fragment suitable for the canvas. Do not output multiple unrelated root widgets.\n\n'
 
 export type ComponentsCanvasAiMode = 'plan' | 'htmlCreator'
 

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-5b3c255b-5fce-4dff-b30a-371b88dd14b3",
+  "component": "div",
+  "importId": "CanvasHtml5b3c255b5fce4dffB30a371b88dd14b3Component",
+  "data": {
+    "imageUrl": "/generated/canvas-html-5b3c255b-5fce-4dff-b30a-371b88dd14b3-thumbnail.svg",
+    "imageAlt": "[Replace",
+    "sealed": true,
+    "sourceHtml": "<div class=\"bg-brandcolor-white rounded-lg border border-brandcolor-strokeweak shadow-card\">\n  <header class=\"p-card-pad-default border-b border-brandcolor-strokeweak flex items-center justify-between\">\n    <h2 class=\"font-semibold text-brandcolor-textstrong\">Header Label</h2>\n    <div class=\"space-x-micro flex\">\n      <i class=\"ri-search-line size-5 text-brandcolor-textstrong\"></i>\n      <i class=\"ri-add-line size-5 text-brandcolor-textstrong\"></i>\n    </div>\n  </header>\n  <div class=\"pt-tight pb-micro pl-tight text-brandcolor-textstrong\">\n    <p class=\"p-tight\">Workspace</p>\n  </div>\n  <aside class=\"p-section space-y-tight\">\n    <nav>\n      <ul class=\"space-y-tight\">\n        <li>\n          <a href=\"#\" class=\"flex items-center space-x-inline text-brandcolor-textstrong hover:text-brandcolor-primary\">\n            <i class=\"ri-home-line size-5\"></i>\n            <span>Home</span>\n          </a>\n        </li>\n        <li>\n          <a href=\"#\" class=\"flex items-center space-x-inline text-brandcolor-textstrong hover:text-brandcolor-primary\">\n            <i class=\"ri-compass-line size-5\"></i>\n            <span>Explore</span>\n          </a>\n        </li>\n        <li>\n          <a href=\"#\" class=\"flex items-center space-x-inline text-brandcolor-textstrong hover:text-brandcolor-primary\">\n            <i class=\"ri-settings-line size-5\"></i>\n            <span>Settings</span>\n          </a>\n        </li>\n        <li>\n          <a href=\"#\" class=\"flex items-center space-x-inline text-brandcolor-textstrong hover:text-brandcolor-primary\">\n            <i class=\"ri-user-line size-5\"></i>\n            <span>Profile</span>\n          </a>\n        </li>\n        <li>\n          <a href=\"#\" class=\"flex items-center space-x-micro text-brandcolor-textstrong hover:text-brandcolor-primary\">\n            <i class=\"ri-logout-box-line size-5\"></i>\n            <span>Logout</span>\n          </a>\n        </li>\n      </ul>\n    </nav>\n  </aside>\n</div>"
+  }
+}
