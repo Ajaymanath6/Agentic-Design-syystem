@@ -12,11 +12,12 @@ import { ThemeShadowsPanel } from "../pages/catalog/theme/ThemeShadowsPanel";
 import { ThemeSpacingPanel } from "../pages/catalog/theme/ThemeSpacingPanel";
 import { ThemeTypographyPanel } from "../pages/catalog/theme/ThemeTypographyPanel";
 import { ComingSoonPage } from "../pages/ComingSoonPage";
+import { LandingPage } from "../pages/landing/LandingPage";
 
 export function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/catalog/home" replace />} />
+      <Route path="/" element={<LandingPage />} />
       <Route element={<CatalogLayout />}>
         <Route path="admin" element={<Navigate to="/admin/canvas" replace />} />
         <Route path="admin/canvas" element={<AdminCanvasOutlet />} />

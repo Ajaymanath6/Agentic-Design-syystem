@@ -21,6 +21,33 @@ export default {
     './public/blueprints/**/*.json',
     './blueprints/**/*.json',
   ],
+  /**
+   * Generative HTML (canvas/layout) may introduce theme spacing classes only in runtime strings.
+   * Safelist keeps dev/preview CSS complete without widening `content` to arbitrary blobs.
+   * Matches `theme.extend.spacing` primitives + card-pad-* / card-gap-* keys.
+   */
+  safelist: [
+    {
+      pattern:
+        /^(p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr)-(micro|tight|cozy|section|hero|inline)$/,
+    },
+    {
+      pattern:
+        /^(gap|space-x|space-y)-(micro|tight|cozy|section|hero|inline)$/,
+    },
+    {
+      pattern:
+        /^(p|px|py|pt|pb|pl|pr)-(card-pad-compact|card-pad-default|card-pad-comfy)$/,
+    },
+    {
+      pattern:
+        /^gap-(card-gap-tight|card-gap-default|card-gap-loose)$/,
+    },
+    {
+      pattern:
+        /^space-[xy]-(card-gap-tight|card-gap-default|card-gap-loose)$/,
+    },
+  ],
   theme: {
     extend: {
       screens: {
@@ -31,6 +58,18 @@ export default {
       fontFamily: {
         sans: ['var(--font-sans-stack)'],
         lora: ['var(--font-lora-stack)'],
+        'landing-heading': [
+          'Matter',
+          'var(--font-sans-stack)',
+          'IBM Plex Sans',
+          'sans-serif',
+        ],
+        'landing-body': [
+          'Matter',
+          'var(--font-sans-stack)',
+          'IBM Plex Sans',
+          'sans-serif',
+        ],
       },
       fontSize: {
         'theme-title-h1': [

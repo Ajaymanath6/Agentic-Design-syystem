@@ -1,0 +1,22 @@
+/* Matter — landing titles (medium) + body (regular), self-hosted */
+@font-face {
+  font-family: Matter;
+  src: url('/fonts/matter/Matter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Matter;
+  src: url('/fonts/matter/Matter-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Avoid white flash while landing route loads */
+html,
+body {
+  background-color: #ebeae6;
+}
