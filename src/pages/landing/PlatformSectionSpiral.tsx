@@ -1,19 +1,19 @@
 import { GoldenSpiralMark } from './GoldenSpiralMark'
 
-/** Left edge — no padding; bleeds off viewport (15% smaller than prior size). */
+/** Spiral tip starts at the left viewport edge — minimal bleed. */
 export function PlatformSectionSpiral() {
   return (
     <GoldenSpiralMark
       align="left"
       width="min(94vw, 48rem)"
       height="min(110vh, 44rem)"
-      bleedLeft="26vw"
+      bleedLeft="0%"
       opacity={0.34}
     />
   )
 }
 
-/** Mobile: spiral above centered copy. */
+/** Mobile: spiral above copy, tip from left edge. */
 export function PlatformSectionSpiralMobile() {
   return (
     <div className="relative mb-6 h-[19rem] w-full overflow-hidden sm:hidden">
@@ -21,7 +21,7 @@ export function PlatformSectionSpiralMobile() {
         align="left"
         width="min(110vw, 24rem)"
         height="19rem"
-        bleedLeft="20vw"
+        bleedLeft="0%"
         opacity={0.3}
       />
     </div>

@@ -217,14 +217,14 @@ function PlatformSection() {
         <PlatformSectionSpiral />
       </div>
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="relative flex min-h-[22rem] flex-col items-center justify-center text-center lg:min-h-[38rem]">
+        <div className="relative flex min-h-[22rem] flex-col items-end justify-center text-right lg:min-h-[38rem]">
           <PlatformSectionSpiralMobile />
-          <div className="relative z-10 mx-auto w-full max-w-2xl xl:max-w-3xl">
+          <div className="relative z-10 ml-auto w-full max-w-xl xl:max-w-2xl">
             <p className="font-landing-body text-xs font-normal uppercase tracking-[0.18em] text-[#a3a39a]">
               {PLATFORM_INTRO.eyebrow}
             </p>
             <h2
-              className="font-landing-heading mx-auto mt-4 max-w-xl text-[2.5rem] font-medium leading-[1.15] tracking-tight"
+              className="font-landing-heading mt-4 max-w-xl text-[2.5rem] font-medium leading-[1.15] tracking-tight"
               style={{ color: LANDING_INK }}
             >
               <PlatformIntroHeadline />
