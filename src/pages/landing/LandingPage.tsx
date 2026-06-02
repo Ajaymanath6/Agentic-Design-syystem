@@ -210,13 +210,15 @@ function PlatformSection() {
   return (
     <section
       id="platform"
-      className="relative scroll-mt-28 overflow-hidden pb-[100px] pl-0 pr-4 pt-[400px] sm:pr-6"
+      className="relative scroll-mt-28 overflow-x-clip pb-[100px] pl-0 pr-4 pt-[400px] sm:pr-6"
       style={{ backgroundColor: PLATFORM_INTRO.sectionBg }}
     >
-      <PlatformSectionSpiral />
       <div className="relative z-10 mx-auto max-w-6xl pl-4 sm:pl-6">
         <div className="relative flex min-h-[22rem] flex-col items-center justify-center lg:min-h-[38rem]">
           <PlatformSectionSpiralMobile />
+          <div className="pointer-events-none absolute inset-y-0 -left-4 z-0 hidden sm:block">
+            <PlatformSectionSpiral />
+          </div>
           <div className="relative z-10 w-full text-center lg:ml-auto lg:max-w-2xl xl:max-w-3xl">
             <p className="font-landing-body text-xs font-normal uppercase tracking-[0.18em] text-[#a3a39a]">
               {PLATFORM_INTRO.eyebrow}
