@@ -10,11 +10,13 @@ import { CollapsibleSidebarShell } from './CollapsibleSidebarShell'
 
 export function CatalogLayout() {
   const pathname = useLocation().pathname
-  const isThemeArea = pathname.startsWith('/catalog/theme')
   const isAdminCanvas =
     pathname === '/admin' ||
     pathname === '/admin/canvas' ||
     pathname.startsWith('/admin/canvas/')
+
+  const isHomeLikeChrome =
+    pathname === '/catalog/home' || pathname.startsWith('/catalog/theme')
 
   return (
     <CanvasChromeProvider>
@@ -32,8 +34,6 @@ export function CatalogLayout() {
                 </div>
               </main>
             </LayoutWorkspaceProvider>
-          ) : isThemeArea ? (
-            <Outlet />
           ) : (
             <>
               <CollapsibleSidebarShell>
@@ -41,7 +41,7 @@ export function CatalogLayout() {
               </CollapsibleSidebarShell>
               <main
                 className={`flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden font-sans text-theme-body-medium-regular leading-theme-body-medium-regular ${
-                  pathname === '/catalog/home'
+                  isHomeLikeChrome
                     ? CATALOG_CHROME_BG_CLASS
                     : 'bg-brandcolor-results-bg'
                 }`}
@@ -49,7 +49,7 @@ export function CatalogLayout() {
                 <CatalogMainHeader />
                 <div
                   className={`min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden ${
-                    pathname === '/catalog/home'
+                    isHomeLikeChrome
                       ? `${CATALOG_CHROME_BG_CLASS} py-0`
                       : 'bg-brandcolor-results-bg py-8'
                   }`}

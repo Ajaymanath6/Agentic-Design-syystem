@@ -7,7 +7,7 @@ import {
 } from '../../lib/catalog-display-name'
 import { catalogCardSourceHtml } from '../../lib/catalog-source-html'
 import type { CatalogCardModel } from '../../types/catalog'
-import { HOME_DIVIDER_GAP, HOME_SEE_MORE_BUTTON } from './home-layout'
+import { HOME_DIVIDER_GAP, HOME_SEE_MORE_BUTTON, HOME_CARD_GRID_GAP } from './home-layout'
 
 const HOME_CARD_BADGE =
   'inline-flex max-w-full self-start truncate rounded-md border border-brandcolor-strokeweak bg-brandcolor-fill px-2 py-0.5 font-geist text-[11px] font-medium leading-snug text-brandcolor-textstrong [font-family:var(--font-geist-stack)]'
@@ -143,7 +143,7 @@ export function HomeLibraryCardGrid({
   const firstBatch = cards.slice(0, previewCount)
   const restBatch = cards.slice(previewCount)
   const hasMore = restBatch.length > 0
-  const gridClass = `grid w-full gap-4 ${gridColumnClass(sidebarCollapsed)}`
+  const gridClass = `grid w-full ${HOME_CARD_GRID_GAP} ${gridColumnClass(sidebarCollapsed)}`
 
   if (expanded || !hasMore) {
     return (

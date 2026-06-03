@@ -4,12 +4,12 @@
  */
 export const SPACING_DEFAULTS = {
   // @agentic-theme-spacing-defaults-start
-  micro: '0.25rem',
-  tight: '0.5rem',
-  cozy: '1rem',
-  section: '1.5rem',
-  hero: '2rem',
-  inline: '0.75rem',
+  'micro': "0.25rem",
+  'tight': "0.5rem",
+  'cozy': "1rem",
+  'section': "1.5rem",
+  'hero': "2rem",
+  'inline': "0.75rem",
   // @agentic-theme-spacing-defaults-end
 } as const
 

@@ -25,7 +25,7 @@ export function CatalogMainHeader() {
   const blockLabel = `${blockCount} UI block${blockCount === 1 ? '' : 's'} on canvas`
 
   return (
-    <header className="flex min-h-[52px] shrink-0 items-center px-4 py-3 c_md:px-6">
+    <header className="flex min-h-[52px] shrink-0 items-center border-b border-brandcolor-strokeweak px-4 py-3 c_md:px-6">
       {isCanvasAdmin ? (
         <div className="grid w-full min-h-[28px] grid-cols-[1fr_auto_1fr] items-center gap-3">
           <div className="flex justify-start">

@@ -10,6 +10,9 @@ import {
   typographyLhKeyTitle,
 } from '../../../config/theme-typography-defaults'
 import type { ThemeEditorOutletContext } from './types'
+import { ThemePanelSectionHeading } from './ThemePanelSectionHeading'
+import { ThemePanelSubsectionHeading } from './ThemePanelSubsectionHeading'
+import { themePanelSectionSurfaceClass } from './theme-panel-section-surface'
 import {
   ThemeTypographyFsLhCompactRow,
 } from './ThemeTypographyWidgets'
@@ -19,17 +22,16 @@ export function ThemeTypographyPanel() {
     useOutletContext<ThemeEditorOutletContext>()
 
   return (
-    <Card className="p-5">
-      <h2 className="text-theme-body-small-emphasis font-theme-semibold uppercase tracking-wide text-brandcolor-textweak">
-        Typography
-      </h2>
-      <p className="mt-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
-        Stacks: comma-separated font names. Sizes: rem or px; line heights: unitless numbers. Arrow keys nudge by 0.001; weights 100–900. Hints use 16px per rem (change if your root font size differs); load webfonts in index.html. Titles: font-lora + text-theme-title-h*. Body: font-sans + text-theme-body-*.
-      </p>
+    <Card className="p-5 shadow-none">
+      <ThemePanelSectionHeading
+        title="Typography"
+        subtitle="Stacks: comma-separated font names. Sizes: rem or px; line heights: unitless numbers. Arrow keys nudge by 0.001; weights 100–900. Hints use 16px per rem (change if your root font size differs); load webfonts in index.html. Titles: font-lora + text-theme-title-h*. Body: font-sans + text-theme-body-*."
+      />
 
-      <h3 className="mt-6 text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong">
-        Font stacks
-      </h3>
+      <ThemePanelSubsectionHeading
+        className="mt-6"
+        title="Font stacks"
+      />
       <ul className="mt-2 space-y-4">
         {(
           [
@@ -53,7 +55,7 @@ export function ThemeTypographyPanel() {
             },
           ] as const
         ).map(({ key, line }) => (
-          <li key={key}>
+          <li key={key} className={`p-3 ${themePanelSectionSurfaceClass}`}>
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
               <p className="min-w-0 flex-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
                 {line}
@@ -78,16 +80,16 @@ export function ThemeTypographyPanel() {
         ))}
       </ul>
 
-      <h3 className="mt-8 text-theme-body-small-emphasis font-theme-semibold uppercase tracking-wide text-brandcolor-textweak">
+      <h3 className="mt-8 font-geist text-[16px] font-semibold uppercase tracking-wide text-brandcolor-textweak [font-family:var(--font-geist-stack)]">
         Text styles
       </h3>
 
-      <h4 className="mt-4 text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong">
-        Title (H1–H6)
-      </h4>
-      <p className="mt-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
-        Pair each heading level with font-lora in UI (e.g. font-lora text-theme-title-h3).
-      </p>
+      <ThemePanelSubsectionHeading
+        className="mt-4"
+        as="h4"
+        title="Title (H1–H6)"
+        subtitle="Pair each heading level with font-lora in UI (e.g. font-lora text-theme-title-h3)."
+      />
       <ul className="mt-3 grid grid-cols-1 gap-1.5">
         {THEME_TITLE_LEVELS.map((level) => {
           const fsK = typographyFsKeyTitle(level)
@@ -107,12 +109,12 @@ export function ThemeTypographyPanel() {
         })}
       </ul>
 
-      <h4 className="mt-8 text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong">
-        Body (Large / Medium / Small)
-      </h4>
-      <p className="mt-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
-        Three sizes; each has Regular (≈400), Emphasis (≈600), and Bold (≈700) — pair with font-sans and font-theme-regular / font-theme-semibold / font-theme-bold as needed.
-      </p>
+      <ThemePanelSubsectionHeading
+        className="mt-8"
+        as="h4"
+        title="Body (Large / Medium / Small)"
+        subtitle="Three sizes; each has Regular (≈400), Emphasis (≈600), and Bold (≈700) — pair with font-sans and font-theme-regular / font-theme-semibold / font-theme-bold as needed."
+      />
       <div className="mt-4 space-y-6">
         {THEME_BODY_SIZES.map((size) => (
           <div key={size}>
@@ -145,14 +147,15 @@ export function ThemeTypographyPanel() {
         ))}
       </div>
 
-      <h3 className="mt-10 text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong">
-        Font weights (semantic utilities)
-      </h3>
+      <ThemePanelSubsectionHeading
+        className="mt-10"
+        title="Font weights (semantic utilities)"
+      />
       <ul className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {typoFwKeys.map((key) => (
           <li
             key={key}
-            className="flex flex-col gap-1 rounded-md border border-brandcolor-strokeweak bg-brandcolor-fill p-2"
+            className={`flex flex-col gap-1 p-2 ${themePanelSectionSurfaceClass}`}
           >
             <div className="flex items-center justify-between gap-2">
               <label

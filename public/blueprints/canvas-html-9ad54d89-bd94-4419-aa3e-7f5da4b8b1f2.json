@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-9ad54d89-bd94-4419-aa3e-7f5da4b8b1f2",
+  "component": "div",
+  "importId": "CanvasHtml9ad54d89Bd944419Aa3e7f5da4b8b1f2Component",
+  "data": {
+    "imageUrl": "/generated/canvas-html-9ad54d89-bd94-4419-aa3e-7f5da4b8b1f2-thumbnail.svg",
+    "imageAlt": "card",
+    "description": "fhdh",
+    "sealed": true,
+    "sourceHtml": "<div class=\"rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card p-card-pad-default\">\n  <h2 class=\"font-sans text-base font-semibold text-brandcolor-textstrong\">Profile Card Title</h2>\n  <p class=\"mt-1 text-sm text-brandcolor-textweak\">This is a brief description or subtitle for the profile card.</p>\n</div>"
+  }
+}

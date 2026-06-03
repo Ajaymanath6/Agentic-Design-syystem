@@ -6,18 +6,9 @@ import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
 import { useCatalogSidebarCollapse } from '../../context/CatalogSidebarCollapseContext'
 import type { CatalogCardModel } from '../../types/catalog'
 import { HomeLibraryCardGrid } from './HomeLibraryCardGrid'
-import { HOME_SECTION_BODY_GAP, HOME_SECTION_TOP } from './home-layout'
+import { HOME_SECTION_BODY_GAP, HOME_SECTION_TOP, HOME_CARD_GRID_GAP, CATALOG_PAGE_TOOLBAR_BUTTON, HOME_PAGE_SHELL, HOME_PAGE_SHELL_COLLAPSED } from './home-layout'
 
-/** Geist library shell — centered page width with horizontal margin. */
-const HOME_PAGE_SHELL =
-  'font-geist mx-auto my-3 mt-0 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-3 py-0 md-page:min-h-[calc(100vh-273px)]'
-
-/** Collapsed sidebar — keep 290px inset on each side. */
-const HOME_PAGE_SHELL_COLLAPSED =
-  'font-geist mx-[290px] mt-0 min-h-[calc(100vh-366px)] max-w-[calc(100%-580px)] w-full py-0 md-page:min-h-[calc(100vh-273px)]'
-
-const HOME_TOOLBAR_BUTTON =
-  'inline-flex items-center justify-center gap-1.5 rounded-md border border-brandcolor-strokeweak bg-brandcolor-white px-4 py-2 font-geist text-[14px] font-normal text-brandcolor-textstrong transition-colors hover:bg-brandcolor-fill focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2'
+const HOME_TOOLBAR_BUTTON = CATALOG_PAGE_TOOLBAR_BUTTON
 
 const COMPONENT_DESCRIPTION_FALLBACK =
   'Published blocks from your catalog — browse and reuse in your projects.'
@@ -200,7 +191,7 @@ export function HomePage() {
 
           {!loading && !error && pageCards.length === 0 ? (
             <ul
-              className={`grid w-full gap-4 ${
+              className={`grid w-full ${HOME_CARD_GRID_GAP} ${
                 sidebarCollapsed ? 'grid-cols-4' : 'grid-cols-3'
               }`}
               role="list"

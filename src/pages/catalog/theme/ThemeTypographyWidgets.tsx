@@ -1,4 +1,5 @@
 import type { TypographyTokenKey } from '../../../config/theme-typography-defaults'
+import { themePanelSectionSurfaceClass } from './theme-panel-section-surface'
 import {
   fontSizeInputHint,
   lineBoxHeightHint,
@@ -127,13 +128,13 @@ export function ThemeTypographyFsLhCompactRow({
 }) {
   const summary = `${fsValue} / ${lhValue}`
   return (
-    <li className="min-w-0">
+    <li className={`min-w-0 overflow-hidden ${themePanelSectionSurfaceClass}`}>
       <button
         type="button"
         onClick={onOpenEditor}
         title={`Edit ${heading}: ${summary}`}
         aria-label={`Edit typography ${heading}, ${summary}`}
-        className="flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-md bg-brandcolor-fill px-3 py-2 text-left transition-colors hover:bg-brandcolor-strokelight focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-1"
+        className="flex w-full min-w-0 cursor-pointer items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-brandcolor-fill focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-1"
       >
         <span className="shrink-0 text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong">
           {heading}

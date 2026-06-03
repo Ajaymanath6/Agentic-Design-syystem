@@ -24,6 +24,9 @@ import {
 import { validateSpacingValue } from '../../../lib/theme-token-validation'
 import type { ThemeEditorOutletContext } from './types'
 import { TOKEN_SPACING_HELP } from './token-spacing-help'
+import { ThemePanelSectionHeading } from './ThemePanelSectionHeading'
+import { ThemePanelSubsectionHeading } from './ThemePanelSubsectionHeading'
+import { themePanelSectionSurfaceClass } from './theme-panel-section-surface'
 
 const tokenHelpIconButtonClass =
   'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border bg-brandcolor-fill text-brandcolor-textweak transition-colors hover:bg-brandcolor-strokelight hover:text-brandcolor-textstrong focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-1'
@@ -40,14 +43,14 @@ function ThemeSpacingCompactRow({
   onHelp: () => void
 }) {
   return (
-    <li className="min-w-0">
-      <div className="flex min-w-0 items-stretch gap-1.5">
+    <li className={`min-w-0 overflow-hidden ${themePanelSectionSurfaceClass}`}>
+      <div className="flex min-w-0 items-stretch gap-1.5 p-0.5">
         <button
           type="button"
           onClick={onEdit}
           title={`Edit ${spacingKey}: ${value}`}
           aria-label={`Edit spacing ${spacingKey}`}
-          className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md bg-brandcolor-fill px-3 py-2 text-left transition-colors hover:bg-brandcolor-strokelight focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-1"
+          className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-brandcolor-fill focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-1"
         >
           <span className="shrink-0 font-mono text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong">
             {spacingKey}
@@ -99,36 +102,39 @@ export function ThemeSpacingPanel() {
   const helpEntry = helpKey != null ? TOKEN_SPACING_HELP[helpKey] : null
 
   return (
-    <Card className="p-5">
-      <h2 className="text-theme-body-small-emphasis font-theme-semibold uppercase tracking-wide text-brandcolor-textweak">
-        Spacing
-      </h2>
-      <p className="mt-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
-        Values map to <code className="font-mono">--space-*</code> on{' '}
-        <code className="font-mono">:root</code> and Tailwind{' '}
-        <code className="font-mono">theme.extend.spacing</code> (e.g.{' '}
-        <code className="font-mono">p-cozy</code>, <code className="font-mono">gap-tight</code>).
-        Only <code className="font-mono">rem</code> or <code className="font-mono">px</code> lengths.
-        The quick reference below uses your <strong className="font-theme-semibold text-brandcolor-textstrong">current</strong> theme values.
-      </p>
+    <Card className="p-5 shadow-none">
+      <ThemePanelSectionHeading
+        title="Spacing"
+        subtitle={
+          <>
+            Values map to <code className="font-mono">--space-*</code> on{' '}
+            <code className="font-mono">:root</code> and Tailwind{' '}
+            <code className="font-mono">theme.extend.spacing</code> (e.g.{' '}
+            <code className="font-mono">p-cozy</code>, <code className="font-mono">gap-tight</code>
+            ). Only <code className="font-mono">rem</code> or{' '}
+            <code className="font-mono">px</code> lengths. The quick reference below uses
+            your current theme values.
+          </>
+        }
+      />
 
       <section
-        className="mt-5 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-fill/60 p-4"
+        className={`mt-5 p-4 ${themePanelSectionSurfaceClass} bg-brandcolor-fill/60`}
         aria-labelledby="card-spacing-alias-heading"
       >
-        <h3
+        <ThemePanelSubsectionHeading
           id="card-spacing-alias-heading"
-          className="text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong"
-        >
-          Card semantic aliases
-        </h3>
-        <p className="mt-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
-          Read-only: <code className="font-mono">--card-padding-*</code> and{' '}
-          <code className="font-mono">--card-gap-*</code> on <code className="font-mono">:root</code> point at{' '}
-          <code className="font-mono">--space-*</code> primitives (see{' '}
-          <code className="font-mono">theme-card-spacing-semantics.ts</code>). Use Tailwind{' '}
-          <code className="font-mono">p-card-pad-*</code> / <code className="font-mono">gap-card-gap-*</code> when prompts describe card density; tuning a primitive below updates every alias that references it.
-        </p>
+          title="Card semantic aliases"
+          subtitle={
+            <>
+              Read-only: <code className="font-mono">--card-padding-*</code> and{' '}
+              <code className="font-mono">--card-gap-*</code> on <code className="font-mono">:root</code> point at{' '}
+              <code className="font-mono">--space-*</code> primitives (see{' '}
+              <code className="font-mono">theme-card-spacing-semantics.ts</code>). Use Tailwind{' '}
+              <code className="font-mono">p-card-pad-*</code> / <code className="font-mono">gap-card-gap-*</code> when prompts describe card density; tuning a primitive below updates every alias that references it.
+            </>
+          }
+        />
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <div>
             <p className="text-theme-body-small-regular font-theme-semibold text-brandcolor-textstrong">
@@ -170,15 +176,13 @@ export function ThemeSpacingPanel() {
       </section>
 
       <section
-        className="mt-6 rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white p-4"
+        className={`mt-6 p-4 ${themePanelSectionSurfaceClass}`}
         aria-labelledby="spacing-how-heading"
       >
-        <h3
+        <ThemePanelSubsectionHeading
           id="spacing-how-heading"
-          className="text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong"
-        >
-          How spacing works
-        </h3>
+          title="How spacing works"
+        />
         <div className="mt-3 space-y-3 text-theme-body-small-regular leading-relaxed text-brandcolor-textweak">
           <p>
             Think <strong className="font-theme-semibold text-brandcolor-textstrong">inside → out</strong>:{' '}
@@ -207,16 +211,12 @@ export function ThemeSpacingPanel() {
       </section>
 
       <section className="mt-8" aria-labelledby="spacing-quick-ref">
-        <h3
+        <ThemePanelSubsectionHeading
           id="spacing-quick-ref"
-          className="text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong"
-        >
-          Quick reference (current theme)
-        </h3>
-        <p className="mt-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
-          Token, CSS value, documentary ~px, example utilities, and a one-line “when” hint. Row actions below open edit; the info icon opens the same story per token.
-        </p>
-        <div className="mt-3 overflow-x-auto rounded-lg border border-brandcolor-strokeweak">
+          title="Quick reference (current theme)"
+          subtitle="Token, CSS value, documentary ~px, example utilities, and a one-line “when” hint. Row actions below open edit; the info icon opens the same story per token."
+        />
+        <div className={`mt-3 overflow-x-auto ${themePanelSectionSurfaceClass}`}>
           <table className="min-w-[40rem] w-full border-collapse text-left text-theme-body-small-regular">
             <thead>
               <tr className="border-b border-brandcolor-strokeweak bg-brandcolor-fill">
@@ -252,15 +252,11 @@ export function ThemeSpacingPanel() {
       </section>
 
       <section className="mt-8" aria-labelledby="spacing-edit-list-heading">
-        <h3
+        <ThemePanelSubsectionHeading
           id="spacing-edit-list-heading"
-          className="text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong"
-        >
-          Edit tokens
-        </h3>
-        <p className="mt-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
-          Click a row to change the length. Use the info icon for prompt phrases and layout guidance without entering edit mode.
-        </p>
+          title="Edit tokens"
+          subtitle="Click a row to change the length. Use the info icon for prompt phrases and layout guidance without entering edit mode."
+        />
         <ul className="mt-3 grid grid-cols-1 gap-1.5">
           {SPACING_KEYS.map((key) => (
             <ThemeSpacingCompactRow

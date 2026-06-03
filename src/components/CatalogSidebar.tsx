@@ -1,6 +1,6 @@
-import { House, PaintBrush } from '@phosphor-icons/react'
+import { House } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { CATALOG_CHROME_BG_CLASS, CATALOG_SIDEBAR_WIDTH_CLASS } from '../config/sidebar-layout'
 import { SearchBar } from './SearchBar'
 import {
@@ -10,45 +10,18 @@ import {
 } from './SidebarDuotoneIcon'
 import { SidebarBrandHeader } from './SidebarBrandHeader'
 import { SidebarComponentsExplorer } from './SidebarComponentsExplorer'
+import { ThemeConfigurationNavSection } from './ThemeConfigurationNavSection'
 import { ViewModeToggle } from './ViewModeToggle'
 
 type NavItem = {
   to: string
   label: string
   icon: typeof House
-  activePathPrefix?: string
 }
 
 const primaryNav: NavItem[] = [
   { to: '/catalog/home', label: 'Home', icon: House },
-  {
-    to: '/catalog/theme/colors',
-    label: 'Theme configuration',
-    icon: PaintBrush,
-    activePathPrefix: '/catalog/theme',
-  },
 ]
-
-function NavRow({ item }: { item: NavItem }) {
-  const { to, label, icon, activePathPrefix } = item
-  const location = useLocation()
-  return (
-    <NavLink to={to} className="block" end={to === '/catalog/home'}>
-      {({ isActive }) => {
-        const active =
-          activePathPrefix != null
-            ? location.pathname.startsWith(activePathPrefix)
-            : isActive
-        return (
-          <span className={sidebarNavRowClass(active)}>
-            <SidebarDuotoneIcon icon={icon} active={active} />
-            <span className={sidebarNavLabelClass(active)}>{label}</span>
-          </span>
-        )
-      }}
-    </NavLink>
-  )
-}
 
 export function CatalogSidebar() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -68,8 +41,21 @@ export function CatalogSidebar() {
             id="catalog-sidebar-search"
           />
           {primaryNav.map((item) => (
-            <NavRow key={item.to} item={item} />
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className="block"
+              end={item.to === '/catalog/home'}
+            >
+              {({ isActive }) => (
+                <span className={sidebarNavRowClass(isActive)}>
+                  <SidebarDuotoneIcon icon={item.icon} active={isActive} />
+                  <span className={sidebarNavLabelClass(isActive)}>{item.label}</span>
+                </span>
+              )}
+            </NavLink>
           ))}
+          <ThemeConfigurationNavSection />
         </div>
         <SidebarComponentsExplorer />
       </nav>

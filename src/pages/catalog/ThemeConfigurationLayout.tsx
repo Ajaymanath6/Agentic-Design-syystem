@@ -5,10 +5,14 @@ import {
   RiSave3Line,
 } from '@remixicon/react'
 import { useCallback, useMemo, useState } from 'react'
-import { Outlet } from 'react-router-dom'
-import { CatalogMainHeader } from '../../components/CatalogMainHeader'
-import { CollapsibleSidebarShell } from '../../components/CollapsibleSidebarShell'
-import { ThemeConfigSidebar } from '../../components/ThemeConfigSidebar'
+import { Outlet, useLocation } from 'react-router-dom'
+import { useCatalogSidebarCollapse } from '../../context/CatalogSidebarCollapseContext'
+import {
+  CATALOG_PAGE_TOOLBAR_BUTTON,
+  HOME_PAGE_SHELL,
+  HOME_PAGE_SHELL_COLLAPSED,
+  THEME_EDITOR_TOOLBAR_BUTTON,
+} from '../home/home-layout'
 import { TypographySettingModal } from '../../components/TypographySettingModal'
 import {
   BRAND_COLOR_DEFAULTS,
@@ -59,6 +63,17 @@ import {
 import { postThemeSyncToProject } from '../../services/publish-workflow'
 import type { EditingTypoPair, ThemeEditorOutletContext } from './theme/types'
 import { ThemeTypographyFsLhEditor } from './theme/ThemeTypographyWidgets'
+
+const THEME_PAGE_TITLES: Record<string, string> = {
+  '/catalog/theme/colors': 'Colors',
+  '/catalog/theme/typography': 'Typography',
+  '/catalog/theme/shadows': 'Shadows',
+  '/catalog/theme/spacing': 'Spacing',
+}
+
+function themePageTitle(pathname: string): string {
+  return THEME_PAGE_TITLES[pathname] ?? 'Theme configuration'
+}
 
 function buildInitialHexMap(): Record<BrandColorKey, string> {
   const next: Record<BrandColorKey, string> = { ...BRAND_COLOR_DEFAULTS }
@@ -160,6 +175,9 @@ function downloadJson(filename: string, data: unknown) {
  * nested routes (`colors` | `typography` | `shadows` | `spacing`).
  */
 export function ThemeConfigurationLayout() {
+  const { pathname } = useLocation()
+  const { collapsed: sidebarCollapsed } = useCatalogSidebarCollapse()
+  const pageTitle = themePageTitle(pathname)
   const [hexByKey, setHexByKey] = useState<Record<BrandColorKey, string>>(
     buildInitialHexMap,
   )
@@ -438,18 +456,33 @@ export function ThemeConfigurationLayout() {
 
   return (
     <>
-      <CollapsibleSidebarShell>
-        <ThemeConfigSidebar />
-      </CollapsibleSidebarShell>
-      <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-brandcolor-results-bg font-sans text-theme-body-medium-regular leading-theme-body-medium-regular">
-        <CatalogMainHeader />
-        <div className="min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden py-8">
-          <div className="mx-auto w-full max-w-7xl px-4 pb-16 pt-2 sm:px-6">
-            <div className="flex flex-wrap gap-2">
+      <div
+        className={`${
+          sidebarCollapsed ? HOME_PAGE_SHELL_COLLAPSED : HOME_PAGE_SHELL
+        } min-w-0 overflow-x-hidden font-geist`}
+      >
+        <div className="my-10 flex items-center justify-between gap-4">
+          <h1 className="font-geist text-[32px] font-semibold leading-tight text-brandcolor-textstrong [font-family:var(--font-geist-stack)]">
+            {pageTitle}
+          </h1>
+          <div className="flex shrink-0 items-center gap-2">
+            <button type="button" className={CATALOG_PAGE_TOOLBAR_BUTTON}>
+              Import
+            </button>
+            <button type="button" className={CATALOG_PAGE_TOOLBAR_BUTTON}>
+              Integrations
+            </button>
+          </div>
+        </div>
+
+        <hr className="border-0 border-t border-brandcolor-strokeweak" />
+
+        <div className="pt-10">
+          <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={resetAll}
-                className="inline-flex items-center gap-1.5 rounded-md border border-brandcolor-strokeweak bg-brandcolor-white px-3 py-1.5 text-theme-body-small-regular font-theme-medium text-brandcolor-textstrong hover:bg-brandcolor-fill"
+                className={THEME_EDITOR_TOOLBAR_BUTTON}
               >
                 <RiRestartLine className="size-4 shrink-0" aria-hidden />
                 Reset all
@@ -457,7 +490,7 @@ export function ThemeConfigurationLayout() {
               <button
                 type="button"
                 onClick={exportJson}
-                className="inline-flex items-center gap-1.5 rounded-md border border-brandcolor-strokeweak bg-brandcolor-white px-3 py-1.5 text-theme-body-small-regular font-theme-medium text-brandcolor-textstrong hover:bg-brandcolor-fill"
+                className={THEME_EDITOR_TOOLBAR_BUTTON}
               >
                 <RiDownloadLine className="size-4 shrink-0" aria-hidden />
                 Export JSON
@@ -474,7 +507,7 @@ export function ThemeConfigurationLayout() {
                 type="button"
                 onClick={() => void saveToProject()}
                 disabled={diskBusy}
-                className="inline-flex items-center gap-1.5 rounded-md border border-brandcolor-strokestrong bg-brandcolor-white px-3 py-1.5 text-theme-body-small-regular font-theme-semibold text-brandcolor-textstrong hover:bg-brandcolor-fill disabled:cursor-not-allowed disabled:opacity-60"
+                className={THEME_EDITOR_TOOLBAR_BUTTON}
               >
                 <RiHardDrive2Line className="size-4 shrink-0" aria-hidden />
                 {diskBusy ? 'Writing…' : 'Save to project files'}
@@ -509,9 +542,8 @@ export function ThemeConfigurationLayout() {
             <div className="mt-6">
               <Outlet context={outletContext} />
             </div>
-          </div>
         </div>
-      </main>
+      </div>
 
       <TypographySettingModal
         open={editingTypoPair !== null}

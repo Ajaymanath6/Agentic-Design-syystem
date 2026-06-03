@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-06-03T07:21:06.988Z",
+  "lastUpdated": "2026-06-03T08:33:50.591Z",
   "components": [
     {
       "id": "canvas-card-575a7048-23c2-4293-b4b7-03a8035cc8a5",
@@ -40,6 +40,16 @@
       "importId": "CanvasHtml88970dd2F27c426dAe2fC474eff5e2f9Component",
       "thumbnailPath": "/generated/canvas-html-88970dd2-f27c-426d-ae2f-c474eff5e2f9-thumbnail.svg",
       "blueprintPath": "/blueprints/canvas-html-88970dd2-f27c-426d-ae2f-c474eff5e2f9.json",
+      "kind": "component"
+    },
+    {
+      "id": "canvas-html-9ad54d89-bd94-4419-aa3e-7f5da4b8b1f2",
+      "publishedAt": "2026-06-03T08:33:50.591Z",
+      "hasBlueprint": true,
+      "apiEndpoint": null,
+      "importId": "CanvasHtml9ad54d89Bd944419Aa3e7f5da4b8b1f2Component",
+      "thumbnailPath": "/generated/canvas-html-9ad54d89-bd94-4419-aa3e-7f5da4b8b1f2-thumbnail.svg",
+      "blueprintPath": "/blueprints/canvas-html-9ad54d89-bd94-4419-aa3e-7f5da4b8b1f2.json",
       "kind": "component"
     },
     {

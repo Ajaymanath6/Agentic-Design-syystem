@@ -5,6 +5,8 @@ import { Card } from '../../../components/Card'
 import { SHADOW_KEYS, type ShadowTokenKey } from '../../../config/theme-shadow-defaults'
 import { validateShadowValue } from '../../../lib/theme-token-validation'
 import type { ThemeEditorOutletContext } from './types'
+import { ThemePanelSectionHeading } from './ThemePanelSectionHeading'
+import { themePanelSectionSurfaceClass } from './theme-panel-section-surface'
 
 function shadowSummary(value: string, maxLen = 64): string {
   const t = value.trim().replace(/\s+/g, ' ')
@@ -23,13 +25,13 @@ function ThemeShadowCompactRow({
 }) {
   const summary = shadowSummary(value)
   return (
-    <li className="min-w-0">
+    <li className={`min-w-0 overflow-hidden ${themePanelSectionSurfaceClass}`}>
       <button
         type="button"
         onClick={onOpen}
         title={`Edit ${shadowKey}: ${value}`}
         aria-label={`Edit shadow ${shadowKey}`}
-        className="flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-md bg-brandcolor-fill px-3 py-2 text-left transition-colors hover:bg-brandcolor-strokelight focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-1"
+        className="flex w-full min-w-0 cursor-pointer items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-brandcolor-fill focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-1"
       >
         <span className="shrink-0 font-mono text-theme-body-small-emphasis font-theme-semibold text-brandcolor-textstrong">
           {shadowKey}
@@ -53,17 +55,19 @@ export function ThemeShadowsPanel() {
   const closeModal = useCallback(() => setEditingKey(null), [])
 
   return (
-    <Card className="p-5">
-      <h2 className="text-theme-body-small-emphasis font-theme-semibold uppercase tracking-wide text-brandcolor-textweak">
-        Shadows
-      </h2>
-      <p className="mt-1 text-theme-body-small-regular leading-snug text-brandcolor-textweak">
-        Values map to <code className="font-mono">--shadow-*</code> on{' '}
-        <code className="font-mono">:root</code>. Primary-linked entries use{' '}
-        <code className="font-mono">rgb(var(--color-brandcolor-primary) / …)</code> so they
-        track the brand primary. Click a row to edit; use the preview when the value is
-        valid.
-      </p>
+    <Card className="p-5 shadow-none">
+      <ThemePanelSectionHeading
+        title="Shadows"
+        subtitle={
+          <>
+            Values map to <code className="font-mono">--shadow-*</code> on{' '}
+            <code className="font-mono">:root</code>. Primary-linked entries use{' '}
+            <code className="font-mono">rgb(var(--color-brandcolor-primary) / …)</code> so
+            they track the brand primary. Click a row to edit; use the preview when the
+            value is valid.
+          </>
+        }
+      />
       <ul className="mt-4 grid grid-cols-1 gap-1.5">
         {SHADOW_KEYS.map((key) => (
           <ThemeShadowCompactRow
