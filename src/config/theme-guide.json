@@ -25,7 +25,7 @@
       "secondaryEquivalentTailwind": "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-secondary hover:bg-brandcolor-secondaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0",
       "componentsCanvasExample": "ComponentsCanvasSurface: world pan/zoom; initial card + primary + secondary + neutral + confirm password + text field; localStorage agentic-components-canvas-nodes-v1. Kinds: card, primaryButton, secondaryButton, neutralButton, confirmPasswordInput, textInputField, productSidebar (CanvasPlan v2). Catalog ids canvas-card-* / canvas-primary-* / canvas-secondary-* / canvas-neutral-* / canvas-confirm-password-* / canvas-text-field-* / canvas-product-sidebar-*. Prune: scripts/prune-canvas-catalog.mjs.",
       "neutral": "Reference — neutral canvas: index.css .neutral-canvas-button; strokeweak border, hover strokelight; publish string in canvas-node-publish.ts",
-      "buttonBrandGlowShadow": "Optional primary-tinted elevation for buttons or focus: theme.extend.boxShadow.button-brand-glow → Tailwind utility shadow-button-brand-glow. Three layered oklch(0.5243 0.1143 214.28 / alpha) glows (stronger spread) aligned with brandcolor-primary (#F84416). Compose with active:shadow-button-press or hover as needed.",
+      "buttonBrandGlowShadow": "Optional primary-tinted elevation for buttons or focus: theme.extend.boxShadow.button-brand-glow → Tailwind utility shadow-button-brand-glow. Three layered rgb(var(--color-brandcolor-primary) / alpha) glows aligned with brandcolor-primary (#F84416). Compose with active:shadow-button-press or hover as needed.",
       "buttonBrandGlowShadowUtility": "shadow-button-brand-glow"
     },
     "card": "rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card",
@@ -136,7 +136,7 @@
       "compactRows": "Full-width row opens edit (TypographySettingModal, spacing-setting-modal-title); trailing info icon opens per-token help without edit. Same monospace length field and padding preview as before; valid values show a Decode: ~px line below the textarea."
     },
     "themeConfigurationColors": {
-      "description": "Catalog Theme > Colors (ThemeColorsPanel): tokens grouped in brand-color-theme-groups.ts (text, stroke, brand, surfaces, banners, archived, status, badges). Each row: mono token + Reset; swatch + hex field with same hover/focus as typography inputs.",
+      "description": "Catalog Theme > Colors (ThemeColorsPanel): tokens grouped in brand-color-theme-groups.ts (text, stroke, brand, surfaces, banners, archived, status, badges). Primary brand color is brandcolor-primary (#F84416); harmonized fills (secondaryfill, banner-info-bg) use warm peach tints derived from primary. Each row: mono token + Reset; swatch + hex field with same hover/focus as typography inputs.",
       "groupsSource": "src/pages/catalog/theme/brand-color-theme-groups.ts — must list every BRAND_COLOR_KEYS entry once.",
       "tokenHelp": "Optional per-token naming stories: TOKEN_COLOR_HELP in src/pages/catalog/theme/token-color-help.tsx — document icon after hex opens TypographySettingModal (text-strong and text-weak first; add keys to scale)."
     }

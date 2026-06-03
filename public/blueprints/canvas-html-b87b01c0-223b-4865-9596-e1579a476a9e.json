@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-b87b01c0-223b-4865-9596-e1579a476a9e",
+  "component": "div",
+  "importId": "CanvasHtmlB87b01c0223b48659596E1579a476a9eComponent",
+  "data": {
+    "imageUrl": "/generated/canvas-html-b87b01c0-223b-4865-9596-e1579a476a9e-thumbnail.svg",
+    "imageAlt": "makea primary button",
+    "description": "sagasg",
+    "sealed": true,
+    "sourceHtml": "<button type=\"button\" class=\"inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-primary hover:bg-brandcolor-primaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0\">\n  Primary Button\n</button>"
+  }
+}

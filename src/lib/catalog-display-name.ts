@@ -43,3 +43,29 @@ export function catalogCardDisplayName(card: CatalogCardModel): string {
   }
   return humanizeCatalogEntryId(card.entry.id)
 }
+
+/** ~One line at 13px — similar length to sample catalog copy. */
+export const CATALOG_CARD_DESCRIPTION_MAX_CHARS = 72
+
+const DEFAULT_CATALOG_CARD_DESCRIPTION =
+  'Token-aware component from your catalog — ready to browse and reuse in projects.'
+
+export function catalogCardDescription(
+  card: CatalogCardModel,
+  fallback: string = DEFAULT_CATALOG_CARD_DESCRIPTION,
+): string {
+  const description = card.blueprint?.data?.description
+  if (typeof description === 'string' && description.trim().length > 0) {
+    return description.trim()
+  }
+  return fallback
+}
+
+export function truncateCatalogCardDescription(
+  text: string,
+  maxChars: number = CATALOG_CARD_DESCRIPTION_MAX_CHARS,
+): string {
+  const trimmed = text.trim()
+  if (trimmed.length <= maxChars) return trimmed
+  return `${trimmed.slice(0, maxChars - 1).trimEnd()}…`
+}

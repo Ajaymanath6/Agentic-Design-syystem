@@ -43,7 +43,7 @@ import {
 const landingCtaBase =
   'font-landing-body inline-flex items-center justify-center rounded-[4px] text-sm font-normal transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-0'
 
-const landingCtaAccent = `${landingCtaBase} border border-[#0bc9bb] bg-[#11EFDF] text-[#1a1a1a] shadow-[0_6px_20px_rgba(17,239,223,0.42),inset_0_1px_0_rgba(255,255,255,0.45)] hover:shadow-[0_8px_24px_rgba(17,239,223,0.52),inset_0_1px_0_rgba(255,255,255,0.55)] active:shadow-[0_3px_8px_rgba(17,239,223,0.32),inset_0_2px_6px_rgba(0,0,0,0.08)]`
+const landingCtaAccent = `${landingCtaBase} border border-[#EA4C00] bg-[#F84416] text-white shadow-[0_6px_20px_rgba(248,68,22,0.42),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_8px_24px_rgba(248,68,22,0.52),inset_0_1px_0_rgba(255,255,255,0.28)] active:shadow-[0_3px_8px_rgba(248,68,22,0.32),inset_0_2px_6px_rgba(0,0,0,0.12)]`
 
 const landingCtaNeutral = `${landingCtaBase} border border-[#dcdcdc] bg-white text-[#3d3d3d] shadow-[0_4px_14px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.95)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,1)] active:shadow-[0_2px_6px_rgba(0,0,0,0.08),inset_0_2px_4px_rgba(0,0,0,0.05)]`
 
@@ -105,7 +105,7 @@ function HeroCtaButtons() {
       </Link>
       <Link
         to="/admin/canvas"
-        className={`${landingCtaBase} min-w-[7.5rem] px-6 py-2.5 border border-[#1a1a1a] bg-[#2a2a2a] text-white shadow-[0_6px_20px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.16)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.2)] active:shadow-[0_3px_8px_rgba(0,0,0,0.22),inset_0_2px_6px_rgba(0,0,0,0.4)]`}
+        className={`${landingCtaAccent} min-w-[7.5rem] px-6 py-2.5 text-sm font-medium`}
       >
         {HERO.ctaBuildUi}
       </Link>

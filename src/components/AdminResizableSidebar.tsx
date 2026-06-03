@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 const STORAGE_KEY = 'admin-sidebar-width-px'
-const MIN_W = 240
-const MAX_W = 575
+const MIN_W = 256
+const MAX_W = 360
 
 function readStoredWidth(): number {
   try {
@@ -19,7 +19,7 @@ type Props = {
 }
 
 /**
- * Wraps admin canvas sidebar; drag the right edge to resize between 240px and 575px.
+ * Wraps admin canvas sidebar; drag the right edge to resize between 256px and 360px.
  */
 export function AdminResizableSidebar({ children }: Props) {
   const [width, setWidth] = useState(readStoredWidth)

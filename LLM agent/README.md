@@ -30,7 +30,7 @@ If you rotate keys in a fixed path (e.g. under Downloads), set **`LLM_AGENT_AWS_
 Example (paths with spaces must be quoted):
 
 ```bash
-export LLM_AGENT_AWS_CREDENTIALS_FILE="/home/mis/Downloads/aws_credentials (3).txt"
+export LLM_AGENT_AWS_CREDENTIALS_FILE="/home/mis/Downloads/aws_credentials (35).txt"
 export AWS_PROFILE=default   # or your profile name matching the INI section
 export GCP_PROJECT=your-project-id
 export AWS_REGION=us-east-1
@@ -79,7 +79,7 @@ Then run `./finish-setup-after-apt.sh` from `LLM agent/`.
 | `VERTEX_AWS_SECRET_ID` | `local/common/vertex-ai-credential` | Secret name or ARN |
 | `GCP_PROJECT` | _(required)_ | Vertex / GCP project id |
 | `GCP_LOCATION` | `us-east4` | Vertex region |
-| `VERTEX_MODEL` | `gemini-2.0-flash-001` | Model id |
+| `VERTEX_MODEL` | `gemini-2.5-flash` | Model id (`gemini-2.0-flash-001` retired 2026-06-01) |
 | `VERTEX_SPACING_FIX_MODEL` | _(unset)_ | Optional model for the **second** Vertex call when `POST /canvas/generate-html` sets `spacing_enforcement: true` (HTML creator spacing audit). Defaults to `VERTEX_MODEL`. |
 | `CANVAS_HTML_SPACING_PASS_MAX_CHARS` | `14000` | Skip the spacing pass when pass-1 HTML length exceeds this (cost guard). |
 | `CORS_ORIGINS` | `http://localhost:5173,...` | Comma-separated origins if not using Vite proxy |

@@ -1,4 +1,4 @@
-import { RiSearchLine } from '@remixicon/react'
+import { MagnifyingGlass } from '@phosphor-icons/react'
 
 export type SearchBarProps = {
   /** Shown inside the field when empty */
@@ -10,7 +10,7 @@ export type SearchBarProps = {
 }
 
 /**
- * Borderless search field on stroke-weak fill; Remix search icon (stroke-strong).
+ * Search field on white with stroke-weak border; Phosphor duotone magnifying glass.
  */
 export function SearchBar({
   placeholder = 'Search components…',
@@ -24,9 +24,11 @@ export function SearchBar({
       <label htmlFor={id} className="px-1 text-xs text-brandcolor-textweak">
         Search
       </label>
-      <div className="flex items-center gap-2 rounded-md bg-brandcolor-strokeweak px-3 py-2">
-        <RiSearchLine
-          className="size-[18px] shrink-0 text-brandcolor-strokestrong"
+      <div className="flex items-center gap-2 rounded-md border border-brandcolor-strokeweak bg-brandcolor-white px-3 py-2">
+        <MagnifyingGlass
+          size={18}
+          weight="duotone"
+          className="shrink-0 text-brandcolor-textweak"
           aria-hidden
         />
         <input

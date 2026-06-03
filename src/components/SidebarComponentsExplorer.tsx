@@ -1,19 +1,25 @@
+import {
+  ArrowLeft,
+  CaretRight,
+  Layout,
+  SquaresFour,
+} from '@phosphor-icons/react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import {
-  RiArrowLeftLine,
-  RiArrowRightSLine,
-  RiLayoutGridLine,
-  RiLayoutLine,
-} from '@remixicon/react'
 import { COMPONENT_EXPLORE_ITEMS } from '../config/component-explore-items'
 import { useCatalogBlueprintCount } from '../hooks/useCatalogBlueprintCount'
+import {
+  SidebarDuotoneIcon,
+  sidebarNavLabelClass,
+} from './SidebarDuotoneIcon'
 
 type ExplorePanel = 'root' | 'components'
 
 const categoryRowClass = (isActive: boolean) =>
-  `flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors hover:bg-brandcolor-fill ${
-    isActive ? 'bg-brandcolor-fill' : ''
+  `flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] transition-colors ${
+    isActive
+      ? 'bg-brandcolor-strokeweak text-brandcolor-textstrong'
+      : 'text-brandcolor-textweak hover:bg-brandcolor-strokeweak'
   }`
 
 /**
@@ -39,38 +45,37 @@ export function SidebarComponentsExplorer() {
         <>
           <div
             id="sidebar-components-heading"
-            className="flex shrink-0 flex-col gap-0.5 px-3 pb-1"
+            className="flex shrink-0 flex-col gap-2 px-3 pb-1"
           >
             <button
               type="button"
               onClick={() => setPanel('components')}
-              className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[13px] font-medium text-brandcolor-textstrong transition-colors hover:bg-brandcolor-fill"
+              className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[13px] font-medium text-brandcolor-textweak transition-colors hover:bg-brandcolor-fill"
             >
-              <RiLayoutGridLine
-                className="size-[18px] shrink-0 text-brandcolor-strokestrong"
-                aria-hidden
-              />
-              <span className="min-w-0 flex-1">Components</span>
-              <RiArrowRightSLine
-                className="size-4 shrink-0 text-brandcolor-textweak"
+              <SidebarDuotoneIcon icon={SquaresFour} active={false} />
+              <span className="min-w-0 flex-1 text-brandcolor-textweak">
+                Components
+              </span>
+              <CaretRight
+                size={16}
+                weight="duotone"
+                className="shrink-0 text-brandcolor-textweak"
                 aria-hidden
               />
             </button>
-            <NavLink
-              to="/catalog/layouts"
-              className={({ isActive }) =>
-                `flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[13px] font-medium transition-colors hover:bg-brandcolor-fill ${
-                  isActive
-                    ? 'bg-brandcolor-fill text-brandcolor-textstrong'
-                    : 'text-brandcolor-textweak hover:text-brandcolor-textstrong'
-                }`
-              }
-            >
-              <RiLayoutLine
-                className="size-[18px] shrink-0 text-brandcolor-strokestrong"
-                aria-hidden
-              />
-              <span className="min-w-0 flex-1">Layout</span>
+            <NavLink to="/catalog/layouts" className="block">
+              {({ isActive }) => (
+                <span
+                  className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-[13px] font-medium transition-colors hover:bg-brandcolor-fill ${
+                    isActive ? 'bg-brandcolor-fill' : ''
+                  }`}
+                >
+                  <SidebarDuotoneIcon icon={Layout} active={isActive} />
+                  <span className={`min-w-0 flex-1 ${sidebarNavLabelClass(isActive)}`}>
+                    Layout
+                  </span>
+                </span>
+              )}
             </NavLink>
           </div>
           <div className="min-h-0 flex-1" aria-hidden />
@@ -86,10 +91,10 @@ export function SidebarComponentsExplorer() {
                 setPanel('root')
                 setActiveLabel(null)
               }}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-brandcolor-textstrong hover:bg-brandcolor-fill"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-brandcolor-textweak hover:bg-brandcolor-fill"
               aria-label="Back to Explore"
             >
-              <RiArrowLeftLine className="size-5" aria-hidden />
+              <ArrowLeft size={20} weight="duotone" aria-hidden />
             </button>
             <span className="text-[13px] font-semibold text-brandcolor-textstrong">
               Components
@@ -98,40 +103,30 @@ export function SidebarComponentsExplorer() {
           <ul
             role="list"
             aria-label="Component categories"
-            className="sidebar-scroll-lean mt-1 min-h-0 flex-1 overflow-y-auto bg-brandcolor-white py-1 pl-3 pr-1 space-y-0.5"
+            className="sidebar-scroll-lean mt-1 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto py-1 pl-3 pr-1"
           >
             <li>
-              <NavLink
-                to="/catalog/all"
-                className={({ isActive }) =>
-                  `${categoryRowClass(isActive)} ${
-                    isActive
-                      ? 'text-brandcolor-textstrong'
-                      : 'text-brandcolor-textweak'
-                  }`
-                }
-              >
+              <NavLink to="/catalog/all" className="block">
                 {({ isActive }) => (
-                  <>
+                  <span className={categoryRowClass(isActive)}>
                     <span className="min-w-0 flex-1 truncate font-medium">
                       All
                     </span>
                     <span className="shrink-0 font-mono tabular-nums">
                       {allCount === null ? '—' : allCount}
                     </span>
-                    <RiArrowRightSLine
-                      className={`size-4 shrink-0 ${isActive ? 'text-brandcolor-textstrong' : 'text-brandcolor-textweak'}`}
+                    <CaretRight
+                      size={16}
+                      weight="duotone"
+                      className={`shrink-0 ${sidebarNavLabelClass(isActive)}`}
                       aria-hidden
                     />
-                  </>
+                  </span>
                 )}
               </NavLink>
             </li>
             {COMPONENT_EXPLORE_ITEMS.map((item) => {
               const isActive = activeLabel === item.label
-              const tone = isActive
-                ? 'text-brandcolor-textstrong'
-                : 'text-brandcolor-textweak'
               return (
                 <li key={item.label}>
                   <button
@@ -141,14 +136,16 @@ export function SidebarComponentsExplorer() {
                         cur === item.label ? null : item.label,
                       )
                     }
-                    className={`${categoryRowClass(isActive)} ${tone}`}
+                    className={categoryRowClass(isActive)}
                   >
                     <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     <span className="shrink-0 font-mono tabular-nums">
                       {item.count}
                     </span>
-                    <RiArrowRightSLine
-                      className={`size-4 shrink-0 ${tone}`}
+                    <CaretRight
+                      size={16}
+                      weight="duotone"
+                      className={`shrink-0 ${sidebarNavLabelClass(isActive)}`}
                       aria-hidden
                     />
                   </button>

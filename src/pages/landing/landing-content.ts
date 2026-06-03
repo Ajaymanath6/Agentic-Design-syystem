@@ -1,4 +1,8 @@
-export const LANDING_ACCENT = '#11EFDF'
+import { BRAND_COLOR_DEFAULTS } from '../../config/brand-theme-colors'
+
+/** Headline + accent highlights — matches theme brandcolor-primary. */
+export const LANDING_ACCENT = BRAND_COLOR_DEFAULTS['brandcolor-primary']
+export const LANDING_PRIMARY_HOVER = BRAND_COLOR_DEFAULTS['brandcolor-primaryhover']
 export const LANDING_INK = '#2D2D2D'
 
 /** Landing page canvas background (matches hero sketch-paper tone). */
@@ -13,10 +17,10 @@ export const LANDING_SECTION_GUIDE = '#d4d1c9'
 export const LANDING_CTA_SECTION_ARC = '#ebeae6'
 export const LANDING_TEXT_MUTED = '#a3a39a'
 export const LANDING_TEXT_SUB = '#575757'
-/** CTA card fill — sky gradient wash. */
-export const LANDING_CTA_CARD_BG = '#eef3f9'
-/** CTA card mesh + arcs — light blue on sky card. */
-export const LANDING_CTA_CARD_GRID = '#d2e6f4'
+/** CTA card fill — warm wash aligned with brand primary. */
+export const LANDING_CTA_CARD_BG = '#fef3ee'
+/** CTA card mesh + arcs — peach grid on warm card. */
+export const LANDING_CTA_CARD_GRID = '#f5d0c4'
 
 /** Golden-ratio spiral artwork (section decorations). */
 export const LANDING_GOLDEN_SPIRAL_SRC =
@@ -24,8 +28,8 @@ export const LANDING_GOLDEN_SPIRAL_SRC =
 
 /** Complementary corner accents (pairs with LANDING_CARD_HOVER_TEXTURES / section squares). */
 export const TEXTURE_COMPLEMENT_COLORS = [
+  '#F84416',
   '#e09a68',
-  '#5eb5d6',
   '#c97ab8',
   '#9fc455',
   '#f09442',

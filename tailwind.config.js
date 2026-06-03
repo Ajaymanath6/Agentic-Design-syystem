@@ -53,11 +53,13 @@ export default {
       screens: {
         c_md: '768px',
         c_xl: '1280px',
+        'md-page': '768px',
       },
       /* @agentic-theme-typography-tw-start */
       fontFamily: {
         sans: ['var(--font-sans-stack)'],
         lora: ['var(--font-lora-stack)'],
+        geist: ['var(--font-geist-stack)'],
         'landing-heading': [
           'Matter',
           'var(--font-sans-stack)',

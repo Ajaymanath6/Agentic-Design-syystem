@@ -7,6 +7,7 @@ import {
 import { useCallback, useMemo, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { CatalogMainHeader } from '../../components/CatalogMainHeader'
+import { CollapsibleSidebarShell } from '../../components/CollapsibleSidebarShell'
 import { ThemeConfigSidebar } from '../../components/ThemeConfigSidebar'
 import { TypographySettingModal } from '../../components/TypographySettingModal'
 import {
@@ -437,7 +438,9 @@ export function ThemeConfigurationLayout() {
 
   return (
     <>
-      <ThemeConfigSidebar />
+      <CollapsibleSidebarShell>
+        <ThemeConfigSidebar />
+      </CollapsibleSidebarShell>
       <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-brandcolor-results-bg font-sans text-theme-body-medium-regular leading-theme-body-medium-regular">
         <CatalogMainHeader />
         <div className="min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden py-8">

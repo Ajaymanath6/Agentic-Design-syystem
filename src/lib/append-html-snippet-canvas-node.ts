@@ -46,24 +46,35 @@ function topYForSingleBlockAbove(existing: CanvasNode[], blockH: number): number
   return Math.max(TOP_MARGIN, idealTop)
 }
 
-/**
- * Append one creator-mode HTML block above existing nodes (same placement idea as plan mapper).
- */
-export function createHtmlSnippetCanvasNode(
+export type HtmlSnippetPlacementRect = {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+/** World coordinates for a new HTML snippet block (same placement as createHtmlSnippetCanvasNode). */
+export function computeHtmlSnippetPlacementRect(
   existing: CanvasNode[],
-  html: string,
-  label: string,
-): CanvasHtmlSnippetBlock {
-  const id = crypto.randomUUID()
+): HtmlSnippetPlacementRect {
   const w = HTML_SNIPPET_BLOCK_W
   const h = HTML_SNIPPET_BLOCK_H
   let x = WORLD_W / 2 - w / 2
   let y = topYForSingleBlockAbove(existing, h)
   x = clampCoord(x, 40, WORLD_W - w - 40)
   y = clampCoord(y, 40, WORLD_H - h - 40)
+  return { x, y, w, h }
+}
+
+export function createHtmlSnippetCanvasNode(
+  existing: CanvasNode[],
+  html: string,
+  label: string,
+): CanvasHtmlSnippetBlock {
+  const { x, y } = computeHtmlSnippetPlacementRect(existing)
   return {
     kind: 'htmlSnippet',
-    id,
+    id: crypto.randomUUID(),
     x,
     y,
     label: label.slice(0, MAX_LABEL_LEN),

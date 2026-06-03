@@ -13,7 +13,7 @@
     --color-brandcolor-primaryhover: 234 76 0;
     --color-brandcolor-secondary: 10 10 10;
     --color-brandcolor-secondaryhover: 41 41 41;
-    --color-brandcolor-secondaryfill: 234 239 255;
+    --color-brandcolor-secondaryfill: 255 237 230;
     --color-brandcolor-neutralhover: 239 239 239;
     --color-brandcolor-textstrong: 26 26 26;
     --color-brandcolor-textweak: 87 87 87;
@@ -25,9 +25,9 @@
     --color-brandcolor-white: 255 255 255;
     --color-brandcolor-sidebarhover: 46 60 72;
     --color-brandcolor-divider: 64 75 83;
-    --color-brandcolor-banner-info-bg: 213 223 255;
+    --color-brandcolor-banner-info-bg: 255 228 214;
     --color-brandcolor-banner-warning-bg: 255 235 225;
-    --color-brandcolor-banner-warning-button: 242 99 51;
+    --color-brandcolor-banner-warning-button: 248 68 22;
     --color-brandcolor-results-bg: 248 249 251;
     --color-brandcolor-archived-bg: 251 248 231;
     --color-brandcolor-archived-border: 165 165 165;
@@ -117,6 +117,15 @@
     --card-gap-tight: var(--space-tight);
     --card-gap-default: var(--space-inline);
     --card-gap-loose: var(--space-cozy);
+
+    /* Geist home / library page shell (see HomePage). */
+    --font-geist-stack: 'Geist Sans', 'Geist', ui-sans-serif, system-ui, sans-serif;
+    --geist-page-width: 1200px;
+    --geist-page-margin: 6px;
+    --geist-page-width-with-margin: min(
+      calc(100% - 2 * var(--geist-page-margin)),
+      var(--geist-page-width)
+    );
   }
 
   body {

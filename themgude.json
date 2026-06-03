@@ -57,7 +57,7 @@
         ]
       },
       "brandcolor-secondaryfill": {
-        "hex": "#EAEFFF",
+        "hex": "#FFEDE6",
         "usage": "Brand color secondary fill – active/selected state background (e.g. Natural language dropdown when open)",
         "utilityClasses": {
           "background": "bg-brandcolor-secondaryfill"
@@ -228,9 +228,10 @@
         ],
         "examples": [
           "Layout bg: bg-brandcolor-fill",
-          "Section background: bg-brandcolor-fill"
+          "Section background: bg-brandcolor-fill",
+          "Catalog sidebar nav selected row: bg-brandcolor-strokeweak only (no border); icon + label text-brandcolor-textstrong; 8px vertical gap between nav rows (gap-2)"
         ],
-        "importantNote": "DO NOT use this for neutral/outline button hover - use brandcolor-neutralhover (#EFEFEF) instead"
+        "importantNote": "DO NOT use this for neutral/outline button hover - use brandcolor-neutralhover (#EFEFEF) instead. Catalog sidebar active nav: bg-brandcolor-strokeweak with text-strong icon/label — no border on the selected row."
       },
       "brandcolor-white": {
         "hex": "#FFFFFF",
@@ -269,7 +270,7 @@
         "logic": "Used specifically for sidebar navigation items when hovered and for dropdown menu backgrounds. Provides a darker background (#2E3C48) for better visual feedback on sidebar interactions and consistent dropdown styling."
       },
       "brandcolor-banner-info-bg": {
-        "hex": "#D5DFFF",
+        "hex": "#FFE4D6",
         "usage": "Background color for informational banners",
         "utilityClasses": {
           "background": "bg-brandcolor-banner-info-bg"
@@ -297,7 +298,7 @@
         ]
       },
       "brandcolor-banner-warning-button": {
-        "hex": "#F26333",
+        "hex": "#F84416",
         "usage": "Button background color for warning banners",
         "utilityClasses": {
           "background": "bg-brandcolor-banner-warning-button",

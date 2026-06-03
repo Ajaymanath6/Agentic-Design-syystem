@@ -1,23 +1,62 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { RiArrowRightSLine } from '@remixicon/react'
+import { MagnifyingGlass } from '@phosphor-icons/react'
+import { useMemo, useState } from 'react'
 import { CatalogDetailModal } from '../../components/catalog/CatalogDetailModal'
-import { CatalogSourceHtmlPreview } from '../../components/catalog/CatalogSourceHtmlPreview'
 import { useCatalogCards } from '../../hooks/useCatalogCards'
-import { catalogCardDisplayName } from '../../lib/catalog-display-name'
-import { catalogCardSourceHtml } from '../../lib/catalog-source-html'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
+import { useCatalogSidebarCollapse } from '../../context/CatalogSidebarCollapseContext'
 import type { CatalogCardModel } from '../../types/catalog'
+import { HomeLibraryCardGrid } from './HomeLibraryCardGrid'
+import { HOME_SECTION_BODY_GAP, HOME_SECTION_TOP } from './home-layout'
 
-/** Up to this many pages: equal-width grid fills the row; above → horizontal scroll strip. */
-const UI_PAGES_GRID_MAX = 6
+/** Geist library shell — centered page width with horizontal margin. */
+const HOME_PAGE_SHELL =
+  'font-geist mx-auto my-3 mt-0 min-h-[calc(100vh-366px)] w-[var(--geist-page-width-with-margin)] max-w-full px-3 py-0 md-page:min-h-[calc(100vh-273px)]'
+
+/** Collapsed sidebar — keep 290px inset on each side. */
+const HOME_PAGE_SHELL_COLLAPSED =
+  'font-geist mx-[290px] mt-0 min-h-[calc(100vh-366px)] max-w-[calc(100%-580px)] w-full py-0 md-page:min-h-[calc(100vh-273px)]'
+
+const HOME_TOOLBAR_BUTTON =
+  'inline-flex items-center justify-center gap-1.5 rounded-md border border-brandcolor-strokeweak bg-brandcolor-white px-4 py-2 font-geist text-[14px] font-normal text-brandcolor-textstrong transition-colors hover:bg-brandcolor-fill focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2'
+
+const COMPONENT_DESCRIPTION_FALLBACK =
+  'Published blocks from your catalog — browse and reuse in your projects.'
+
+const PAGE_DESCRIPTION_FALLBACK =
+  'Layout shells and full-page templates ready to open or extend.'
+
+function HomeSectionHeading({
+  id,
+  title,
+  subtitle,
+}: {
+  id?: string
+  title: string
+  subtitle: string
+}) {
+  return (
+    <header className="border-b border-brandcolor-strokeweak pb-4">
+      <div className="min-w-0 flex flex-col gap-1">
+        <h2
+          id={id}
+          className="font-geist text-[20px] font-semibold leading-tight text-brandcolor-textstrong [font-family:var(--font-geist-stack)]"
+        >
+          {title}
+        </h2>
+        <p className="font-geist text-[14px] leading-snug text-brandcolor-textweak [font-family:var(--font-geist-stack)]">
+          {subtitle}
+        </p>
+      </div>
+    </header>
+  )
+}
 
 /** Placeholder tiles until layouts are published from the admin Layout workspace. */
 const PLACEHOLDER_UI_PAGES: { id: string; title: string; hint: string }[] = [
-  { id: 'p1', title: 'Dashboard shell', hint: 'Placeholder' },
-  { id: 'p2', title: 'Marketing hero + grid', hint: 'Placeholder' },
-  { id: 'p3', title: 'Settings layout', hint: 'Placeholder' },
-  { id: 'p4', title: 'Auth flow', hint: 'Placeholder' },
+  { id: 'p1', title: 'Dashboard shell', hint: 'Placeholder layout shell' },
+  { id: 'p2', title: 'Marketing hero + grid', hint: 'Placeholder layout shell' },
+  { id: 'p3', title: 'Settings layout', hint: 'Placeholder layout shell' },
+  { id: 'p4', title: 'Auth flow', hint: 'Placeholder layout shell' },
 ]
 
 export function HomePage() {
@@ -32,8 +71,9 @@ export function HomePage() {
   )
   const [selected, setSelected] = useState<CatalogCardModel | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const stripRef = useRef<HTMLUListElement>(null)
-  const pagesStripRef = useRef<HTMLUListElement>(null)
+  const [librarySearch, setLibrarySearch] = useState('')
+  const [componentsExpanded, setComponentsExpanded] = useState(false)
+  const [pagesExpanded, setPagesExpanded] = useState(false)
 
   const selectedId = selected?.entry.id
   const modalCard = useMemo(() => {
@@ -41,17 +81,7 @@ export function HomePage() {
     return cards.find((c) => c.entry.id === selectedId) ?? selected
   }, [modalOpen, selectedId, cards, selected])
 
-  const scrollStripForward = useCallback(() => {
-    const el = stripRef.current
-    if (!el) return
-    el.scrollBy({ left: Math.min(314, el.clientWidth * 0.85), behavior: 'smooth' })
-  }, [])
-
-  const scrollPagesStripForward = useCallback(() => {
-    const el = pagesStripRef.current
-    if (!el) return
-    el.scrollBy({ left: Math.min(314, el.clientWidth * 0.85), behavior: 'smooth' })
-  }, [])
+  const { collapsed: sidebarCollapsed } = useCatalogSidebarCollapse()
 
   const openCard = (card: CatalogCardModel) => {
     setSelected(card)
@@ -59,261 +89,142 @@ export function HomePage() {
   }
 
   return (
-    <div className="min-w-0 max-w-full overflow-x-hidden px-4">
-      <header className="mt-6 flex items-baseline justify-between gap-4 border-b border-brandcolor-strokeweak pb-4">
-        <h2 className="font-sans text-xl font-semibold text-brandcolor-textstrong">
-          UI components
-        </h2>
-        <Link
-          to="/catalog/all"
-          className="text-sm text-brandcolor-textweak transition-colors hover:text-brandcolor-textstrong"
-        >
-          View all &gt;
-        </Link>
-      </header>
-
-      {loading && (
-        <p className="mt-4 text-sm text-brandcolor-textweak">Loading catalog…</p>
-      )}
-      {error && (
-        <p className="mt-4 text-sm text-brandcolor-destructive">{error}</p>
-      )}
-
-      {!loading && !error && componentCards.length === 0 ? (
-        <p className="mt-4 text-sm text-brandcolor-textweak">
-          No published components yet. Open the canvas and publish a block to see
-          it here.
-        </p>
-      ) : null}
-
-      {!loading && !error && componentCards.length > 0 ? (
-        <div className="relative min-w-0 max-w-full overflow-x-hidden">
-          <ul
-            ref={stripRef}
-            className="catalog-home-scroll-strip flex max-w-full divide-x divide-brandcolor-strokeweak overflow-x-auto overflow-y-hidden border border-brandcolor-strokeweak border-t-0"
-          >
-            {componentCards.map((card) => {
-              const sourceHtml = catalogCardSourceHtml(card)
-              const thumb =
-                card.entry.thumbnailPath || card.blueprint?.data?.imageUrl || ''
-              const componentName = catalogCardDisplayName(card)
-              return (
-                <li
-                  key={card.entry.id}
-                  className="group/col box-border flex h-[292px] w-[314px] min-w-[314px] shrink-0 flex-col bg-transparent px-5 pt-5 pb-5"
-                >
-                  <div className="flex min-h-0 flex-1 items-center justify-center">
-                    <button
-                      type="button"
-                      onClick={() => openCard(card)}
-                      className="flex w-full items-center justify-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                    >
-                      <div className="h-[209px] w-[278px] shrink-0 overflow-hidden rounded-lg bg-brandcolor-fill">
-                        {sourceHtml ? (
-                          <CatalogSourceHtmlPreview
-                            html={sourceHtml}
-                            label={componentName}
-                            className="h-full w-full origin-top scale-[0.88] p-2"
-                          />
-                        ) : thumb ? (
-                          <img
-                            src={thumb}
-                            alt=""
-                            className="h-full w-full object-contain object-center"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-xs text-brandcolor-textweak">
-                            No preview
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  </div>
-                  <div className="flex h-8 shrink-0 items-center justify-center px-1">
-                    <p
-                      className="max-w-full truncate text-center text-xs text-brandcolor-textweak opacity-0 transition-opacity duration-150 group-hover/col:opacity-100 group-focus-within/col:opacity-100"
-                      title={componentName}
-                    >
-                      {componentName}
-                    </p>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-          {componentCards.length > 1 ? (
-            <button
-              type="button"
-              aria-label="Scroll to next components"
-              onClick={scrollStripForward}
-              className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-brandcolor-strokeweak bg-brandcolor-fill text-brandcolor-textstrong shadow-card transition-colors hover:bg-brandcolor-neutralhover"
-            >
-              <RiArrowRightSLine className="size-5" aria-hidden />
-            </button>
-          ) : null}
+    <div
+      className={`${
+        sidebarCollapsed ? HOME_PAGE_SHELL_COLLAPSED : HOME_PAGE_SHELL
+      } min-w-0 overflow-x-hidden font-geist`}
+    >
+      <div className="my-10 flex items-center justify-between gap-4">
+        <h1 className="font-geist text-[32px] font-semibold leading-tight text-brandcolor-textstrong [font-family:var(--font-geist-stack)]">
+          Library
+        </h1>
+        <div className="flex shrink-0 items-center gap-2">
+          <button type="button" className={HOME_TOOLBAR_BUTTON}>
+            Import
+          </button>
+          <button type="button" className={HOME_TOOLBAR_BUTTON}>
+            Integrations
+          </button>
         </div>
-      ) : null}
+      </div>
 
-      <section className="mt-14 min-w-0 max-w-full overflow-x-hidden" aria-labelledby="home-ui-pages-heading">
-        <header className="mt-2 flex items-baseline justify-between gap-4 border-b border-brandcolor-strokeweak pb-4">
-          <h2
-            id="home-ui-pages-heading"
-            className="font-sans text-xl font-semibold text-brandcolor-textstrong"
-          >
-            UI pages
-          </h2>
-          <Link
-            to="/catalog/layouts"
-            className="text-sm text-brandcolor-textweak transition-colors hover:text-brandcolor-textstrong"
-          >
-            View all &gt;
-          </Link>
-        </header>
-        {!loading && !error && pageCards.length > 0 ? (
-          pageCards.length <= UI_PAGES_GRID_MAX ? (
-            <div className="min-w-0 max-w-full pt-4">
-              <ul
-                className="grid w-full gap-4 bg-transparent"
-                style={{
-                  gridTemplateColumns: `repeat(${pageCards.length}, minmax(0, 1fr))`,
-                }}
-                role="list"
-                aria-label="Published UI pages"
-              >
-                {pageCards.map((card) => {
-                  const thumb =
-                    card.entry.thumbnailPath ||
-                    card.blueprint?.data?.imageUrl ||
-                    ''
-                  const pageName = catalogCardDisplayName(card)
-                  return (
-                    <li
-                      key={card.entry.id}
-                      className="group/col box-border flex h-[min(20rem,50vw)] min-h-[17rem] min-w-0 flex-col rounded-md border-[0.8px] border-brandcolor-strokeweak bg-transparent px-2 pt-2 pb-1"
-                    >
-                      <div className="flex h-[85%] min-h-0 w-full flex-col items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={() => openCard(card)}
-                          className="flex h-full w-full max-w-full items-center justify-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                        >
-                          <div className="h-full w-full min-h-0 overflow-hidden rounded-md bg-transparent">
-                            {thumb ? (
-                              <img
-                                src={thumb}
-                                alt=""
-                                className="h-full w-full object-contain object-center"
-                              />
-                            ) : (
-                              <div className="flex h-full items-center justify-center text-xs text-brandcolor-textweak">
-                                No image
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      </div>
-                      <div className="flex h-[15%] min-h-[1.5rem] shrink-0 items-center justify-center px-1">
-                        <p
-                          className="max-w-full truncate text-center text-xs text-brandcolor-textweak opacity-0 transition-opacity duration-150 group-hover/col:opacity-100 group-focus-within/col:opacity-100"
-                          title={pageName}
-                        >
-                          {pageName}
-                        </p>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          ) : (
-            <div className="relative min-w-0 max-w-full overflow-x-hidden pt-4">
-              <ul
-                ref={pagesStripRef}
-                className="catalog-home-scroll-strip flex max-w-full gap-4 overflow-x-auto overflow-y-hidden bg-transparent pb-1"
-                role="list"
-                aria-label="Published UI pages"
-              >
-                {pageCards.map((card) => {
-                  const thumb =
-                    card.entry.thumbnailPath ||
-                    card.blueprint?.data?.imageUrl ||
-                    ''
-                  const pageName = catalogCardDisplayName(card)
-                  return (
-                    <li
-                      key={card.entry.id}
-                      className="group/col box-border flex h-[292px] w-[314px] min-w-[280px] shrink-0 flex-col rounded-md border-[0.8px] border-brandcolor-strokeweak bg-transparent px-2 pt-2 pb-1"
-                    >
-                      <div className="flex h-[85%] min-h-0 w-full flex-col items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={() => openCard(card)}
-                          className="flex h-full w-full items-center justify-center text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                        >
-                          <div className="h-full w-full min-h-0 overflow-hidden rounded-md bg-transparent">
-                            {thumb ? (
-                              <img
-                                src={thumb}
-                                alt=""
-                                className="h-full w-full object-contain object-center"
-                              />
-                            ) : (
-                              <div className="flex h-full items-center justify-center text-xs text-brandcolor-textweak">
-                                No image
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      </div>
-                      <div className="flex h-[15%] min-h-[1.25rem] shrink-0 items-center justify-center px-1">
-                        <p
-                          className="max-w-full truncate text-center text-xs text-brandcolor-textweak opacity-0 transition-opacity duration-150 group-hover/col:opacity-100 group-focus-within/col:opacity-100"
-                          title={pageName}
-                        >
-                          {pageName}
-                        </p>
-                      </div>
-                    </li>
-                  )
-                })}
-              </ul>
-              {pageCards.length > 1 ? (
-                <button
-                  type="button"
-                  aria-label="Scroll to next pages"
-                  onClick={scrollPagesStripForward}
-                  className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-brandcolor-white text-brandcolor-textstrong shadow-card transition-colors hover:bg-brandcolor-fill"
-                >
-                  <RiArrowRightSLine className="size-5" aria-hidden />
-                </button>
-              ) : null}
-            </div>
-          )
+      <hr className="border-0 border-t border-brandcolor-strokeweak" />
+
+      <div className="pt-10">
+        <label htmlFor="home-library-search" className="sr-only">
+          Search library
+        </label>
+        <div className="flex w-full items-center gap-3 rounded-md border border-brandcolor-strokeweak bg-brandcolor-white px-4 py-3">
+          <MagnifyingGlass
+            size={20}
+            weight="duotone"
+            className="shrink-0 text-brandcolor-textweak"
+            aria-hidden
+          />
+          <input
+            id="home-library-search"
+            type="search"
+            name="librarySearch"
+            autoComplete="off"
+            placeholder="Search library…"
+            value={librarySearch}
+            onChange={(e) => setLibrarySearch(e.target.value)}
+            className="min-w-0 flex-1 border-0 bg-transparent p-0 font-geist text-[14px] text-brandcolor-textstrong outline-none ring-0 placeholder:text-brandcolor-textweak focus:ring-0"
+          />
+        </div>
+      </div>
+
+      <div className={HOME_SECTION_TOP}>
+        <HomeSectionHeading
+          title="UI components"
+          subtitle={COMPONENT_DESCRIPTION_FALLBACK}
+        />
+      </div>
+
+      <div className={HOME_SECTION_BODY_GAP}>
+        {loading && (
+          <p className="mt-4 font-geist text-sm text-brandcolor-textweak">
+            Loading catalog…
+          </p>
+        )}
+        {error && (
+          <p className="mt-4 font-geist text-sm text-brandcolor-destructive">
+            {error}
+          </p>
+        )}
+
+        {!loading && !error && componentCards.length === 0 ? (
+          <p className="mt-4 font-geist text-sm text-brandcolor-textweak">
+            No published components yet. Open the canvas and publish a block to
+            see it here.
+          </p>
         ) : null}
 
-        {!loading && !error && pageCards.length === 0 ? (
-          <div className="relative min-w-0 max-w-full overflow-x-hidden pt-4">
+        {!loading && !error && componentCards.length > 0 ? (
+          <HomeLibraryCardGrid
+            cards={componentCards}
+            sidebarCollapsed={sidebarCollapsed}
+            expanded={componentsExpanded}
+            onExpand={() => setComponentsExpanded(true)}
+            onCollapse={() => setComponentsExpanded(false)}
+            onOpenCard={openCard}
+            ariaLabel="UI components"
+            descriptionFallback={COMPONENT_DESCRIPTION_FALLBACK}
+          />
+        ) : null}
+      </div>
+
+      <section
+        className={`${HOME_SECTION_TOP} min-w-0 max-w-full overflow-x-hidden`}
+        aria-labelledby="home-ui-pages-heading"
+      >
+        <HomeSectionHeading
+          id="home-ui-pages-heading"
+          title="UI pages"
+          subtitle={PAGE_DESCRIPTION_FALLBACK}
+        />
+        <div className={HOME_SECTION_BODY_GAP}>
+          {!loading && !error && pageCards.length > 0 ? (
+            <HomeLibraryCardGrid
+              cards={pageCards}
+              sidebarCollapsed={sidebarCollapsed}
+              expanded={pagesExpanded}
+              onExpand={() => setPagesExpanded(true)}
+              onCollapse={() => setPagesExpanded(false)}
+              onOpenCard={openCard}
+              ariaLabel="UI pages"
+              descriptionFallback={PAGE_DESCRIPTION_FALLBACK}
+              preferSourceHtml={false}
+            />
+          ) : null}
+
+          {!loading && !error && pageCards.length === 0 ? (
             <ul
-              className="flex max-w-full gap-6 overflow-x-auto overflow-y-hidden pb-2"
+              className={`grid w-full gap-4 ${
+                sidebarCollapsed ? 'grid-cols-4' : 'grid-cols-3'
+              }`}
               role="list"
               aria-label="UI page ideas"
             >
               {PLACEHOLDER_UI_PAGES.map((page) => (
                 <li
                   key={page.id}
-                  className="flex w-[calc((100%-3rem)/3)] min-w-[280px] max-w-[420px] shrink-0 flex-col"
+                  className="flex min-w-0 flex-col rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white p-4"
                 >
-                  <div className="flex aspect-[4/3] w-full items-center justify-center rounded-lg border border-brandcolor-strokeweak bg-brandcolor-fill text-sm text-brandcolor-textweak">
+                  <span className="inline-flex max-w-full self-start truncate rounded-md border border-brandcolor-strokeweak bg-brandcolor-fill px-2 py-0.5 font-geist text-[11px] font-medium leading-snug text-brandcolor-textstrong [font-family:var(--font-geist-stack)]">
+                    {page.title}
+                  </span>
+                  <div className="mt-4 flex aspect-[278/209] w-full items-center justify-center overflow-hidden rounded-md border border-brandcolor-strokeweak bg-brandcolor-fill font-geist text-[13px] text-brandcolor-textweak">
                     {page.hint}
                   </div>
-                  <p className="mt-3 truncate text-sm font-medium text-brandcolor-textstrong">
-                    {page.title}
+                  <p className="mt-4 truncate font-geist text-[13px] leading-snug text-brandcolor-textweak">
+                    {PAGE_DESCRIPTION_FALLBACK}
                   </p>
                 </li>
               ))}
             </ul>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </section>
 
       <CatalogDetailModal

@@ -25,11 +25,13 @@ import {
 } from '../../lib/canvas-board-storage'
 import {
   HTML_SNIPPET_BLOCK_H,
-  HTML_SNIPPET_BLOCK_W,
   HTML_SNIPPET_SHELL_HEIGHT_MAX,
   HTML_SNIPPET_SHELL_HEIGHT_MIN,
 } from '../../lib/append-html-snippet-canvas-node'
-import { heightPxForProductSidebarPayload } from '../../lib/canvas-product-sidebar-metrics'
+import type { CanvasGenerationSkeletonPlacement } from '../../lib/compute-canvas-generation-skeleton-placement'
+import { computeCanvasGenerationSkeletonPlacement } from '../../lib/compute-canvas-generation-skeleton-placement'
+import { canvasNodeFootprint } from '../../lib/canvas-node-footprint'
+import { mergePublishedCatalogOntoCanvas } from '../../lib/sync-canvas-with-catalog'
 import { sanitizeCanvasHtmlFragment } from '../../lib/sanitize-canvas-html'
 import {
   applyDisplayNameToCanvasNode,
@@ -41,10 +43,12 @@ import {
   publishLabelForCanvasNode,
 } from '../../lib/canvas-node-publish'
 import { isCatalogLayoutEntry } from '../../lib/catalog-layout-entry'
+import { stripCanvasRefSentinels } from '../../lib/canvas-prompt-sentinel'
 import { postDeleteComponent, postPublish } from '../../services/publish-workflow'
 import { CanvasProductSidebarPreview } from './CanvasProductSidebarPreview'
 import { CanvasPublishModal } from './CanvasPublishModal'
 import { ComponentsCanvasPromptPanel } from './ComponentsCanvasPromptPanel'
+import { CanvasGenerationSkeleton } from './CanvasGenerationSkeleton'
 import { CanvasWorldBlock } from './CanvasWorldBlock'
 
 const GRID_PX = 24
@@ -64,34 +68,20 @@ const ZOOM_STEP = 1.12
 
 /** Content width; fitView uses same footprint (see theme-guide componentsCanvasCard). */
 const CANVAS_CARD_W = CANVAS_CARD_PUBLISH_WIDTH_PX
-const CANVAS_CARD_H = 200
 const CANVAS_PRIMARY_W = 220
 const CANVAS_PRIMARY_H = 112
-const CANVAS_CONFIRM_PW_H = 152
-const PRODUCT_SIDEBAR_W = 260
 
-function nodeSize(n: CanvasNode): { w: number; h: number } {
-  if (n.kind === 'htmlSnippet') {
-    const h = n.shellHeightPx ?? HTML_SNIPPET_BLOCK_H
-    return { w: HTML_SNIPPET_BLOCK_W, h }
-  }
-  if (n.kind === 'productSidebar') {
-    return {
-      w: PRODUCT_SIDEBAR_W,
-      h: heightPxForProductSidebarPayload(n),
-    }
-  }
-  if (
-    n.kind === 'primaryButton' ||
-    n.kind === 'secondaryButton' ||
-    n.kind === 'neutralButton'
-  ) {
-    return { w: CANVAS_PRIMARY_W, h: CANVAS_PRIMARY_H }
-  }
-  if (n.kind === 'confirmPasswordInput' || n.kind === 'textInputField') {
-    return { w: CANVAS_CARD_W, h: CANVAS_CONFIRM_PW_H }
-  }
-  return { w: CANVAS_CARD_W, h: CANVAS_CARD_H }
+function createDefaultCanvasBoard(): CanvasNode[] {
+  return ensureCanvasHasTextInputField(
+    ensureCanvasHasConfirmPasswordInput(
+      ensureCanvasHasNeutralButton(
+        ensureCanvasHasSecondaryButton([
+          createInitialCanvasCard(),
+          createInitialPrimaryButton(),
+        ]),
+      ),
+    ),
+  )
 }
 
 /** Pan/zoom the viewport so these world nodes are framed (after AI append). */
@@ -108,7 +98,7 @@ function focusViewportOnCanvasNodes(
   let maxX = -Infinity
   let maxY = -Infinity
   for (const n of targets) {
-    const { w: bw, h: bh } = nodeSize(n)
+    const { w: bw, h: bh } = canvasNodeFootprint(n)
     minX = Math.min(minX, n.x)
     minY = Math.min(minY, n.y)
     maxX = Math.max(maxX, n.x + bw)
@@ -322,7 +312,7 @@ function CanvasHtmlSnippetScrollBody({
 /** Canvas: grid on viewport; pan on stage — Space+drag or middle mouse. */
 export function ComponentsCanvasSurface() {
   const { setBlockCount } = useCanvasChrome()
-  const { refreshCatalog } = useCatalogRefresh()
+  const { refreshCatalog, catalogVersion } = useCatalogRefresh()
   const {
     componentsPromptDraft,
     setComponentsPromptDraft,
@@ -343,23 +333,13 @@ export function ComponentsCanvasSurface() {
   const [nodes, setNodes] = useState<CanvasNode[]>(() => {
     const stored = loadCanvasNodesFromStorage()
     if (stored != null && stored.length > 0) {
-      /** Older saves: append default inputs if missing. */
       return ensureCanvasHasTextInputField(
         ensureCanvasHasConfirmPasswordInput(stored),
       )
     }
-    return ensureCanvasHasTextInputField(
-      ensureCanvasHasConfirmPasswordInput(
-        ensureCanvasHasNeutralButton(
-          ensureCanvasHasSecondaryButton([
-            createInitialCanvasCard(),
-            createInitialPrimaryButton(),
-          ]),
-        ),
-      ),
-    )
+    return []
   })
-  const { cards } = useCatalogCards()
+  const { cards, loading: catalogLoading } = useCatalogCards()
   const publishedCatalogIds = useMemo(() => {
     const next = new Set<string>()
     for (const c of cards) {
@@ -369,6 +349,26 @@ export function ComponentsCanvasSurface() {
     }
     return next
   }, [cards])
+
+  useEffect(() => {
+    if (catalogLoading) return
+    setNodes((prev) => {
+      let next = mergePublishedCatalogOntoCanvas(prev, cards)
+      if (next.length === 0) {
+        next = createDefaultCanvasBoard()
+      }
+      if (next.length === prev.length) {
+        const unchanged = next.every(
+          (n, i) =>
+            n.id === prev[i]?.id &&
+            n.x === prev[i]?.x &&
+            n.y === prev[i]?.y,
+        )
+        if (unchanged) return prev
+      }
+      return next
+    })
+  }, [cards, catalogLoading, catalogVersion])
 
   useEffect(() => {
     setBlockCount(nodes.length)
@@ -391,6 +391,8 @@ export function ComponentsCanvasSurface() {
   >(null)
   /** World node id while block drag is active — light neutral selection ring on any block. */
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null)
+  const [generationSkeleton, setGenerationSkeleton] =
+    useState<CanvasGenerationSkeletonPlacement | null>(null)
   /** Reserved for flows that hide block chrome during export; publish preview uses sourceHtml instead. */
   const capturingHideChromeId: string | null = null
   const viewportRef = useRef<HTMLDivElement>(null)
@@ -473,7 +475,7 @@ export function ComponentsCanvasSurface() {
     let maxX = -Infinity
     let maxY = -Infinity
     for (const n of list) {
-      const { w: bw, h: bh } = nodeSize(n)
+      const { w: bw, h: bh } = canvasNodeFootprint(n)
       minX = Math.min(minX, n.x)
       minY = Math.min(minY, n.y)
       maxX = Math.max(maxX, n.x + bw)
@@ -800,10 +802,30 @@ export function ComponentsCanvasSurface() {
     willChange: 'transform',
   } as const
 
+  useEffect(() => {
+    if (!componentsPlanBusy) {
+      setGenerationSkeleton(null)
+    }
+  }, [componentsPlanBusy])
+
   const handleComponentsAiSubmit = useCallback(async () => {
-    const { appended, replacedId } = await submitComponentsPrompt(
-      nodesRef.current,
-    )
+    const draft = stripCanvasRefSentinels(componentsPromptDraft).trim()
+    if (!draft && componentsCanvasRefIds.length === 0) {
+      return
+    }
+
+    const placement = computeCanvasGenerationSkeletonPlacement({
+      existingNodes: nodesRef.current,
+      mode: componentsCanvasAiMode,
+      refIds: componentsCanvasRefIds,
+      addAsNewInstead: componentsCanvasAddAsNewInstead,
+      nodeSize: canvasNodeFootprint,
+    })
+    setGenerationSkeleton(placement)
+    try {
+      const { appended, replacedId } = await submitComponentsPrompt(
+        nodesRef.current,
+      )
     if (replacedId && appended.length === 1) {
       const mergedInPlace = appended[0]!.id === replacedId
       if (mergedInPlace) {
@@ -846,7 +868,18 @@ export function ComponentsCanvasSurface() {
       pendingFocusNodesRef.current = appended
       setNodes((prev) => [...prev, ...appended])
     }
-  }, [submitComponentsPrompt, publishedCatalogIds, refreshCatalog])
+    } finally {
+      setGenerationSkeleton(null)
+    }
+  }, [
+    submitComponentsPrompt,
+    publishedCatalogIds,
+    refreshCatalog,
+    componentsCanvasAiMode,
+    componentsCanvasRefIds,
+    componentsCanvasAddAsNewInstead,
+    componentsPromptDraft,
+  ])
 
   return (
     <div className="relative flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden bg-brandcolor-fill">
@@ -1052,7 +1085,7 @@ export function ComponentsCanvasSurface() {
               componentCatalogIdForCanvasNode(n),
             )
             const toolbarLabel = publishLabelForCanvasNode(n)
-            const { w: blockW, h: blockH } = nodeSize(n)
+            const { w: blockW, h: blockH } = canvasNodeFootprint(n)
             const blockWidth = blockW
             const isDragging = draggingNodeId === n.id
             const bodyClassName =
@@ -1295,6 +1328,9 @@ export function ComponentsCanvasSurface() {
               </CanvasWorldBlock>
             )
           })}
+          {componentsPlanBusy && generationSkeleton ? (
+            <CanvasGenerationSkeleton {...generationSkeleton} />
+          ) : null}
         </div>
       </div>
 

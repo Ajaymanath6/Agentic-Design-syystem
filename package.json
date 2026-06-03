@@ -17,6 +17,7 @@
     "catalog:prune-canvas": "node scripts/prune-canvas-catalog.mjs"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@remixicon/react": "^4.9.0",
     "cors": "^2.8.6",
     "dompurify": "^3.3.3",

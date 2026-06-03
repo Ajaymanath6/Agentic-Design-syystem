@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-88970dd2-f27c-426d-ae2f-c474eff5e2f9",
+  "component": "div",
+  "importId": "CanvasHtml88970dd2F27c426dAe2fC474eff5e2f9Component",
+  "data": {
+    "imageUrl": "/generated/canvas-html-88970dd2-f27c-426d-ae2f-c474eff5e2f9-thumbnail.svg",
+    "imageAlt": "neutral",
+    "description": "cnd",
+    "sealed": true,
+    "sourceHtml": "<button type=\"button\" class=\"neutral-canvas-button\">\n  Neutral Button\n</button>"
+  }
+}

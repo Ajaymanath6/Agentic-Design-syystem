@@ -1,7 +1,12 @@
-import { RiArtboard2Line, RiLayoutLine } from '@remixicon/react'
+import { Layout, SquaresFour } from '@phosphor-icons/react'
 import { Suspense } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { CATALOG_CHROME_BG_CLASS, CATALOG_SIDEBAR_WIDTH_CLASS } from '../config/sidebar-layout'
 import { useLayoutWorkspace } from '../context/LayoutWorkspaceContext'
+import {
+  SidebarDuotoneIcon,
+  sidebarNavLabelClass,
+} from './SidebarDuotoneIcon'
 import { SidebarBrandHeader } from './SidebarBrandHeader'
 import { SidebarDesignSystemNavLink } from './SidebarDesignSystemNavLink'
 import { ViewModeToggle } from './ViewModeToggle'
@@ -10,10 +15,9 @@ import { LayoutPromptPanel } from './workspace/LayoutPromptPanel'
 const segBase =
   'flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-2 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brandcolor-strokeweak focus-visible:ring-offset-1 focus-visible:ring-offset-brandcolor-fill'
 const segInactive =
-  'border-transparent text-brandcolor-textweak hover:bg-brandcolor-white/70 hover:text-brandcolor-textstrong'
-/** Selected: flat white chip inside the gray track — no colored glow/shadow. */
+  'border-transparent text-brandcolor-textweak hover:bg-brandcolor-white/70'
 const segActive =
-  'border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong shadow-none'
+  'border-brandcolor-strokeweak bg-brandcolor-white shadow-none'
 
 function CanvasSidebarInner() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -28,9 +32,12 @@ function CanvasSidebarInner() {
     )
   }
 
+  const componentsActive = !isLayout
+  const layoutActive = isLayout
+
   return (
     <aside
-      className="flex h-full min-h-0 w-60 shrink-0 flex-col border-r border-brandcolor-strokeweak bg-brandcolor-white"
+      className={`flex h-full min-h-0 ${CATALOG_SIDEBAR_WIDTH_CLASS} max-w-[360px] shrink-0 flex-col border-r border-brandcolor-strokeweak ${CATALOG_CHROME_BG_CLASS}`}
       aria-label="Canvas sidebar"
     >
       <SidebarBrandHeader />
@@ -43,21 +50,27 @@ function CanvasSidebarInner() {
         >
           <button
             type="button"
-            className={`${segBase} ${!isLayout ? segActive : segInactive}`}
-            aria-pressed={!isLayout}
+            className={`${segBase} ${componentsActive ? segActive : segInactive}`}
+            aria-pressed={componentsActive}
             onClick={() => setWorkspace('components')}
           >
-            <RiArtboard2Line className="size-4 shrink-0" aria-hidden />
-            Components
+            <SidebarDuotoneIcon
+              icon={SquaresFour}
+              active={componentsActive}
+              size={16}
+            />
+            <span className={sidebarNavLabelClass(componentsActive)}>
+              Components
+            </span>
           </button>
           <button
             type="button"
-            className={`${segBase} ${isLayout ? segActive : segInactive}`}
-            aria-pressed={isLayout}
+            className={`${segBase} ${layoutActive ? segActive : segInactive}`}
+            aria-pressed={layoutActive}
             onClick={() => setWorkspace('layout')}
           >
-            <RiLayoutLine className="size-4 shrink-0" aria-hidden />
-            Layout
+            <SidebarDuotoneIcon icon={Layout} active={layoutActive} size={16} />
+            <span className={sidebarNavLabelClass(layoutActive)}>Layout</span>
           </button>
         </div>
       </div>

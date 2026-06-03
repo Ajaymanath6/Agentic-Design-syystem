@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-a405bd99-38f2-4175-86f4-ec8ef05abd23",
+  "component": "div",
+  "importId": "CanvasHtmlA405bd9938f2417586f4Ec8ef05abd23Component",
+  "data": {
+    "imageUrl": "/generated/canvas-html-a405bd99-38f2-4175-86f4-ec8ef05abd23-thumbnail.svg",
+    "imageAlt": "secondry",
+    "description": "ryewy",
+    "sealed": true,
+    "sourceHtml": "<button type=\"button\" class=\"inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-brandcolor-white bg-brandcolor-secondary hover:bg-brandcolor-secondaryhover active:shadow-button-press focus:outline-none focus:ring-0 appearance-none border-0\">\n  Secondary Button\n</button>"
+  }
+}

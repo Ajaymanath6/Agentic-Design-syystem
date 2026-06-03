@@ -48,6 +48,13 @@ from layout_plan import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# gemini-2.0-flash-001 retired 2026-06-01 — use gemini-2.5-flash (override via VERTEX_MODEL).
+DEFAULT_VERTEX_MODEL = "gemini-2.5-flash"
+
+
+def vertex_model() -> str:
+    return os.environ.get("VERTEX_MODEL", DEFAULT_VERTEX_MODEL).strip() or DEFAULT_VERTEX_MODEL
+
 
 def _bootstrap_aws_credentials_file() -> None:
     """Point boto3 at an AWS CLI-style INI credentials file (e.g. daily-updated path in Downloads)."""
@@ -177,7 +184,7 @@ def health() -> dict[str, str]:
 
 
 def _layout_generate_impl(body: GenerateBody) -> dict[str, Any]:
-    model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
+    model = vertex_model()
     parts: list[str] = [SYSTEM_PREFIX]
     if body.systemContext:
         parts.append("Catalog context (published component ids / labels):\n")
@@ -222,7 +229,7 @@ def generate_alias(body: GenerateBody) -> dict[str, Any]:
 
 
 def _layout_plan_impl(body: PlanRequestBody) -> dict[str, Any]:
-    model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
+    model = vertex_model()
     theme_snippet = load_theme_guide_snippet()
     allow_lines = "\n".join(
         f"- {a}" for a in body.catalogAllowlist[:800] if str(a).strip()
@@ -279,7 +286,7 @@ def layout_plan(body: PlanRequestBody) -> dict[str, Any]:
 
 
 def _canvas_plan_impl(body: CanvasPlanPromptBody) -> dict[str, Any]:
-    model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
+    model = vertex_model()
     contents = build_canvas_plan_contents(body)
     try:
         client = get_genai_client()
@@ -329,7 +336,7 @@ def _genai_response_text(response: Any) -> str | None:
 
 
 def _canvas_generate_html_impl(body: CanvasPlanPromptBody) -> dict[str, Any]:
-    model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
+    model = vertex_model()
     contents = build_canvas_html_contents(body)
     try:
         client = get_genai_client()
@@ -393,7 +400,7 @@ def canvas_generate_html(body: CanvasPlanPromptBody) -> dict[str, Any]:
 
 
 def _layout_generate_html_impl(body: LayoutHtmlRequestBody) -> dict[str, Any]:
-    model = os.environ.get("VERTEX_MODEL", "gemini-2.0-flash-001").strip()
+    model = vertex_model()
     contents = build_layout_html_contents(body)
     try:
         client = get_genai_client()

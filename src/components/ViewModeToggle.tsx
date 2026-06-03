@@ -1,5 +1,9 @@
+import { BookOpen, PresentationChart } from '@phosphor-icons/react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { RiArtboard2Line, RiBookOpenLine } from '@remixicon/react'
+import {
+  SidebarDuotoneIcon,
+  sidebarNavLabelClass,
+} from './SidebarDuotoneIcon'
 
 export type ViewModeTogglePlacement = 'default' | 'embedded' | 'footer'
 
@@ -26,7 +30,7 @@ export function ViewModeToggle({ placement = 'default' }: ViewModeToggleProps) {
   const segmentBase =
     'flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-2.5 text-center text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-brandcolor-strokeweak focus-visible:ring-offset-1 focus-visible:ring-offset-brandcolor-fill'
   const segmentInactive =
-    'border-transparent text-brandcolor-textweak hover:bg-brandcolor-white/70 hover:text-brandcolor-textstrong'
+    'border-transparent text-brandcolor-textweak hover:bg-brandcolor-white/70'
   const segmentActive =
     'border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong shadow-none'
 
@@ -36,6 +40,9 @@ export function ViewModeToggle({ placement = 'default' }: ViewModeToggleProps) {
       : placement === 'footer'
         ? 'p-3'
         : 'border-t border-brandcolor-strokeweak p-3'
+
+  const catalogActive = !isCanvasMode
+  const canvasActive = isCanvasMode
 
   return (
     <div className={outerClass}>
@@ -49,21 +56,25 @@ export function ViewModeToggle({ placement = 'default' }: ViewModeToggleProps) {
       >
         <button
           type="button"
-          className={`${segmentBase} ${!isCanvasMode ? segmentActive : segmentInactive}`}
-          aria-pressed={!isCanvasMode}
+          className={`${segmentBase} ${catalogActive ? segmentActive : segmentInactive}`}
+          aria-pressed={catalogActive}
           onClick={() => navigate('/catalog/home')}
         >
-          <RiBookOpenLine className="size-4 shrink-0" aria-hidden />
-          Catalog
+          <SidebarDuotoneIcon icon={BookOpen} active={catalogActive} size={16} />
+          <span className={sidebarNavLabelClass(catalogActive)}>Catalog</span>
         </button>
         <button
           type="button"
-          className={`${segmentBase} ${isCanvasMode ? segmentActive : segmentInactive}`}
-          aria-pressed={isCanvasMode}
+          className={`${segmentBase} ${canvasActive ? segmentActive : segmentInactive}`}
+          aria-pressed={canvasActive}
           onClick={() => navigate('/admin/canvas')}
         >
-          <RiArtboard2Line className="size-4 shrink-0" aria-hidden />
-          Canvas
+          <SidebarDuotoneIcon
+            icon={PresentationChart}
+            active={canvasActive}
+            size={16}
+          />
+          <span className={sidebarNavLabelClass(canvasActive)}>Canvas</span>
         </button>
       </div>
     </div>
