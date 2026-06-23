@@ -10,6 +10,10 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 
+import {
+  APP_COMPOSER_SHELL_FOCUS,
+  APP_PROMPT_SEND_BUTTON,
+} from '../../pages/home/home-layout'
 import type { ComponentsCanvasAiMode } from '../../context/ComponentsCanvasAiContext'
 import type { CanvasNode } from '../../lib/canvas-node-publish'
 import {
@@ -449,7 +453,7 @@ export function ComponentsCanvasPromptPanel({
           <div
             ref={composerWrapRef}
             onKeyDownCapture={onComposerCaptureKeyDown}
-            className="relative flex min-w-0 shrink-0 flex-row flex-wrap items-end gap-x-2 gap-y-1 rounded-lg border-[0.8px] border-brandcolor-strokeweak bg-brandcolor-white px-2 py-1.5 transition-[border-color] focus-within:border-brandcolor-primary"
+            className={`relative flex min-w-0 shrink-0 flex-row flex-wrap items-end gap-x-2 gap-y-1 rounded-lg border-[0.8px] border-brandcolor-strokeweak bg-brandcolor-white px-2 py-1.5 transition-[border-color] ${APP_COMPOSER_SHELL_FOCUS}`}
           >
             {aiMode === 'htmlCreator' ? (
               <CanvasHtmlInlineComposer
@@ -602,7 +606,7 @@ export function ComponentsCanvasPromptPanel({
           type="button"
           onClick={() => onSubmit()}
           disabled={!canSend}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brandcolor-primary text-brandcolor-white shadow-sm hover:bg-brandcolor-primaryhover disabled:cursor-not-allowed disabled:opacity-60"
+          className={APP_PROMPT_SEND_BUTTON}
           aria-label="Send prompt"
           title="Send"
           aria-busy={busy}

@@ -1,5 +1,8 @@
 import { LAYOUT_LLM_BASE_URL } from '../config/env'
-import type { LayoutHtmlGenerateRequest } from '../types/layout-html-request'
+import type {
+  LayoutHtmlGenerateRequest,
+  ThemeSnapshotColors,
+} from '../types/layout-html-request'
 import type { LayoutPlanV1 } from '../types/layout-plan'
 import { isLayoutPlanV1 } from '../types/layout-plan'
 
@@ -59,6 +62,7 @@ function parseDetail(data: {
 export async function callLayoutPlan(
   prompt: string,
   catalogAllowlist: string[],
+  options?: { theme_snapshot?: ThemeSnapshotColors },
 ): Promise<LayoutPlanV1> {
   const res = await fetch(`${LAYOUT_LLM_BASE_URL}/layout/plan`, {
     method: 'POST',
@@ -66,6 +70,7 @@ export async function callLayoutPlan(
     body: JSON.stringify({
       prompt,
       catalogAllowlist,
+      theme_snapshot: options?.theme_snapshot,
     }),
   })
   const data = (await res.json().catch(() => ({}))) as {
@@ -107,6 +112,7 @@ export async function callLayoutGenerateHtml(
         : undefined,
       extended_design_context: Boolean(body.extended_design_context),
       spacing_enforcement: Boolean(body.spacing_enforcement),
+      theme_snapshot: body.theme_snapshot,
     }),
   })
   const data = (await res.json().catch(() => ({}))) as {

@@ -16,7 +16,7 @@ export function CollapsibleSidebarShell({ children }: { children: ReactNode }) {
         onClick={collapse}
         aria-label="Collapse sidebar"
         title="Collapse sidebar"
-        className="absolute -right-3 top-1/2 z-30 flex size-6 -translate-y-1/2 items-center justify-center rounded-full border border-brandcolor-strokeweak bg-brandcolor-textstrong shadow-card transition-colors hover:bg-brandcolor-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2"
+        className="absolute -right-3 top-1/2 z-30 flex size-6 -translate-y-1/2 items-center justify-center rounded-full border border-brandcolor-strokeweak bg-brandcolor-textstrong shadow-card transition-colors hover:bg-brandcolor-secondaryhover focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-textstrong focus-visible:ring-offset-2"
       >
         <CaretLeft
           size={16}

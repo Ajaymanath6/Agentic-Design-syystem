@@ -1,0 +1,62 @@
+[
+  {
+    "id": "brandcolor-textstrong",
+    "title": "text-strong",
+    "triggers": ["text-strong", "textstrong", "text strong", "headline", "title color"],
+    "text": "text-strong (brandcolor-textstrong): primary readable text on a surface — card titles, main labels. In prompts say text-strong; output text-brandcolor-textstrong. Do not use raw hex in class attributes."
+  },
+  {
+    "id": "brandcolor-textweak",
+    "title": "text-weak",
+    "triggers": ["text-weak", "textweak", "subtitle", "secondary text", "meta"],
+    "text": "text-weak (brandcolor-textweak): secondary copy — subtitles, supporting lines, body on cards. Pair with text-strong for hierarchy."
+  },
+  {
+    "id": "brandcolor-primary",
+    "title": "primary brand",
+    "triggers": ["primary", "cta", "brand orange", "main button"],
+    "text": "brandcolor-primary: main CTA background. Use bg-brandcolor-primary, hover:bg-brandcolor-primaryhover, label text-brandcolor-white."
+  },
+  {
+    "id": "spacing-micro",
+    "title": "micro spacing",
+    "triggers": ["micro", "hairline", "icon gap", "densest"],
+    "text": "micro spacing token: smallest step — icon+label, chips. Tailwind gap-micro, p-micro, space-x-micro. Not gap-2."
+  },
+  {
+    "id": "spacing-tight",
+    "title": "tight spacing",
+    "triggers": ["tight", "compact stack", "dense vertical"],
+    "text": "tight: inside-component vertical rhythm (title+meta). gap-tight, space-y-tight. Inside card body; use cozy for card shell."
+  },
+  {
+    "id": "spacing-cozy",
+    "title": "cozy spacing",
+    "triggers": ["cozy", "card padding", "comfortable"],
+    "text": "cozy: default card shell padding. p-cozy or p-card-pad-default when user says default card padding."
+  },
+  {
+    "id": "spacing-section",
+    "title": "section spacing",
+    "triggers": ["section", "between blocks", "breathing room"],
+    "text": "section: space between page blocks. mt-section, mb-section, gap-section."
+  },
+  {
+    "id": "card-surface",
+    "title": "card surface",
+    "triggers": ["card", "panel", "white surface", "rounded card"],
+    "text": "Card surface: rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card. Single outer padding on card shell."
+  },
+  {
+    "id": "button-primary",
+    "title": "primary button",
+    "triggers": ["primary button", "submit", "cta button"],
+    "text": "Primary button: rounded-md, bg-brandcolor-primary, text-brandcolor-white, hover:bg-brandcolor-primaryhover, active:shadow-button-press."
+  },
+  {
+    "id": "sidebar",
+    "title": "product sidebar",
+    "triggers": ["sidebar", "navigation", "nav menu", "productsidebar"],
+    "text": "Full nav shell: prefer one productSidebar node (canvas plan v2) with sections/items rather than many loose cards."
+  }
+]

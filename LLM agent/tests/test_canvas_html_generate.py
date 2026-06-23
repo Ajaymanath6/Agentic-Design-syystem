@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import unittest
 
 from canvas_html_generate import (
@@ -56,6 +57,9 @@ class TestParseHtmlGenerateResponse(unittest.TestCase):
 
 
 class TestBuildCanvasHtmlContentsReferences(unittest.TestCase):
+    def setUp(self) -> None:
+        os.environ["THEME_CONTEXT_MODE"] = "smart"
+
     def test_includes_reference_block_before_latest_request(self) -> None:
         body = CanvasPlanPromptBody(
             prompt="Add a row below",

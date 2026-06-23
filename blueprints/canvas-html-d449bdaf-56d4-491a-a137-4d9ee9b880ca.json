@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-d449bdaf-56d4-491a-a137-4d9ee9b880ca",
+  "component": "div",
+  "importId": "CanvasHtmlD449bdaf56d4491aA1374d9ee9b880caComponent",
+  "data": {
+    "imageUrl": "/generated/canvas-html-d449bdaf-56d4-491a-a137-4d9ee9b880ca-thumbnail.svg",
+    "imageAlt": "Simple Card",
+    "description": "just for demo",
+    "sealed": true,
+    "sourceHtml": "<div class=\"rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card p-card-pad-default flex flex-col gap-card-gap-default\">\n  <h2 class=\"text-xl font-semibold text-brandcolor-textstrong\">Card Title</h2>\n  <h3 class=\"text-base text-brandcolor-textweak\">Card Subtitle</h3>\n  <p class=\"text-brandcolor-textweak\">\n    This is a paragraph providing some descriptive text for the card content. It can span multiple lines.\n  </p>\n  <div class=\"flex gap-tight\">\n    <button class=\"px-cozy py-micro rounded-md border border-brandcolor-strokeweak bg-brandcolor-white text-brandcolor-textstrong hover:bg-brandcolor-neutralhover\">\n      Neutral Button\n    </button>\n    <button class=\"px-cozy py-micro rounded-md bg-brandcolor-primary text-brandcolor-white hover:bg-brandcolor-primaryhover\">\n      Primary Button\n    </button>\n  </div>\n</div>"
+  }
+}

@@ -4,6 +4,8 @@ import { BRAND_COLOR_DEFAULTS } from '../../config/brand-theme-colors'
 export const LANDING_ACCENT = BRAND_COLOR_DEFAULTS['brandcolor-primary']
 export const LANDING_PRIMARY_HOVER = BRAND_COLOR_DEFAULTS['brandcolor-primaryhover']
 export const LANDING_INK = '#2D2D2D'
+/** Primary CTA + headline accents — matches brandcolor-textstrong. */
+export const LANDING_TEXT_STRONG = BRAND_COLOR_DEFAULTS['brandcolor-textstrong']
 
 /** Landing page canvas background (matches hero sketch-paper tone). */
 export const LANDING_PAGE_BG = '#ebeae6'
@@ -44,7 +46,7 @@ export function textureComplementColor(textureIndex: number): string {
 export const CAPABILITY_PLATFORM_ICONS = [
   null,
   '/landing/platform-icons/03-atom-blocks.png', // Design system enforcement
-  '/landing/platform-icons/04-catalog-library.png', // Component library publishing
+  '/landing/library-ui-preview.png', // Component library publishing
   '/landing/platform-icons/02-platform-launch.png', // Code catalog & registry
   '/landing/platform-icons/01-injection.png', // Inline code injection
   '/landing/platform-icons/07-shapes-grid.png', // VS Code workflow automation
@@ -105,7 +107,7 @@ export const HERO_SCENE_SRC = '/hero-scene.png'
 export const HERO_SCENE_COLOR_SRC = '/hero-scene-color.png'
 
 /** Product UI preview inside the hero overlap card. */
-export const LANDING_PRODUCT_CARD_SRC = '/landing-product-card.png'
+export const LANDING_PRODUCT_CARD_SRC = '/landing/library-ui-preview.png'
 
 /** Overlap card width as a fraction of the hero image width. */
 export const LANDING_PRODUCT_CARD_WIDTH_PERCENT = 60

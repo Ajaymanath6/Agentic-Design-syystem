@@ -85,6 +85,32 @@ Then run `./finish-setup-after-apt.sh` from `LLM agent/`.
 | `CORS_ORIGINS` | `http://localhost:5173,...` | Comma-separated origins if not using Vite proxy |
 | `THEME_GUIDE_PATH` | _(unset)_ | Optional absolute path to `theme-guide.json`; default is repo `src/config/theme-guide.json` relative to this service |
 | `TAILWIND_CONFIG_PATH` | _(unset)_ | Optional absolute path to `tailwind.config.js`; default is repo root `tailwind.config.js`. Used when `POST /canvas/plan` sets `extended_design_context: true`. |
+| `THEME_CONTEXT_MODE` | `smart` | `legacy` (full theme-guide dump), `smart` (rule-based chunks + live palette), or `rag` (smart + vector catalog/theme; requires index) |
+| `THEME_CONTEXT_MAX_CHARS` | `6000` | Cap for assembled theme-guide chunks in smart/rag mode |
+| `THEME_CONTEXT_MAX_CHARS_EXTENDED` | `12000` | Cap when `extended_design_context: true` |
+| `RAG_INDEX_DIR` | `LLM agent/.rag-index` | Chroma persist dir after `npm run rag:reindex` |
+
+### Theme context (smart / RAG)
+
+By default **`THEME_CONTEXT_MODE=smart`** sends:
+
+1. **Live palette** parsed from `src/config/brand-theme-colors.ts` (merged with optional request `theme_snapshot.colors` from the Theme editor).
+2. **Top theme-guide chunks** chosen by keywords in the user prompt (not the full JSON file).
+3. **Token help** snippets from `LLM agent/knowledge/token-help.json` when relevant.
+
+Set **`THEME_CONTEXT_MODE=legacy`** to restore the previous behavior (single truncated `theme-guide.json` blob). On retrieval errors, the service **falls back to legacy** automatically.
+
+**Vector RAG (`rag` mode):**
+
+```bash
+cd "LLM agent"
+pip install -r requirements-rag.txt
+# GCP_PROJECT + AWS creds same as chat
+npm run rag:reindex   # from repo root
+export THEME_CONTEXT_MODE=rag
+```
+
+Rebuild the index after publishing new catalog blueprints or large theme-guide edits.
 
 **Components canvas HTML (`POST /canvas/generate-html`)** accepts optional **`spacing_enforcement: true`** (default false). When enabled, the service runs a **second** `generate_content` pass after the first HTML is normalized: a small auditor prompt asks the model to return JSON `{"html":"..."}` with theme spacing utilities (`gap-micro`, `p-cozy`, `p-card-pad-default`, …) aligned to the user request. If that pass fails or returns invalid JSON, the **first** HTML is returned unchanged.
 
@@ -112,6 +138,9 @@ Vite proxies `/api/layout-llm/*` to **4302**. Publish helper uses **4301**.
 From `LLM agent/` with the project venv activated (or `.venv/bin/python`):
 
 ```bash
+python -m unittest discover -s tests -v
+# Or individually:
+python -m unittest tests.test_theme_context_assembler -v
 python -m unittest tests.test_canvas_plan_contents -v
 python -m unittest tests.test_canvas_html_generate -v
 python -m unittest tests.test_canvas_html_spacing_pass -v
@@ -136,9 +165,92 @@ You do **not** need a second Flask server. Use **`npm run dev:with-llm`** once P
 2. **Generate:** `curl` `POST /layout/generate` or `POST /generate` with `{"prompt":"Hi"}` → JSON with `"text"`.
 3. **UI:** **Admin → Layout** → **Ask…** → choose **Plan (JSON)** or **Generate HTML**. **Plan:** quick catalog match first, then **Structured preview** when `/layout/plan` succeeds. **HTML:** `POST /layout/generate-html` returns a sanitized fragment (same server/client safety as canvas HTML). **Tailwind JIT caveat** applies to both HTML paths in dev (see `/canvas/generate-html` below).
 
+## VS Code extension (a2ui-generator)
+
+Thin bridge so developers inject **published catalog HTML** into any open file via the **a2ui-generator** VSIX (install from a local `.vsix`; do not commit the VSIX to this repo).
+
+### One-time setup
+
+1. Start the stack: `npm run dev:with-llm` (Vite **5173**, publish helper **4301**, LLM **4302**).
+2. Install the extension in Cursor or VS Code:
+   ```bash
+   code --install-extension /path/to/a2ui-generator-0.1.0.vsix
+   ```
+3. Point the extension at this agent (default is already `http://localhost:4302`):
+   ```json
+   "a2ui.agentUrl": "http://localhost:4302"
+   ```
+
+### How it works
+
+| User input in extension | Server path | Speed |
+|-------------------------|-------------|-------|
+| **Published component name** (canvas label), e.g. `secondry`, `card`, `Canvas card` | Matches blueprint `data.imageAlt` → returns `sourceHtml` as `code` | Instant (no LLM) |
+| Catalog id (optional), e.g. `canvas-card-575a7048-…` | Same as above via id lookup | Instant |
+| Natural language (no catalog name match + spaces), e.g. `build me a fancy dashboard` | Same pipeline as `POST /canvas/generate-html` → maps `html` → `code` | 5–30s (Vertex) |
+
+**Type the component name, not the long UUID.** Names come from the label you set when publishing in Admin Canvas (`imageAlt` in the blueprint). Matching is **case-insensitive** and ignores spaces (`Canvas card` = `canvascard`). The name must match the published label **exactly** (e.g. label `secondry` will not match `secondary`).
+
+**Publish and canvas code creation are unchanged.** Publish still writes blueprints via `POST :4301/api/publish`; the extension only reads those files.
+
+Injected HTML uses Tailwind `brandcolor-*` tokens from your theme. Consumer projects need a compatible Tailwind setup or markup will look unstyled.
+
+### curl
+
+By component name (recommended):
+
+```bash
+curl -sS -X POST http://127.0.0.1:4302/generate-code \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"secondry","blueprintId":"secondry"}'
+```
+
+Name with spaces (no `blueprintId` — extension omits it when prompt has spaces):
+
+```bash
+curl -sS -X POST http://127.0.0.1:4302/generate-code \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"Canvas card"}'
+```
+
+Fast path (catalog id — still supported):
+
+```bash
+curl -sS -X POST http://127.0.0.1:4302/generate-code \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"canvas-card-575a7048-23c2-4293-b4b7-03a8035cc8a5","blueprintId":"canvas-card-575a7048-23c2-4293-b4b7-03a8035cc8a5"}'
+```
+
+Import id:
+
+```bash
+curl -sS -X POST http://127.0.0.1:4302/generate-code \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"CanvasCard575a704823c24293B4b703a8035cc8a5Component","blueprintId":"CanvasCard575a704823c24293B4b703a8035cc8a5Component"}'
+```
+
+Natural language (Vertex):
+
+```bash
+curl -sS -X POST http://127.0.0.1:4302/generate-code \
+  -H 'Content-Type: application/json' \
+  -d '{"prompt":"a primary button labeled Submit"}' \
+  --max-time 90
+```
+
+Response shape: `{ "code": "<div class=\"...\">...</div>" }`.
+
+### Cursor / VS Code smoke test
+
+1. Open any file (HTML, TSX, etc.) in the editor.
+2. Command Palette → **A2UI: Generate Component from Prompt** (`a2ui.generateCode`).
+3. Enter a published component name (e.g. `secondry`, `card`, `Confirm password`) or catalog id.
+4. HTML from that component’s published blueprint is inserted at the cursor.
+
 ## API
 
 - `GET /health` — liveness
+- `POST /generate-code` — JSON `{ "prompt": string, "blueprintId"?: string }` → `{ "code": string }`. **VS Code extension bridge:** published component name (`imageAlt`) or catalog id → full `sourceHtml`; natural language (catalog miss + spaces in prompt) → same as `/canvas/generate-html` (maps `html` → `code`). Unknown name (no spaces) → 404 with published name hints; ambiguous name → 409.
 - `POST /layout/plan` — JSON `{ "prompt": string, "catalogAllowlist": string[] }` → `{ "plan": LayoutPlanV1 }` (validated JSON). **Block types:** `chrome`, `catalog`, **`row`** (2–4 columns; each column is a list of chrome/catalog leaves only), **`split`** (`variant: sidebarMain`, `sidebar` + `main` leaf lists, optional `sidebarPlacement` start|end, `sidebarWidth` narrow|default|wide). Catalog refs must match allowlist; invalid nested refs dropped. Rows with fewer than two non-empty columns flatten to a vertical leaf list. Optional **`defaultAfterGap`** and per-block **`afterGap`**: `tight` | `default` | `section` | `hero` (see `src/config/theme-guide.json` → `spacing`). Client infers spacing between top-level blocks (row/split adjacent to catalog/chrome uses `default`; `section` between row↔split or catalog→chrome unless overridden). **Canvas handoff (future):** the same plan JSON can be saved and used to seed Admin canvas blocks or an import flow — not automated in the UI yet.
 - `POST /layout/generate-html` — JSON `{ "prompt": string, "catalogAllowlist": string[], "catalogReferenceBlocks"?: { "id": string, "label": string, "htmlSnippet": string }[], "extended_design_context"?: boolean, "spacing_enforcement"?: boolean }` → `{ "html": string, "title": string }`. **Layout workspace generative mode:** layout-oriented system prompt + theme guide + allowlist; optional **catalog reference blocks** carry published `sourceHtml` snippets from the client for @-mentioned components. Same normalization pipeline as `/canvas/generate-html` (fence strip, script removal, length cap; optional spacing second pass).
 - `POST /layout/generate` — JSON `{ "prompt": string, "systemContext"?: string }` → `{ "text": string }` (free-text; tutorials / optional)

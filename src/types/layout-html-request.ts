@@ -6,12 +6,17 @@ export type LayoutCatalogReferenceBlock = {
   htmlSnippet: string
 }
 
+export type ThemeSnapshotColors = {
+  colors?: Partial<Record<string, string>>
+}
+
 export type LayoutHtmlGenerateRequest = {
   prompt: string
   catalogAllowlist: string[]
   catalogReferenceBlocks?: LayoutCatalogReferenceBlock[]
   extended_design_context?: boolean
   spacing_enforcement?: boolean
+  theme_snapshot?: ThemeSnapshotColors
 }
 
 /** Per-snippet cap for Vertex context size (matches Python `LayoutCatalogReferenceBlock.htmlSnippet` max). */

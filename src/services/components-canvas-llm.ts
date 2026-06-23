@@ -31,6 +31,12 @@ export async function callComponentsCanvasPlan(
   if (body.canvas_references != null && body.canvas_references.length > 0) {
     payload.canvas_references = body.canvas_references
   }
+  if (body.theme_snapshot != null) {
+    payload.theme_snapshot = body.theme_snapshot
+  }
+  if (body.session_summary?.trim()) {
+    payload.session_summary = body.session_summary.trim()
+  }
   const res = await fetch(`${LAYOUT_LLM_BASE_URL}/canvas/plan`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

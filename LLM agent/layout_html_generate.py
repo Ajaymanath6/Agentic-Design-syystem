@@ -4,7 +4,13 @@ from __future__ import annotations
 
 from canvas_plan import TAILWIND_BRAND_CONTRACT
 from generative_spacing_intent import GENERATIVE_SPACING_INTENT_SECTION
-from layout_plan import LayoutHtmlRequestBody, load_theme_guide_snippet, load_tailwind_config_snippet
+from layout_plan import LayoutHtmlRequestBody
+from theme_context.assembler import (
+    assemble_theme_context,
+    format_theme_context_for_prompt,
+    load_tailwind_context_snippet,
+)
+from theme_context.models import snapshot_colors
 
 LAYOUT_HTML_CREATOR_SYSTEM = """You are an expert front-end developer for an internal **design-system admin** app (layout workspace).
 
@@ -66,15 +72,30 @@ def _format_catalog_reference_blocks(body: LayoutHtmlRequestBody) -> str:
 
 def build_layout_html_contents(body: LayoutHtmlRequestBody) -> str:
     """Full prompt string for generate_content."""
-    theme_max = 12000 if body.extended_design_context else 6000
-    theme_snippet = load_theme_guide_snippet(theme_max)
-
-    allow_lines = "\n".join(
-        f"- {a}" for a in body.catalogAllowlist[:800] if str(a).strip()
+    from theme_context.layout_helpers import (
+        format_allowlist_note,
+        trim_allowlist_for_prompt,
     )
+
+    bundle = assemble_theme_context(
+        body.prompt,
+        extended=body.extended_design_context,
+        theme_snapshot=snapshot_colors(body.theme_snapshot),
+    )
+
+    allow_for_prompt, trimmed = trim_allowlist_for_prompt(
+        body.catalogAllowlist,
+        body.prompt,
+    )
+    allow_lines = "\n".join(f"- {a}" for a in allow_for_prompt if str(a).strip())
     catalog_section = (
         allow_lines
         or "(no catalog ids sent — prefer theme-aligned generic layout)"
+    )
+    trim_note = format_allowlist_note(
+        trimmed,
+        len(allow_for_prompt),
+        len([a for a in body.catalogAllowlist if str(a).strip()]),
     )
 
     parts: list[str] = [
@@ -82,18 +103,25 @@ def build_layout_html_contents(body: LayoutHtmlRequestBody) -> str:
         TAILWIND_BRAND_CONTRACT.strip(),
         "Allowed catalog refs (prefer these names when embedding or describing components):",
         catalog_section,
-        "Theme guide JSON (reference for surfaces and typography):",
-        theme_snippet,
     ]
+    if trim_note:
+        parts.append(trim_note)
+    parts.extend(
+        format_theme_context_for_prompt(
+            bundle,
+            theme_heading="Theme guide JSON (reference for surfaces and typography):",
+        ),
+    )
 
     if body.extended_design_context:
-        tw = load_tailwind_config_snippet(10000)
-        parts.extend(
-            [
-                "Tailwind config (reference; truncated if huge):",
-                tw,
-            ]
-        )
+        tw = load_tailwind_context_snippet(extended=True)
+        if tw:
+            parts.extend(
+                [
+                    "Tailwind config (reference; truncated if huge):",
+                    tw,
+                ]
+            )
 
     ref_block = _format_catalog_reference_blocks(body)
     if ref_block:

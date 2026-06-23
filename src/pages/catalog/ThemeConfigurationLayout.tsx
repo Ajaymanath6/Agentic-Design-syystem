@@ -8,6 +8,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useCatalogSidebarCollapse } from '../../context/CatalogSidebarCollapseContext'
 import {
+  APP_SAVE_BUTTON,
   CATALOG_PAGE_TOOLBAR_BUTTON,
   HOME_PAGE_SHELL,
   HOME_PAGE_SHELL_COLLAPSED,
@@ -498,7 +499,7 @@ export function ThemeConfigurationLayout() {
               <button
                 type="button"
                 onClick={save}
-                className="inline-flex items-center gap-1.5 rounded-md border border-brandcolor-primary bg-brandcolor-primary px-3 py-1.5 text-theme-body-small-regular font-theme-semibold text-brandcolor-white hover:bg-brandcolor-primaryhover"
+                className={APP_SAVE_BUTTON}
               >
                 <RiSave3Line className="size-4 shrink-0" aria-hidden />
                 Save

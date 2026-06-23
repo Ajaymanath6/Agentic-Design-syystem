@@ -1,0 +1,6 @@
+# Optional: vector RAG (THEME_CONTEXT_MODE=rag). Base requirements.txt still required.
+-r requirements.txt
+langchain-core>=0.3.0
+langchain-chroma>=0.2.0
+langchain-google-vertexai>=2.0.0
+chromadb>=0.5.0

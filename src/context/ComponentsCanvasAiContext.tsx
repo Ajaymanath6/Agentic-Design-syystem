@@ -23,6 +23,7 @@ import {
 } from '../lib/canvas-node-llm-context'
 import { stripCanvasRefSentinels } from '../lib/canvas-prompt-sentinel'
 import { mapCanvasPlanToNewNodes } from '../lib/map-canvas-plan-to-nodes'
+import { buildThemeSnapshotForLlm } from '../lib/theme-snapshot-for-llm'
 import { callComponentsCanvasGenerateHtml } from '../services/components-canvas-html'
 import { callComponentsCanvasPlan } from '../services/components-canvas-llm'
 import type { CanvasPlanChatMessage } from '../types/components-canvas-plan-request'
@@ -211,6 +212,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
       setComponentsCanvasAddAsNewInstead(false)
       setComponentsPlanError(null)
       setComponentsPlanBusy(true)
+      const themeSnapshot = buildThemeSnapshotForLlm()
       try {
         let appended: CanvasNode[]
         if (componentsCanvasAiMode === 'htmlCreator') {
@@ -226,6 +228,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
             extended_design_context: extendedDesignContext,
             spacing_enforcement: spacingEnforcement,
             canvas_references: canvasRefs,
+            theme_snapshot: themeSnapshot,
           })
           if (planGenRef.current !== gen) {
             return { appended: [], error: null, replacedId: null }
@@ -266,6 +269,7 @@ export function ComponentsCanvasAiProvider({ children }: { children: ReactNode }
                 : undefined,
             extended_design_context: extendedDesignContext,
             canvas_references: canvasRefs,
+            theme_snapshot: themeSnapshot,
           })
           if (planGenRef.current !== gen) {
             return { appended: [], error: null, replacedId: null }

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-69c1e395-f738-4afb-a441-53adaaeb708f",
+  "component": "div",
+  "importId": "CanvasHtml69c1e395F7384afbA44153adaaeb708fComponent",
+  "data": {
+    "imageUrl": "/generated/canvas-html-69c1e395-f738-4afb-a441-53adaaeb708f-thumbnail.svg",
+    "imageAlt": "Fake Button",
+    "description": "drdhg",
+    "sealed": true,
+    "sourceHtml": "<button type=\"button\" class=\"rounded-md bg-brandcolor-primary text-brandcolor-white px-section py-tight hover:bg-brandcolor-primaryhover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brandcolor-primary\">\n  Primary Button\n</button>"
+  }
+}

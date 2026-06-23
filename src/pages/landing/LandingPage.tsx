@@ -25,7 +25,6 @@ import {
   FOOTER_COLUMNS,
   HERO,
   HERO_SCENE_SRC,
-  LANDING_ACCENT,
   LANDING_EDGE_PAD_PX,
   LANDING_INK,
   LANDING_FEATURE_CARD_BG,
@@ -43,7 +42,7 @@ import {
 const landingCtaBase =
   'font-landing-body inline-flex items-center justify-center rounded-[4px] text-sm font-normal transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-y-0'
 
-const landingCtaAccent = `${landingCtaBase} border border-[#EA4C00] bg-[#F84416] text-white shadow-[0_6px_20px_rgba(248,68,22,0.42),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_8px_24px_rgba(248,68,22,0.52),inset_0_1px_0_rgba(255,255,255,0.28)] active:shadow-[0_3px_8px_rgba(248,68,22,0.32),inset_0_2px_6px_rgba(0,0,0,0.12)]`
+const landingCtaStrong = `${landingCtaBase} border border-[#1A1A1A] bg-brandcolor-textstrong text-brandcolor-white shadow-[0_6px_20px_rgba(26,26,26,0.28),inset_0_1px_0_rgba(255,255,255,0.12)] hover:bg-[#292929] hover:shadow-[0_8px_24px_rgba(26,26,26,0.36),inset_0_1px_0_rgba(255,255,255,0.18)] active:shadow-[0_3px_8px_rgba(26,26,26,0.22),inset_0_2px_6px_rgba(0,0,0,0.2)]`
 
 const landingCtaNeutral = `${landingCtaBase} border border-[#dcdcdc] bg-white text-[#3d3d3d] shadow-[0_4px_14px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.95)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,1)] active:shadow-[0_2px_6px_rgba(0,0,0,0.08),inset_0_2px_4px_rgba(0,0,0,0.05)]`
 
@@ -84,7 +83,7 @@ function LandingNav() {
         </ul>
         <Link
           to="/catalog/home"
-          className={`${landingCtaAccent} shrink-0 px-4 py-1.5 text-sm`}
+          className={`${landingCtaStrong} shrink-0 px-4 py-1.5 text-sm font-medium`}
         >
           Get started
         </Link>
@@ -105,7 +104,7 @@ function HeroCtaButtons() {
       </Link>
       <Link
         to="/admin/canvas"
-        className={`${landingCtaAccent} min-w-[7.5rem] px-6 py-2.5 text-sm font-medium`}
+        className={`${landingCtaStrong} min-w-[7.5rem] px-6 py-2.5 text-sm font-medium`}
       >
         {HERO.ctaBuildUi}
       </Link>
@@ -123,7 +122,7 @@ function HeroProductCard() {
     >
       <img
         src={LANDING_PRODUCT_CARD_SRC}
-        alt={`${BRAND_NAME} — catalog, canvas, and component workflow preview`}
+        alt={`${BRAND_NAME} — component library catalog preview`}
         className="block w-full rounded-xl object-cover object-top"
         width={1024}
         height={574}
@@ -167,7 +166,7 @@ function HeroSection() {
           <HeroCtaButtons />
         </div>
       </div>
-
+          
       <div
         className="absolute bottom-0 left-0 right-0 z-20 px-4 sm:px-6"
         style={{
@@ -195,7 +194,10 @@ function PlatformIntroHeadline() {
         (PLATFORM_INTRO.titleAccentWords as readonly string[]).includes(
           part,
         ) ? (
-          <span key={`${part}-${index}`} style={{ color: LANDING_ACCENT }}>
+          <span
+            key={`${part}-${index}`}
+            style={{ color: LANDING_TEXT_MUTED }}
+          >
             {part}
           </span>
         ) : (
@@ -217,14 +219,14 @@ function PlatformSection() {
         <PlatformSectionSpiral />
       </div>
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="relative flex min-h-[22rem] flex-col items-end justify-center text-right lg:min-h-[38rem]">
+        <div className="relative flex min-h-[22rem] flex-col items-end justify-center lg:min-h-[38rem]">
           <PlatformSectionSpiralMobile />
-          <div className="relative z-10 ml-auto w-full max-w-xl xl:max-w-2xl">
-            <p className="font-landing-body text-xs font-normal uppercase tracking-[0.18em] text-[#a3a39a]">
-              {PLATFORM_INTRO.eyebrow}
-            </p>
+          <p className="font-landing-body relative z-10 mb-4 w-full text-center text-xs font-normal uppercase tracking-[0.18em] text-[#a3a39a]">
+            {PLATFORM_INTRO.eyebrow}
+          </p>
+          <div className="relative z-10 ml-auto w-full max-w-xl text-right xl:max-w-2xl">
             <h2
-              className="font-landing-heading mt-4 max-w-xl text-[2.5rem] font-medium leading-[1.15] tracking-tight"
+              className="font-landing-heading max-w-xl text-[2.5rem] font-medium leading-[1.15] tracking-tight"
               style={{ color: LANDING_INK }}
             >
               <PlatformIntroHeadline />
@@ -303,7 +305,7 @@ function LandingCtaSection() {
             <div className="pointer-events-auto mt-5 flex flex-wrap items-center justify-center gap-2 sm:mt-6 sm:gap-3">
               <Link
                 to="/catalog/home"
-                className={`${landingCtaAccent} gap-1.5 px-5 py-2.5 text-sm font-medium`}
+                className={`${landingCtaStrong} gap-1.5 px-5 py-2.5 text-sm font-medium`}
               >
                 {CTA_SECTION.primaryLabel}
                 <RiArrowRightLine className="size-4" aria-hidden />
@@ -400,6 +402,7 @@ function LandingFooter() {
           >
             © {new Date().getFullYear()} {BRAND_NAME}. All rights reserved.
           </p>
+          
           <p
             className="font-landing-body text-sm font-normal"
             style={{ color: LANDING_TEXT_MUTED }}

@@ -14,6 +14,7 @@ import { catalogCardSourceHtml } from '../lib/catalog-source-html'
 import { isCatalogLayoutEntry } from '../lib/catalog-layout-entry'
 import { buildCatalogAllowlist } from '../lib/layout-plan-catalog'
 import { sanitizeCanvasHtmlFragment } from '../lib/sanitize-canvas-html'
+import { buildThemeSnapshotForLlm } from '../lib/theme-snapshot-for-llm'
 import { callLayoutGenerateHtml, callLayoutPlan } from '../services/layout-llm'
 import {
   MAX_LAYOUT_CATALOG_REFERENCE_HTML_SNIPPET_CHARS,
@@ -165,6 +166,7 @@ export function LayoutWorkspaceProvider({ children }: { children: ReactNode }) {
           refBlocks.length > 0 ? refBlocks : undefined,
         extended_design_context: extendedLayoutDesignContext,
         spacing_enforcement: layoutHtmlSpacingEnforcement,
+        theme_snapshot: buildThemeSnapshotForLlm(),
       })
         .then((res) => {
           if (layoutHtmlGenRef.current !== gen) return
@@ -197,7 +199,9 @@ export function LayoutWorkspaceProvider({ children }: { children: ReactNode }) {
     setLayoutPlan(null)
     setLayoutPlanError(null)
     setLayoutPlanBusy(true)
-    void callLayoutPlan(promptForApi, catalogAllowlist)
+    void callLayoutPlan(promptForApi, catalogAllowlist, {
+      theme_snapshot: buildThemeSnapshotForLlm(),
+    })
       .then((plan) => {
         if (layoutPlanGenRef.current !== gen) return
         setLayoutPlan(plan)

@@ -7,11 +7,14 @@ from typing import Annotated, Literal, Union
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
-from layout_plan import (
-    extract_json_object,
-    load_tailwind_config_snippet,
-    load_theme_guide_snippet,
+from layout_plan import extract_json_object
+from theme_context.assembler import (
+    assemble_theme_context,
+    format_theme_context_for_prompt,
+    load_tailwind_context_snippet,
 )
+from theme_context.session_memory import compress_chat_messages_for_prompt
+from theme_context.models import ThemeSnapshotModel, snapshot_colors
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +127,15 @@ class CanvasPlanPromptBody(BaseModel):
     spacing_enforcement: bool = Field(
         default=False,
         description="Optional second Vertex pass: align class spacing utilities with theme tokens vs default gap-N/p-N.",
+    )
+    theme_snapshot: ThemeSnapshotModel | None = Field(
+        default=None,
+        description="Optional live hex overrides from Theme editor (palette block only).",
+    )
+    session_summary: str | None = Field(
+        default=None,
+        max_length=2000,
+        description="Compressed older chat turns; server may also compress long histories.",
     )
 
 
@@ -343,28 +355,40 @@ def _format_conversation_block(history: list[CanvasPlanChatMessage]) -> str:
 
 
 def build_canvas_plan_contents(body: CanvasPlanPromptBody) -> str:
-    theme_max = 12000 if body.extended_design_context else 6000
-    theme_snippet = load_theme_guide_snippet(theme_max)
+    bundle = assemble_theme_context(
+        body.prompt,
+        extended=body.extended_design_context,
+        theme_snapshot=snapshot_colors(body.theme_snapshot),
+    )
 
     parts: list[str] = [
         CANVAS_PLAN_SYSTEM,
         TAILWIND_BRAND_CONTRACT.strip(),
-        "Theme guide JSON (token reference; follow componentGuidelines for cards/buttons):",
-        theme_snippet,
+        *format_theme_context_for_prompt(
+            bundle,
+            theme_heading="Theme guide JSON (token reference; follow componentGuidelines for cards/buttons):",
+        ),
     ]
 
     if body.extended_design_context:
-        tw = load_tailwind_config_snippet(10000)
-        parts.extend(
-            [
-                "Tailwind config (reference; file may be truncated):",
-                tw,
-            ]
-        )
+        tw = load_tailwind_context_snippet(extended=True)
+        if tw:
+            parts.extend(
+                [
+                    "Tailwind config (reference; file may be truncated):",
+                    tw,
+                ]
+            )
 
     history = _normalize_chat_messages(body.messages)
-    if history:
-        parts.append(_format_conversation_block(history))
+    recent, summary_block = compress_chat_messages_for_prompt(
+        history,
+        session_summary=body.session_summary,
+    )
+    if summary_block:
+        parts.append(summary_block)
+    if recent:
+        parts.append(_format_conversation_block(recent))
 
     if body.canvas_references:
         ref_block = format_canvas_references_block(body.canvas_references)

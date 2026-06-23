@@ -4,6 +4,7 @@ import { TypographySettingModal } from '../../../components/TypographySettingMod
 import type { BrandColorKey } from '../../../config/brand-theme-colors'
 import { normalizeHexDisplay } from './brand-palette-display'
 import type { TokenColorHelpEntry } from './token-color-help'
+import { APP_SAVE_BUTTON_COMPACT } from '../../home/home-layout'
 import { themePanelSectionSurfaceClass } from './theme-panel-section-surface'
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
@@ -162,7 +163,7 @@ export function ThemeColorTokenCard({
           <button
             type="button"
             onClick={handleSave}
-            className="inline-flex shrink-0 items-center justify-center rounded-md bg-brandcolor-primary px-4 py-2 font-geist text-[14px] font-medium text-brandcolor-white transition-colors hover:bg-brandcolor-primaryhover focus:outline-none focus-visible:ring-2 focus-visible:ring-brandcolor-primary focus-visible:ring-offset-2 [font-family:var(--font-geist-stack)]"
+            className={APP_SAVE_BUTTON_COMPACT}
           >
             Save
           </button>

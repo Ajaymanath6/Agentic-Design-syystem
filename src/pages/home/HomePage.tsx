@@ -96,6 +96,7 @@ export function HomePage() {
           <button type="button" className={HOME_TOOLBAR_BUTTON}>
             Integrations
           </button>
+          
         </div>
       </div>
 

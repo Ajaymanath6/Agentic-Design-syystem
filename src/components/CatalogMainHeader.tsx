@@ -1,6 +1,7 @@
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useCanvasChrome } from '../context/CanvasChromeContext'
 import { CatalogBreadcrumbs } from './CatalogBreadcrumbs'
+import { HeaderUserMenu } from './HeaderUserMenu'
 import { SidebarExpandHeaderButton } from './SidebarExpandHeaderButton'
 
 function isAdminCanvasPath(pathname: string): boolean {
@@ -10,8 +11,6 @@ function isAdminCanvasPath(pathname: string): boolean {
     pathname.startsWith('/admin/canvas/')
   )
 }
-
-const PLACEHOLDER_USER_INITIALS = 'CU'
 
 /** Catalog / canvas top chrome: centered breadcrumbs, sidebar expand, canvas actions. */
 export function CatalogMainHeader() {
@@ -67,12 +66,7 @@ export function CatalogMainHeader() {
                 Connect MCP
               </span>
             </div>
-            <span
-              className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-brandcolor-strokeweak bg-brandcolor-fill text-[11px] font-semibold text-brandcolor-textstrong"
-              aria-label="User profile (placeholder)"
-            >
-              {PLACEHOLDER_USER_INITIALS}
-            </span>
+            <HeaderUserMenu />
           </div>
         </div>
       ) : (
@@ -81,7 +75,9 @@ export function CatalogMainHeader() {
             <SidebarExpandHeaderButton />
           </div>
           <CatalogBreadcrumbs />
-          <div className="w-9 shrink-0" aria-hidden />
+          <div className="flex justify-end">
+            <HeaderUserMenu />
+          </div>
         </div>
       )}
     </header>

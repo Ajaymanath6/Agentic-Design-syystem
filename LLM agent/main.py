@@ -41,8 +41,22 @@ from layout_plan import (
     LAYOUT_PLAN_SYSTEM,
     LayoutHtmlRequestBody,
     PlanRequestBody,
-    load_theme_guide_snippet,
     parse_and_validate_plan,
+)
+from theme_context.assembler import assemble_theme_context, format_theme_context_for_prompt
+from theme_context.layout_helpers import (
+    format_allowlist_note,
+    retrieve_layout_chunks,
+    trim_allowlist_for_prompt,
+)
+from theme_context.models import snapshot_colors
+from generate_code import (
+    AmbiguousCatalogNameError,
+    GenerateCodeBody,
+    catalog_lookup_ref,
+    is_catalog_fast_path,
+    list_catalog_display_names,
+    resolve_catalog_prompt,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -230,25 +244,51 @@ def generate_alias(body: GenerateBody) -> dict[str, Any]:
 
 def _layout_plan_impl(body: PlanRequestBody) -> dict[str, Any]:
     model = vertex_model()
-    theme_snippet = load_theme_guide_snippet()
-    allow_lines = "\n".join(
-        f"- {a}" for a in body.catalogAllowlist[:800] if str(a).strip()
+    bundle = assemble_theme_context(
+        body.prompt,
+        extended=False,
+        theme_snapshot=snapshot_colors(body.theme_snapshot),
     )
+    allow_for_prompt, trimmed = trim_allowlist_for_prompt(
+        body.catalogAllowlist,
+        body.prompt,
+    )
+    allow_lines = "\n".join(f"- {a}" for a in allow_for_prompt if str(a).strip())
     catalog_section = (
         allow_lines
         or "(no catalog ids sent — output chrome blocks only or set ref to a known id next time)"
     )
-    contents = "\n\n".join(
+    trim_note = format_allowlist_note(
+        trimmed,
+        len(allow_for_prompt),
+        len([a for a in body.catalogAllowlist if str(a).strip()]),
+    )
+    layout_chunks = retrieve_layout_chunks(body.prompt)
+    layout_extra = ""
+    if layout_chunks:
+        layout_extra = "\n\n---\n\n".join(c.text for c in layout_chunks)
+
+    theme_parts = format_theme_context_for_prompt(
+        bundle,
+        theme_heading="Theme guide JSON (token reference only; never output raw HTML):",
+    )
+    contents_parts: list[str] = [
+        LAYOUT_PLAN_SYSTEM,
+        "Allowed catalog refs (match `ref` to one of these strings):",
+        catalog_section,
+    ]
+    if trim_note:
+        contents_parts.append(trim_note)
+    contents_parts.extend(theme_parts)
+    if layout_extra:
+        contents_parts.append(f"Layout/spacing context:\n{layout_extra}")
+    contents_parts.extend(
         [
-            LAYOUT_PLAN_SYSTEM,
-            "Allowed catalog refs (match `ref` to one of these strings):",
-            catalog_section,
-            "Theme guide JSON (token reference only; never output raw HTML):",
-            theme_snippet,
             "User request:",
             body.prompt.strip(),
         ]
     )
+    contents = "\n\n".join(contents_parts)
     try:
         client = get_genai_client()
     except Exception as e:
@@ -461,3 +501,45 @@ def _layout_generate_html_impl(body: LayoutHtmlRequestBody) -> dict[str, Any]:
 def layout_generate_html(body: LayoutHtmlRequestBody) -> dict[str, Any]:
     """Sanitized HTML fragment for layout workspace (parallel to /canvas/generate-html)."""
     return _layout_generate_html_impl(body)
+
+
+@app.post("/generate-code")
+def generate_code(body: GenerateCodeBody) -> dict[str, str]:
+    """
+    VS Code a2ui-generator bridge: catalog id/name → published sourceHtml; NL → canvas HTML.
+    Response shape matches extension contract: { "code": string }.
+    """
+    prompt = body.prompt.strip()
+    if not prompt:
+        raise HTTPException(status_code=422, detail="prompt is required")
+
+    ref = catalog_lookup_ref(body, prompt)
+    try:
+        html = resolve_catalog_prompt(ref)
+    except AmbiguousCatalogNameError as e:
+        options = [
+            f"{m.display_name!r} (id={m.catalog_id})" for m in e.matches
+        ]
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Multiple catalog components match name {e.name!r}: "
+                + "; ".join(options)
+            ),
+        ) from e
+
+    if html:
+        return {"code": html}
+
+    if is_catalog_fast_path(body, prompt):
+        names = list_catalog_display_names()[:12]
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"No component named {ref!r}. "
+                f"Published names include: {names}"
+            ),
+        )
+
+    result = _canvas_generate_html_impl(CanvasPlanPromptBody(prompt=prompt))
+    return {"code": str(result["html"])}

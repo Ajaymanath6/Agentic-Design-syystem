@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import unittest
 
 from canvas_plan import (
@@ -14,6 +15,16 @@ from canvas_plan import (
 
 
 class TestBuildCanvasPlanContents(unittest.TestCase):
+    def setUp(self) -> None:
+        self._prev = os.environ.get("THEME_CONTEXT_MODE")
+        os.environ["THEME_CONTEXT_MODE"] = "smart"
+
+    def tearDown(self) -> None:
+        if self._prev is None:
+            os.environ.pop("THEME_CONTEXT_MODE", None)
+        else:
+            os.environ["THEME_CONTEXT_MODE"] = self._prev
+
     def test_prompt_only_has_latest_user_request(self) -> None:
         body = CanvasPlanPromptBody(prompt="add a card")
         text = build_canvas_plan_contents(body)
@@ -40,7 +51,12 @@ class TestBuildCanvasPlanContents(unittest.TestCase):
         body = CanvasPlanPromptBody(prompt="go", extended_design_context=True)
         text = build_canvas_plan_contents(body)
         self.assertIn("Tailwind config (reference", text)
-        self.assertIn("tailwind.config", text.lower())
+        self.assertIn("theme.extend", text.lower())
+
+    def test_smart_mode_includes_palette(self) -> None:
+        body = CanvasPlanPromptBody(prompt="primary card")
+        text = build_canvas_plan_contents(body)
+        self.assertIn("Current brand palette", text)
 
     def test_canvas_references_before_latest_request(self) -> None:
         body = CanvasPlanPromptBody(

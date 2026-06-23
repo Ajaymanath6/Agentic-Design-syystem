@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "id": "canvas-html-81633c9b-b279-4e97-ae77-11f65ccde5ef",
+  "component": "div",
+  "importId": "CanvasHtml81633c9bB2794e97Ae7711f65ccde5efComponent",
+  "data": {
+    "imageUrl": "/generated/canvas-html-81633c9b-b279-4e97-ae77-11f65ccde5ef-thumbnail.svg",
+    "imageAlt": "creatcanotehr",
+    "description": "dzvvasva",
+    "sealed": true,
+    "sourceHtml": "<div class=\"rounded-lg border border-brandcolor-strokeweak bg-brandcolor-white shadow-card p-card-pad-default flex flex-col gap-card-gap-default\">\n  <div class=\"flex flex-col gap-micro\">\n    <h3 class=\"text-brandcolor-textstrong text-lg font-semibold\">Component Title</h3>\n    <p class=\"text-brandcolor-textweak text-sm\">Subtitle for the component</p>\n  </div>\n  <p class=\"text-brandcolor-textweak text-base\">\n    This paragraph contains descriptive text, explaining the purpose or details\n    related to the content of this card. It provides context to the user.\n  </p>\n  <div class=\"flex gap-micro\">\n    <button type=\"button\" class=\"px-cozy py-tight rounded-md bg-brandcolor-fill text-brandcolor-textstrong hover:bg-brandcolor-neutralhover\">\n      Neutral Button\n    </button>\n    <button type=\"button\" class=\"px-cozy py-tight rounded-md bg-brandcolor-primary text-brandcolor-white hover:bg-brandcolor-primaryhover\">\n      Primary Button\n    </button>\n  </div>\n</div>"
+  }
+}

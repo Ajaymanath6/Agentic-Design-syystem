@@ -10,6 +10,8 @@ from typing import Annotated, Any, Literal, Union, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from theme_context.models import ThemeSnapshotModel
+
 logger = logging.getLogger(__name__)
 
 ALLOWED_THEME_KEYS: frozenset[str] = frozenset(
@@ -200,46 +202,12 @@ class LayoutPlanV1Model(BaseModel):
     blocks: list[PlanBlock]
 
 
-def theme_guide_path_default() -> str:
-    override = os.environ.get("THEME_GUIDE_PATH", "").strip()
-    if override:
-        return os.path.abspath(os.path.expanduser(override))
-    here = os.path.dirname(os.path.abspath(__file__))
-    return os.path.normpath(os.path.join(here, "..", "src", "config", "theme-guide.json"))
-
-
-def load_theme_guide_snippet(max_chars: int = 6000) -> str:
-    path = theme_guide_path_default()
-    try:
-        with open(path, encoding="utf-8") as f:
-            raw = f.read()
-    except OSError as e:
-        logger.warning("Could not read theme guide at %s: %s", path, e)
-        return "(theme guide not available on server)"
-    if len(raw) <= max_chars:
-        return raw
-    return raw[:max_chars] + "\n... (truncated)"
-
-
-def tailwind_config_path_default() -> str:
-    override = os.environ.get("TAILWIND_CONFIG_PATH", "").strip()
-    if override:
-        return os.path.abspath(os.path.expanduser(override))
-    here = os.path.dirname(os.path.abspath(__file__))
-    return os.path.normpath(os.path.join(here, "..", "tailwind.config.js"))
-
-
-def load_tailwind_config_snippet(max_chars: int = 10000) -> str:
-    path = tailwind_config_path_default()
-    try:
-        with open(path, encoding="utf-8") as f:
-            raw = f.read()
-    except OSError as e:
-        logger.warning("Could not read tailwind config at %s: %s", path, e)
-        return "(tailwind.config.js not available on server)"
-    if len(raw) <= max_chars:
-        return raw
-    return raw[:max_chars] + "\n... (truncated)"
+from theme_context.file_loaders import (
+    load_tailwind_config_snippet,
+    load_theme_guide_snippet,
+    tailwind_config_path_default,
+    theme_guide_path_default,
+)
 
 
 def extract_json_object(text: str) -> dict[str, Any]:
@@ -461,6 +429,10 @@ class PlanRequestBody(BaseModel):
 
     prompt: str = Field(..., min_length=1, max_length=32000)
     catalogAllowlist: list[str] = Field(default_factory=list, max_length=2000)
+    theme_snapshot: ThemeSnapshotModel | None = Field(
+        default=None,
+        description="Optional live hex overrides from Theme editor (palette block only).",
+    )
 
 
 class LayoutCatalogReferenceBlock(BaseModel):
@@ -486,3 +458,4 @@ class LayoutHtmlRequestBody(BaseModel):
     )
     extended_design_context: bool = Field(default=False)
     spacing_enforcement: bool = Field(default=False)
+    theme_snapshot: ThemeSnapshotModel | None = Field(default=None)
