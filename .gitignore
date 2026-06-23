@@ -17,6 +17,9 @@ dist-ssr
 # LLM agent vector index (local)
 LLM agent/.rag-index/
 
+# Vercel shim build output (copied from repo-root dist/)
+mcp-server/dist/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

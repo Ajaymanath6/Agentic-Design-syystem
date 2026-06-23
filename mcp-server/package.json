@@ -1,0 +1,6 @@
+{
+  "name": "agentic-vercel-entry",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Vercel Root Directory shim — builds the Vite app from the repository root."
+}
